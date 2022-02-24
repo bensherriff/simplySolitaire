@@ -27,14 +27,14 @@ class GameScreenState extends State<GameScreen> {
   List<List<PlayingCard>> cardColumns = List.generate(7, (index) => []);
 
   // Stores the card deck
-  List<PlayingCard> cardDeckClosed = [];
   List<PlayingCard> cardDeckOpened = [];
+  List<PlayingCard> cardDeckClosed = [];
 
   // Stores the card in the upper boxes
-  List<PlayingCard> finalHeartsDeck = [];
-  List<PlayingCard> finalDiamondsDeck = [];
   List<PlayingCard> finalSpadesDeck = [];
+  List<PlayingCard> finalHeartsDeck = [];
   List<PlayingCard> finalClubsDeck = [];
+  List<PlayingCard> finalDiamondsDeck = [];
 
   MoveStack moves = MoveStack();
 
@@ -57,6 +57,9 @@ class GameScreenState extends State<GameScreen> {
         appBar: Utilities.baseAppBar(appBarWidgets()),
         body: Column(
           children: <Widget>[
+            const SizedBox(
+              height: 60.0,
+            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: <Widget>[
@@ -127,17 +130,16 @@ class GameScreenState extends State<GameScreen> {
     return Row(
       children: <Widget>[
         InkWell(
-          child: cardDeckClosed.isNotEmpty
-              ? Padding(
+          child: cardDeckClosed.isNotEmpty ? Padding(
             padding: const EdgeInsets.all(4.0),
             child: TransformedCard(
               playingCard: cardDeckClosed.last,
               attachedCards: [],
               onClick: (List<PlayingCard> cards, int currentColumnIndex) {
               },
+              columnIndex: 8
             ),
-          )
-              : Opacity(
+          ) : Opacity(
             opacity: 0.4,
             child: Padding(
               padding: const EdgeInsets.all(4.0),
@@ -147,8 +149,8 @@ class GameScreenState extends State<GameScreen> {
                   cardType: CardType.ace,
                 ),
                 attachedCards: [],
-                onClick: (List<PlayingCard> cards, int currentColumnIndex) {
-                },
+                onClick: (List<PlayingCard> cards, int currentColumnIndex) {},
+                columnIndex: 8
               ),
             ),
           ),
@@ -158,22 +160,27 @@ class GameScreenState extends State<GameScreen> {
                 cardDeckClosed.addAll(cardDeckOpened.map((card) {
                   return card
                     ..opened = false
-                    ..faceUp = false;
+                    ..faceUp = false
+                    ..clickable = false;
                 }));
                 cardDeckOpened.clear();
               } else {
-                cardDeckOpened.add(
-                  cardDeckClosed.removeLast()
-                    ..faceUp = true
-                    ..opened = true
-                    ..clickable = true
+                PlayingCard card = cardDeckClosed.removeAt(0)
+                  ..faceUp = true
+                  ..opened = true
+                  ..clickable = true;
+                cardDeckOpened.add(card);
+                Move move = Move(
+                  cards: [card],
+                  previousColumnIndex: 8,
+                  newColumnIndex: 7
                 );
+                moves.push(move);
               }
             });
           },
         ),
-        cardDeckOpened.isNotEmpty
-            ? Padding(
+        cardDeckOpened.isNotEmpty ? Padding(
           padding: const EdgeInsets.all(4.0),
           child: TransformedCard(
             playingCard: cardDeckOpened.last,
@@ -185,8 +192,7 @@ class GameScreenState extends State<GameScreen> {
             },
             columnIndex: 7,
           ),
-        )
-            : Container(
+        ) : Container(
           width: 40.0,
         ),
       ],
@@ -203,17 +209,6 @@ class GameScreenState extends State<GameScreen> {
             cardSuit: CardSuit.spades,
             cardsAdded: finalSpadesDeck,
             onCardAdded: (cards, currentColumnIndex) {
-              handleCardsAdded(cards, currentColumnIndex, 8);
-            },
-            columnIndex: 8,
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(4.0),
-          child: FinalCardDeck(
-            cardSuit: CardSuit.hearts,
-            cardsAdded: finalHeartsDeck,
-            onCardAdded: (cards, currentColumnIndex) {
               handleCardsAdded(cards, currentColumnIndex, 9);
             },
             columnIndex: 9,
@@ -222,8 +217,8 @@ class GameScreenState extends State<GameScreen> {
         Padding(
           padding: const EdgeInsets.all(4.0),
           child: FinalCardDeck(
-            cardSuit: CardSuit.clubs,
-            cardsAdded: finalClubsDeck,
+            cardSuit: CardSuit.hearts,
+            cardsAdded: finalHeartsDeck,
             onCardAdded: (cards, currentColumnIndex) {
               handleCardsAdded(cards, currentColumnIndex, 10);
             },
@@ -233,12 +228,23 @@ class GameScreenState extends State<GameScreen> {
         Padding(
           padding: const EdgeInsets.all(4.0),
           child: FinalCardDeck(
-            cardSuit: CardSuit.diamonds,
-            cardsAdded: finalDiamondsDeck,
+            cardSuit: CardSuit.clubs,
+            cardsAdded: finalClubsDeck,
             onCardAdded: (cards, currentColumnIndex) {
               handleCardsAdded(cards, currentColumnIndex, 11);
             },
             columnIndex: 11,
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(4.0),
+          child: FinalCardDeck(
+            cardSuit: CardSuit.diamonds,
+            cardsAdded: finalDiamondsDeck,
+            onCardAdded: (cards, currentColumnIndex) {
+              handleCardsAdded(cards, currentColumnIndex, 12);
+            },
+            columnIndex: 12,
           ),
         ),
       ],
@@ -343,9 +349,16 @@ class GameScreenState extends State<GameScreen> {
         52) {
       handleWin();
     }
+    List<PlayingCard> list = getListFromIndex(index);
     setState(() {
-      if (getListFromIndex(index).isNotEmpty) {
-        getListFromIndex(index)[getListFromIndex(index).length - 1]
+      if (list.isNotEmpty) {
+        for (int i = 0; i < list.length - 1; i ++) {
+          list[i]
+            ..opened = false
+            ..faceUp = false
+            ..clickable = false;
+        }
+        list[list.length - 1]
           ..opened = true
           ..faceUp = true
           ..clickable = true;
@@ -392,10 +405,23 @@ class GameScreenState extends State<GameScreen> {
   }
 
   void handleCardsUndo(Move move) {
+    List<PlayingCard> previousColumn = getListFromIndex(move.previousColumnIndex);
+    List<PlayingCard> newColumn = getListFromIndex(move.newColumnIndex);
+    int length = newColumn.length;
+
     setState(() {
-      getListFromIndex(move.previousColumnIndex).addAll(move.cards);
-      int length = getListFromIndex(move.newColumnIndex).length;
-      getListFromIndex(move.newColumnIndex).removeRange(length - move.cards.length, length);
+      if (move.previousColumnIndex == 8) {
+        previousColumn.insertAll(0, move.cards.map((card) {
+          return card
+            ..opened = false
+            ..faceUp = false
+            ..clickable = false;
+        }));
+      } else {
+        previousColumn.addAll(move.cards);
+        refreshList(move.previousColumnIndex);
+      }
+      newColumn.removeRange(length - move.cards.length, length);
       refreshList(move.newColumnIndex);
     });
   }
@@ -436,29 +462,29 @@ class GameScreenState extends State<GameScreen> {
     // Check final deck columns
     if (card.cardType == CardType.ace) {
       if (card.cardSuit == CardSuit.spades) {
-        validColumns.add(8);
-      } else if (card.cardSuit == CardSuit.hearts) {
         validColumns.add(9);
-      } else if (card.cardSuit == CardSuit.clubs) {
+      } else if (card.cardSuit == CardSuit.hearts) {
         validColumns.add(10);
-      } else if (card.cardSuit == CardSuit.diamonds) {
+      } else if (card.cardSuit == CardSuit.clubs) {
         validColumns.add(11);
+      } else if (card.cardSuit == CardSuit.diamonds) {
+        validColumns.add(12);
       }
     } if (card.cardSuit == CardSuit.spades) {
-      if (getListFromIndex(8).isNotEmpty && card.cardType.value - getListFromIndex(8).last.cardType.value == 1) {
-        validColumns.add(8);
-      }
-    } else if (card.cardSuit == CardSuit.hearts) {
       if (getListFromIndex(9).isNotEmpty && card.cardType.value - getListFromIndex(9).last.cardType.value == 1) {
         validColumns.add(9);
       }
-    } else if (card.cardSuit == CardSuit.clubs) {
+    } else if (card.cardSuit == CardSuit.hearts) {
       if (getListFromIndex(10).isNotEmpty && card.cardType.value - getListFromIndex(10).last.cardType.value == 1) {
         validColumns.add(10);
       }
-    } else if (card.cardSuit == CardSuit.diamonds) {
+    } else if (card.cardSuit == CardSuit.clubs) {
       if (getListFromIndex(11).isNotEmpty && card.cardType.value - getListFromIndex(11).last.cardType.value == 1) {
         validColumns.add(11);
+      }
+    } else if (card.cardSuit == CardSuit.diamonds) {
+      if (getListFromIndex(12).isNotEmpty && card.cardType.value - getListFromIndex(12).last.cardType.value == 1) {
+        validColumns.add(12);
       }
     }
 
@@ -472,7 +498,7 @@ class GameScreenState extends State<GameScreen> {
     }
 
     var validColumnsSet = validColumns.toSet();
-    var finalDeckSet = {8, 9, 10, 11};
+    var finalDeckSet = {9, 10, 11, 12};
 
     var resultSet = validColumnsSet.intersection(finalDeckSet);
     if (resultSet.length == 1) {
@@ -503,12 +529,14 @@ class GameScreenState extends State<GameScreen> {
       case 7:
         return cardDeckOpened;
       case 8:
-        return finalSpadesDeck;
+        return cardDeckClosed;
       case 9:
-        return finalHeartsDeck;
+        return finalSpadesDeck;
       case 10:
-        return finalClubsDeck;
+        return finalHeartsDeck;
       case 11:
+        return finalClubsDeck;
+      case 12:
         return finalDiamondsDeck;
       default:
         return [];

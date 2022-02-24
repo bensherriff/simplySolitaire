@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:solitaire/utilities.dart';
 import 'playing_card.dart';
 import 'transformed_card.dart';
 
@@ -33,9 +34,9 @@ class CardColumnState extends State<CardColumn> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      //alignment: Alignment.topCenter,
-      height: 13.0 * 15.0,
-      width: 70.0,
+      // alignment: Alignment.topCenter,
+      height: 13.0 * (Utilities.cardHeight/4),
+      width: Utilities.cardWidth + 30,
       margin: const EdgeInsets.all(2.0),
       child: DragTarget<Map>(
         builder: (context, listOne, listTwo) {
@@ -55,15 +56,20 @@ class CardColumnState extends State<CardColumn> {
           );
         },
         onWillAccept: (value) {
-          // If empty, accept
-          if (widget.cards.isEmpty) {
-            return true;
-          }
-
           // Get dragged cards list
           if (value != null) {
             List<PlayingCard> draggedCards = value["cards"];
             PlayingCard firstCard = draggedCards.first;
+
+            // If empty and king, accept
+            if (widget.cards.isEmpty) {
+              if (firstCard.cardType == CardType.king) {
+                return true;
+              } else {
+                return false;
+              }
+            }
+
             if (firstCard.cardColor == CardColor.red) {
               if (widget.cards.last.cardColor == CardColor.red) {
                 return false;
@@ -95,7 +101,7 @@ class CardColumnState extends State<CardColumn> {
         onAccept: (value) {
           widget.onCardsAdded(
             value["cards"],
-            value["fromIndex"],
+            value["currentColumnIndex"],
           );
         },
       ),

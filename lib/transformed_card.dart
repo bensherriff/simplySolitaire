@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'card_column.dart';
 import 'playing_card.dart';
+import 'utilities.dart';
 
 typedef CardClickCallback = Null Function(List<PlayingCard> cards, int currentColumnIndex);
 
@@ -18,7 +19,7 @@ class TransformedCard extends StatefulWidget {
     required this.playingCard,
     required this.attachedCards,
     required this.onClick,
-    this.transformDistance = 15.0,
+    this.transformDistance = Utilities.cardHeight/4,
     this.transformIndex = 0,
     this.columnIndex = -1
   });
@@ -44,8 +45,8 @@ class TransformedCardState extends State<TransformedCard> {
   Widget buildCardClickable() {
     if (widget.playingCard.clickable) {
       return !widget.playingCard.faceUp ? Container(
-        height: 60.0,
-        width: 40.0,
+        height: Utilities.cardHeight,
+        width: Utilities.cardWidth,
         decoration: BoxDecoration(
           color: Colors.blue,
           border: Border.all(color: Colors.black),
@@ -62,8 +63,8 @@ class TransformedCardState extends State<TransformedCard> {
 
   Widget buildCard() {
     return !widget.playingCard.faceUp ? Container(
-      height: 60.0,
-      width: 40.0,
+      height: Utilities.cardHeight,
+      width: Utilities.cardWidth,
       decoration: BoxDecoration(
         color: Colors.blue,
         border: Border.all(color: Colors.black),
@@ -80,7 +81,7 @@ class TransformedCardState extends State<TransformedCard> {
       childWhenDragging: buildFaceUpCard(),
       data: {
         "cards": widget.attachedCards,
-        "fromIndex": widget.columnIndex,
+        "currentColumnIndex": widget.columnIndex,
       },
     );
   }
@@ -94,8 +95,8 @@ class TransformedCardState extends State<TransformedCard> {
           color: Colors.white,
           border: Border.all(color: Colors.black),
         ),
-        height: 60.0,
-        width: 40,
+        height: Utilities.cardHeight,
+        width: Utilities.cardWidth,
         child: Stack(
           children: <Widget>[
             Center(
