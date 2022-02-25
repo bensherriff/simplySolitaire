@@ -35,7 +35,7 @@ class Utilities {
   static menuIcon() {
     return IconButton(
       onPressed: () {
-        Get.to(() => MenuScreen());
+        Get.to(() => const MenuScreen());
       }, icon: Icon(
         Icons.menu,
         color: textColor,

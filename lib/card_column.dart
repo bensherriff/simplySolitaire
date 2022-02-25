@@ -19,12 +19,12 @@ class CardColumn extends StatefulWidget {
   final int columnIndex;
 
 
-  CardColumn({
+  const CardColumn({Key? key,
     required this.cards,
     required this.onCardsAdded,
     required this.onClick,
     required this.columnIndex,
-  });
+  }) : super(key: key);
 
   @override
   CardColumnState createState() => CardColumnState();

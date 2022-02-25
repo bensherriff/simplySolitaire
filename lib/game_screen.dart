@@ -134,7 +134,7 @@ class GameScreenState extends State<GameScreen> {
             padding: const EdgeInsets.all(4.0),
             child: TransformedCard(
               playingCard: cardDeckClosed.last,
-              attachedCards: [],
+              attachedCards: const [],
               onClick: (List<PlayingCard> cards, int currentColumnIndex) {
               },
               columnIndex: 8
@@ -148,7 +148,7 @@ class GameScreenState extends State<GameScreen> {
                   cardSuit: CardSuit.spades,
                   cardType: CardType.ace,
                 ),
-                attachedCards: [],
+                attachedCards: const [],
                 onClick: (List<PlayingCard> cards, int currentColumnIndex) {},
                 columnIndex: 8
               ),

@@ -11,12 +11,12 @@ class FinalCardDeck extends StatefulWidget {
   final CardAcceptCallback onCardAdded;
   final int columnIndex;
 
-  FinalCardDeck({
+  const FinalCardDeck({Key? key,
     required this.cardSuit,
     required this.cardsAdded,
     required this.onCardAdded,
     this.columnIndex = -1,
-  });
+  }) : super(key: key);
 
   @override
   FinalCardDeckState createState() => FinalCardDeckState();
