@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:solitaire/utilities.dart';
 import 'card_column.dart';
 import 'playing_card.dart';
 import 'transformed_card.dart';
@@ -34,8 +35,8 @@ class FinalCardDeckState extends State<FinalCardDeck> {
               borderRadius: BorderRadius.circular(8.0),
               color: Colors.white,
             ),
-            height: 60.0,
-            width: 40,
+            height: Utilities.cardHeight,
+            width: Utilities.cardWidth,
             child: Center(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -77,7 +78,7 @@ class FinalCardDeckState extends State<FinalCardDeck> {
       onAccept: (value) {
         widget.onCardAdded(
           value["cards"],
-          value["fromIndex"],
+          value["currentColumnIndex"],
         );
       },
     );

@@ -1,10 +1,8 @@
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:solitaire/utilities.dart';
 import 'controller.dart';
-import 'playing_card.dart';
 import 'game_screen.dart';
 
 class MenuScreen extends StatefulWidget {
@@ -38,7 +36,7 @@ class MenuScreenState extends State<MenuScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: const <Widget>[
                   Padding(
-                    padding: EdgeInsets.fromLTRB(0,100,0,100),
+                    padding: EdgeInsets.fromLTRB(0,100,0,16),
                     child: Text(Utilities.applicationName,
                         style: TextStyle(
                             fontSize: 36.0,
@@ -46,6 +44,20 @@ class MenuScreenState extends State<MenuScreen> {
                         ))
                   )
                 ]
+              ),const SizedBox(
+                height: 16.0,
+              ),
+              Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: <Widget>[
+                    Text("Created by Benjamin Sherriff",
+                      style: TextStyle(
+                          color: Utilities.textColor
+                      ),)
+                  ]
+              ),
+              const SizedBox(
+                height: 100.0,
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -70,7 +82,7 @@ class MenuScreenState extends State<MenuScreen> {
                   children: <Widget>[
                     replayGame()
                   ]
-              )
+              ),
             ],
           )
         ]
