@@ -1,6 +1,9 @@
 # solitaire
 
-A new Flutter project.
+A simple solitaire app
+
+[Privacy Policy](
+https://www.privacypolicygenerator.info/live.php?token=t53riBunWQXE55gxYLBVma7JrtD9N7Pb)
 
 ## Getting Started
 

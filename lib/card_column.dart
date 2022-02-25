@@ -35,7 +35,7 @@ class CardColumnState extends State<CardColumn> {
   Widget build(BuildContext context) {
     return Container(
       // alignment: Alignment.topCenter,
-      height: 13.0 * (Utilities.cardHeight/4),
+      height: (12.0 * (Utilities.cardHeight/4)) + Utilities.cardHeight,
       width: Utilities.cardWidth + 30,
       margin: const EdgeInsets.all(2.0),
       child: DragTarget<Map>(
@@ -63,7 +63,7 @@ class CardColumnState extends State<CardColumn> {
 
             // If empty and king, accept
             if (widget.cards.isEmpty) {
-              if (firstCard.cardType == CardType.king) {
+              if (firstCard.rank == CardRank.king) {
                 return true;
               } else {
                 return false;
@@ -75,8 +75,8 @@ class CardColumnState extends State<CardColumn> {
                 return false;
               }
 
-              int lastColumnCardIndex = CardType.values.indexOf(widget.cards.last.cardType);
-              int firstDraggedCardIndex = CardType.values.indexOf(firstCard.cardType);
+              int lastColumnCardIndex = CardRank.values.indexOf(widget.cards.last.rank);
+              int firstDraggedCardIndex = CardRank.values.indexOf(firstCard.rank);
 
               if(lastColumnCardIndex != firstDraggedCardIndex + 1) {
                 return false;
@@ -87,8 +87,8 @@ class CardColumnState extends State<CardColumn> {
                 return false;
               }
 
-              int lastColumnCardIndex = CardType.values.indexOf(widget.cards.last.cardType);
-              int firstDraggedCardIndex = CardType.values.indexOf(firstCard.cardType);
+              int lastColumnCardIndex = CardRank.values.indexOf(widget.cards.last.rank);
+              int firstDraggedCardIndex = CardRank.values.indexOf(firstCard.rank);
 
               if(lastColumnCardIndex != firstDraggedCardIndex + 1) {
                 return false;

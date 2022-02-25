@@ -65,8 +65,8 @@ class FinalCardDeckState extends State<FinalCardDeck> {
       onWillAccept: (value) {
         if (value != null) {
           PlayingCard cardAdded = value["cards"].last;
-          if (cardAdded.cardSuit == widget.cardSuit) {
-            if (CardType.values.indexOf(cardAdded.cardType) ==
+          if (cardAdded.suit == widget.cardSuit) {
+            if (CardRank.values.indexOf(cardAdded.rank) ==
                 widget.cardsAdded.length) {
               return true;
             }

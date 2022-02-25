@@ -4,12 +4,19 @@ class Move {
   List<PlayingCard> cards;
   int newColumnIndex;
   int previousColumnIndex;
+  bool flippedNewCard;
 
   Move({
     required this.cards,
     required this.newColumnIndex,
-    required this.previousColumnIndex
+    required this.previousColumnIndex,
+    required this.flippedNewCard,
   });
+
+  @override
+  String toString() {
+    return "{cards: $cards, newColumnIndex: $newColumnIndex, previousColumnIndex: $previousColumnIndex, flippedNewCard: $flippedNewCard}";
+  }
 }
 
 class MoveStack {

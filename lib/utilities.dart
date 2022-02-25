@@ -22,7 +22,11 @@ class Utilities {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
           menuIcon(),
-          const Text(applicationName)
+          const Text(applicationName,
+            style: TextStyle(
+              fontSize: 26
+            ),
+          )
         ],
       ),
       elevation: 0.0,
@@ -39,6 +43,7 @@ class Utilities {
       }, icon: Icon(
         Icons.menu,
         color: textColor,
+        size: 36.0,
       ),
     );
   }

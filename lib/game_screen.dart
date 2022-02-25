@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -24,17 +25,17 @@ class GameScreen extends StatefulWidget {
 class GameScreenState extends State<GameScreen> {
 
   // Stores the cards on the seven columns
-  List<List<PlayingCard>> cardColumns = List.generate(7, (index) => []);
+  List<List<PlayingCard>> columns = List.generate(7, (index) => []);
 
   // Stores the card deck
-  List<PlayingCard> cardDeckOpened = [];
-  List<PlayingCard> cardDeckClosed = [];
+  List<PlayingCard> wasteDeck = [];
+  List<PlayingCard> stockDeck = [];
 
   // Stores the card in the upper boxes
-  List<PlayingCard> finalSpadesDeck = [];
-  List<PlayingCard> finalHeartsDeck = [];
-  List<PlayingCard> finalClubsDeck = [];
-  List<PlayingCard> finalDiamondsDeck = [];
+  List<PlayingCard> spadesFoundation = [];
+  List<PlayingCard> heartsFoundation = [];
+  List<PlayingCard> clubsFoundation = [];
+  List<PlayingCard> diamondsFoundation = [];
 
   MoveStack moves = MoveStack();
 
@@ -63,8 +64,9 @@ class GameScreenState extends State<GameScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: <Widget>[
-                buildFinalDecks(),
-                buildCardDeck(),
+                buildFoundationDecks(),
+                buildStockDeck(),
+                buildWasteDeck()
               ],
             ),
             const SizedBox(
@@ -85,14 +87,27 @@ class GameScreenState extends State<GameScreen> {
     List<Widget> widgets = [];
     if (moves.isNotEmpty) {
       widgets.add(
-          IconButton(
-          icon: const Icon(Icons.chevron_left),
-          onPressed: () {
-            Move? lastMove = moves.pop();
-            if (lastMove != null) {
-              handleCardsUndo(lastMove);
-            }
-          },
+        Material(
+          type: MaterialType.transparency,
+          child: Ink(
+            child: InkWell(
+              borderRadius: BorderRadius.circular(1000.0),
+              onTap: () {
+                Move? lastMove = moves.pop();
+                if (lastMove != null) {
+                  undoMove(lastMove);
+                }
+              },
+              child: const Padding(
+                padding: EdgeInsets.all(5.0),
+                child: Icon(
+                  Icons.arrow_back,
+                  size: 36.0,
+                  color: Colors.white
+                )
+              )
+            )
+          )
         )
       );
     }
@@ -100,12 +115,12 @@ class GameScreenState extends State<GameScreen> {
   }
 
   Widget buildColumns() {
-    List<Widget> columns = [];
+    List<Widget> columnWidgets = [];
 
     for (int i = 0; i < 7; i++) {
       Widget test = Expanded(
           child: CardColumn(
-            cards: cardColumns[i],
+            cards: columns[i],
             onCardsAdded: (cards, currentColumnIndex) {
               handleCardsAdded(cards, currentColumnIndex, i);
             },
@@ -115,25 +130,25 @@ class GameScreenState extends State<GameScreen> {
             },
           )
       );
-      columns.add(test);
+      columnWidgets.add(test);
     }
     return Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: <Widget>[
-          ...columns
+          ...columnWidgets
         ]
     );
   }
 
   // Build the deck of cards left after building card columns
-  Widget buildCardDeck() {
+  Widget buildStockDeck() {
     return Row(
       children: <Widget>[
         InkWell(
-          child: cardDeckClosed.isNotEmpty ? Padding(
+          child: stockDeck.isNotEmpty ? Padding(
             padding: const EdgeInsets.all(4.0),
             child: TransformedCard(
-              playingCard: cardDeckClosed.last,
+              playingCard: stockDeck.last,
               attachedCards: const [],
               onClick: (List<PlayingCard> cards, int currentColumnIndex) {
               },
@@ -145,69 +160,77 @@ class GameScreenState extends State<GameScreen> {
               padding: const EdgeInsets.all(4.0),
               child: TransformedCard(
                 playingCard: PlayingCard(
-                  cardSuit: CardSuit.spades,
-                  cardType: CardType.ace,
+                  suit: CardSuit.spades,
+                  rank: CardRank.ace,
                 ),
                 attachedCards: const [],
-                onClick: (List<PlayingCard> cards, int currentColumnIndex) {},
+                onClick: (List<PlayingCard> cards, int currentColumnIndex) {
+                  // Override onClick functionality with onTap method in waste deck
+                },
                 columnIndex: 8
               ),
             ),
           ),
           onTap: () {
             setState(() {
-              if (cardDeckClosed.isEmpty) {
-                cardDeckClosed.addAll(cardDeckOpened.map((card) {
+              if (stockDeck.isEmpty) {
+                stockDeck.addAll(wasteDeck.map((card) {
                   return card
-                    ..opened = false
-                    ..faceUp = false
-                    ..clickable = false;
+                    ..revealed = false;
                 }));
-                cardDeckOpened.clear();
+                wasteDeck.clear();
               } else {
-                PlayingCard card = cardDeckClosed.removeAt(0)
-                  ..faceUp = true
-                  ..opened = true
-                  ..clickable = true;
-                cardDeckOpened.add(card);
+                PlayingCard card = stockDeck.removeAt(0)
+                  ..revealed = true;
+                wasteDeck.add(card);
                 Move move = Move(
                   cards: [card],
                   previousColumnIndex: 8,
-                  newColumnIndex: 7
+                  newColumnIndex: 7,
+                  flippedNewCard: false
                 );
                 moves.push(move);
               }
             });
           },
         ),
-        cardDeckOpened.isNotEmpty ? Padding(
-          padding: const EdgeInsets.all(4.0),
-          child: TransformedCard(
-            playingCard: cardDeckOpened.last,
-            attachedCards: [
-              cardDeckOpened.last,
-            ],
-            onClick: (cards, currentColumnIndex) {
-              moveToValidColumn(cards, currentColumnIndex);
-            },
-            columnIndex: 7,
-          ),
-        ) : Container(
-          width: 40.0,
-        ),
       ],
     );
   }
 
+  Widget buildWasteDeck() {
+    return Row(
+      children: <Widget>[
+        InkWell(
+          child: wasteDeck.isNotEmpty ? Padding(
+            padding: const EdgeInsets.all(4.0),
+            child: TransformedCard(
+              playingCard: wasteDeck.last,
+              attachedCards: [
+                wasteDeck.last,
+              ],
+              onClick: (cards, currentColumnIndex) {
+                moveToValidColumn(cards, currentColumnIndex);
+              },
+              columnIndex: 7,
+            ),
+          ) : Container(
+            width: 40.0,
+          )
+        )
+      ]
+    );
+  }
+
   // Build the final decks of cards
-  Widget buildFinalDecks() {
+  Widget buildFoundationDecks() {
     return Row(
       children: <Widget>[
         Padding(
           padding: const EdgeInsets.all(4.0),
           child: FinalCardDeck(
             cardSuit: CardSuit.spades,
-            cardsAdded: finalSpadesDeck,
+            cardsAdded: spadesFoundation,
             onCardAdded: (cards, currentColumnIndex) {
               handleCardsAdded(cards, currentColumnIndex, 9);
             },
@@ -218,7 +241,7 @@ class GameScreenState extends State<GameScreen> {
           padding: const EdgeInsets.all(4.0),
           child: FinalCardDeck(
             cardSuit: CardSuit.hearts,
-            cardsAdded: finalHeartsDeck,
+            cardsAdded: heartsFoundation,
             onCardAdded: (cards, currentColumnIndex) {
               handleCardsAdded(cards, currentColumnIndex, 10);
             },
@@ -229,7 +252,7 @@ class GameScreenState extends State<GameScreen> {
           padding: const EdgeInsets.all(4.0),
           child: FinalCardDeck(
             cardSuit: CardSuit.clubs,
-            cardsAdded: finalClubsDeck,
+            cardsAdded: clubsFoundation,
             onCardAdded: (cards, currentColumnIndex) {
               handleCardsAdded(cards, currentColumnIndex, 11);
             },
@@ -240,7 +263,7 @@ class GameScreenState extends State<GameScreen> {
           padding: const EdgeInsets.all(4.0),
           child: FinalCardDeck(
             cardSuit: CardSuit.diamonds,
-            cardsAdded: finalDiamondsDeck,
+            cardsAdded: diamondsFoundation,
             onCardAdded: (cards, currentColumnIndex) {
               handleCardsAdded(cards, currentColumnIndex, 12);
             },
@@ -259,27 +282,27 @@ class GameScreenState extends State<GameScreen> {
 
   // Initialise a new game
   void initializeGame(int seed) {
-    cardColumns = List.generate(7, (index) => []);
+    columns = List.generate(7, (index) => []);
 
     // Stores the card deck
-    cardDeckClosed = [];
-    cardDeckOpened = [];
+    stockDeck = [];
+    wasteDeck = [];
 
     // Stores the card in the upper boxes
-    finalHeartsDeck = [];
-    finalDiamondsDeck = [];
-    finalSpadesDeck = [];
-    finalClubsDeck = [];
+    heartsFoundation = [];
+    diamondsFoundation = [];
+    spadesFoundation = [];
+    clubsFoundation = [];
 
     List<PlayingCard> allCards = [];
 
     // Add all cards to deck
     for (var suit in CardSuit.values) {
-      for (var type in CardType.values) {
+      for (var type in CardRank.values) {
         allCards.add(PlayingCard(
-          cardType: type,
-          cardSuit: suit,
-          faceUp: false,
+          rank: type,
+          suit: suit,
+          revealed: false,
         ));
       }
     }
@@ -292,34 +315,30 @@ class GameScreenState extends State<GameScreen> {
 
       if (i == 0) {
         PlayingCard card = allCards[randomNumber];
-        cardColumns[0].add(
+        columns[0].add(
           card
-            ..opened = true
-            ..faceUp = true
-            ..clickable = true,
+            ..revealed = true
         );
         allCards.removeAt(randomNumber);
       } else if (i > 0 && i < 3) {
-        addCardToColumn(allCards, cardColumns[1], i, 2, randomNumber);
+        addCardToColumn(allCards, columns[1], i, 2, randomNumber);
       } else if (i > 2 && i < 6) {
-        addCardToColumn(allCards, cardColumns[2], i, 5, randomNumber);
+        addCardToColumn(allCards, columns[2], i, 5, randomNumber);
       } else if (i > 5 && i < 10) {
-        addCardToColumn(allCards, cardColumns[3], i, 9, randomNumber);
+        addCardToColumn(allCards, columns[3], i, 9, randomNumber);
       } else if (i > 9 && i < 15) {
-        addCardToColumn(allCards, cardColumns[4], i, 14, randomNumber);
+        addCardToColumn(allCards, columns[4], i, 14, randomNumber);
       } else if (i > 14 && i < 21) {
-        addCardToColumn(allCards, cardColumns[5], i, 20, randomNumber);
+        addCardToColumn(allCards, columns[5], i, 20, randomNumber);
       } else {
-        addCardToColumn(allCards, cardColumns[6], i, 27, randomNumber);
+        addCardToColumn(allCards, columns[6], i, 27, randomNumber);
       }
     }
 
-    cardDeckClosed = allCards;
-    cardDeckOpened.add(
-      cardDeckClosed.removeLast()
-        ..opened = true
-        ..faceUp = true
-        ..clickable = true
+    stockDeck = allCards;
+    wasteDeck.add(
+      stockDeck.removeLast()
+        ..revealed = true
     );
 
     setState(() {});
@@ -331,9 +350,7 @@ class GameScreenState extends State<GameScreen> {
       PlayingCard card = allCards[randomNumber];
       cardColumn.add(
         card
-          ..opened = true
-          ..faceUp = true
-          ..clickable = true,
+          ..revealed = true
       );
     } else {
       cardColumn.add(allCards[randomNumber]);
@@ -341,70 +358,42 @@ class GameScreenState extends State<GameScreen> {
     allCards.removeAt(randomNumber);
   }
 
-  void refreshList(int index) {
-    if (finalDiamondsDeck.length +
-        finalHeartsDeck.length +
-        finalClubsDeck.length +
-        finalSpadesDeck.length ==
+  void checkWin() {
+    if (diamondsFoundation.length +
+        heartsFoundation.length +
+        clubsFoundation.length +
+        spadesFoundation.length ==
         52) {
       handleWin();
     }
-    List<PlayingCard> list = getListFromIndex(index);
-    setState(() {
-      if (list.isNotEmpty) {
-        for (int i = 0; i < list.length - 1; i ++) {
-          list[i]
-            ..opened = false
-            ..faceUp = false
-            ..clickable = false;
-        }
-        list[list.length - 1]
-          ..opened = true
-          ..faceUp = true
-          ..clickable = true;
-      }
-    });
-  }
-
-  // Handle a win condition
-  void handleWin() {
-    GameScreen.currentGameInitialized = false;
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text("Congratulations!"),
-          content: const Text("You Win!"),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                initializeRandomGame();
-                Navigator.pop(context);
-              },
-              child: const Text("Play again"),
-            ),
-          ],
-        );
-      },
-    );
   }
 
   void handleCardsAdded(List<PlayingCard> cards, int currentColumnIndex, int newColumnIndex) {
+
+    List<PlayingCard> currentColumn = getListFromIndex(currentColumnIndex);
+    List<PlayingCard> newColumn = getListFromIndex(newColumnIndex);
+
     Move move = Move(
       cards: cards,
       previousColumnIndex: currentColumnIndex,
-      newColumnIndex: newColumnIndex
+      newColumnIndex: newColumnIndex,
+      flippedNewCard: false
     );
+
     setState(() {
+      newColumn.addAll(cards);
+      int length = currentColumn.length;
+      currentColumn.removeRange(length - cards.length, length);
+      if (currentColumn.isNotEmpty && !currentColumn.last.revealed) {
+        currentColumn.last.revealed = true;
+        move.flippedNewCard = true;
+      }
       moves.push(move);
-      getListFromIndex(newColumnIndex).addAll(cards);
-      int length = getListFromIndex(currentColumnIndex).length;
-      getListFromIndex(currentColumnIndex).removeRange(length - cards.length, length);
-      refreshList(currentColumnIndex);
+      checkWin();
     });
   }
 
-  void handleCardsUndo(Move move) {
+  void undoMove(Move move) {
     List<PlayingCard> previousColumn = getListFromIndex(move.previousColumnIndex);
     List<PlayingCard> newColumn = getListFromIndex(move.newColumnIndex);
     int length = newColumn.length;
@@ -413,16 +402,15 @@ class GameScreenState extends State<GameScreen> {
       if (move.previousColumnIndex == 8) {
         previousColumn.insertAll(0, move.cards.map((card) {
           return card
-            ..opened = false
-            ..faceUp = false
-            ..clickable = false;
+            ..revealed = false;
         }));
       } else {
+        if (previousColumn.isNotEmpty && move.flippedNewCard) {
+          previousColumn.last.revealed = false;
+        }
         previousColumn.addAll(move.cards);
-        refreshList(move.previousColumnIndex);
       }
       newColumn.removeRange(length - move.cards.length, length);
-      refreshList(move.newColumnIndex);
     });
   }
 
@@ -445,45 +433,45 @@ class GameScreenState extends State<GameScreen> {
     PlayingCard card = cards.first;
 
     // Check main columns
-    for (int i = 0; i < cardColumns.length; i++) {
+    for (int i = 0; i < columns.length; i++) {
       if (i == currentColumnIndex) {
         continue;
       }
-      if (cardColumns[i].isEmpty && card.cardType == CardType.king) {
+      if (columns[i].isEmpty && card.isKing) {
         validColumns.add(i);
-      } else if (cardColumns[i].isNotEmpty) {
-        PlayingCard compareCard = cardColumns[i].last;
-        if (card.cardColor.name != compareCard.cardColor.name && compareCard.cardType.value - card.cardType.value == 1) {
+      } else if (columns[i].isNotEmpty) {
+        PlayingCard compareCard = columns[i].last;
+        if (card.cardColor.name != compareCard.cardColor.name && compareCard.rank.value - card.rank.value == 1) {
           validColumns.add(i);
         }
       }
     }
 
     // Check final deck columns
-    if (card.cardType == CardType.ace) {
-      if (card.cardSuit == CardSuit.spades) {
+    if (card.isAce) {
+      if (card.suit == CardSuit.spades) {
         validColumns.add(9);
-      } else if (card.cardSuit == CardSuit.hearts) {
+      } else if (card.suit == CardSuit.hearts) {
         validColumns.add(10);
-      } else if (card.cardSuit == CardSuit.clubs) {
+      } else if (card.suit == CardSuit.clubs) {
         validColumns.add(11);
-      } else if (card.cardSuit == CardSuit.diamonds) {
+      } else if (card.suit == CardSuit.diamonds) {
         validColumns.add(12);
       }
-    } if (card.cardSuit == CardSuit.spades) {
-      if (getListFromIndex(9).isNotEmpty && card.cardType.value - getListFromIndex(9).last.cardType.value == 1) {
+    } if (card.suit == CardSuit.spades) {
+      if (getListFromIndex(9).isNotEmpty && card.rank.value - getListFromIndex(9).last.rank.value == 1) {
         validColumns.add(9);
       }
-    } else if (card.cardSuit == CardSuit.hearts) {
-      if (getListFromIndex(10).isNotEmpty && card.cardType.value - getListFromIndex(10).last.cardType.value == 1) {
+    } else if (card.suit == CardSuit.hearts) {
+      if (getListFromIndex(10).isNotEmpty && card.rank.value - getListFromIndex(10).last.rank.value == 1) {
         validColumns.add(10);
       }
-    } else if (card.cardSuit == CardSuit.clubs) {
-      if (getListFromIndex(11).isNotEmpty && card.cardType.value - getListFromIndex(11).last.cardType.value == 1) {
+    } else if (card.suit == CardSuit.clubs) {
+      if (getListFromIndex(11).isNotEmpty && card.rank.value - getListFromIndex(11).last.rank.value == 1) {
         validColumns.add(11);
       }
-    } else if (card.cardSuit == CardSuit.diamonds) {
-      if (getListFromIndex(12).isNotEmpty && card.cardType.value - getListFromIndex(12).last.cardType.value == 1) {
+    } else if (card.suit == CardSuit.diamonds) {
+      if (getListFromIndex(12).isNotEmpty && card.rank.value - getListFromIndex(12).last.rank.value == 1) {
         validColumns.add(12);
       }
     }
@@ -510,34 +498,56 @@ class GameScreenState extends State<GameScreen> {
     return validColumns.first;
   }
 
+  void handleWin() {
+    GameScreen.currentGameInitialized = false;
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Congratulations!"),
+          content: const Text("You Win!"),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                initializeRandomGame();
+                Navigator.pop(context);
+              },
+              child: const Text("Play again"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   List<PlayingCard> getListFromIndex(int index) {
     switch (index) {
       case 0:
-        return cardColumns[0];
+        return columns[0];
       case 1:
-        return cardColumns[1];
+        return columns[1];
       case 2:
-        return cardColumns[2];
+        return columns[2];
       case 3:
-        return cardColumns[3];
+        return columns[3];
       case 4:
-        return cardColumns[4];
+        return columns[4];
       case 5:
-        return cardColumns[5];
+        return columns[5];
       case 6:
-        return cardColumns[6];
+        return columns[6];
       case 7:
-        return cardDeckOpened;
+        return wasteDeck;
       case 8:
-        return cardDeckClosed;
+        return stockDeck;
       case 9:
-        return finalSpadesDeck;
+        return spadesFoundation;
       case 10:
-        return finalHeartsDeck;
+        return heartsFoundation;
       case 11:
-        return finalClubsDeck;
+        return clubsFoundation;
       case 12:
-        return finalDiamondsDeck;
+        return diamondsFoundation;
       default:
         return [];
     }

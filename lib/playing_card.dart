@@ -5,7 +5,7 @@ enum CardSuit {
   clubs,
 }
 
-enum CardType {
+enum CardRank {
   ace,
   two,
   three,
@@ -21,34 +21,34 @@ enum CardType {
   king
 }
 
-extension CardTypeExtension on CardType {
+extension CardTypeExtension on CardRank {
   int get value {
     switch (this) {
-      case CardType.ace:
+      case CardRank.ace:
         return 1;
-      case CardType.two:
+      case CardRank.two:
         return 2;
-      case CardType.three:
+      case CardRank.three:
         return 3;
-      case CardType.four:
+      case CardRank.four:
         return 4;
-      case CardType.five:
+      case CardRank.five:
         return 5;
-      case CardType.six:
+      case CardRank.six:
         return 6;
-      case CardType.seven:
+      case CardRank.seven:
         return 7;
-      case CardType.eight:
+      case CardRank.eight:
         return 8;
-      case CardType.nine:
+      case CardRank.nine:
         return 9;
-      case CardType.ten:
+      case CardRank.ten:
         return 10;
-      case CardType.jack:
+      case CardRank.jack:
         return 11;
-      case CardType.queen:
+      case CardRank.queen:
         return 12;
-      case CardType.king:
+      case CardRank.king:
         return 13;
       default:
         return -1;
@@ -63,26 +63,29 @@ enum CardColor {
 
 // Simple playing card model
 class PlayingCard {
-  CardSuit cardSuit;
-  CardType cardType;
-  bool faceUp;
-  bool opened;
-  bool clickable;
+  CardSuit suit;
+  CardRank rank;
+  bool revealed;
 
   PlayingCard({
-    required this.cardSuit,
-    required this.cardType,
-    this.faceUp = false,
-    this.opened = false,
-    this.clickable = false
+    required this.suit,
+    required this.rank,
+    this.revealed = false,
   });
 
   CardColor get cardColor {
-    if(cardSuit == CardSuit.hearts || cardSuit == CardSuit.diamonds) {
+    if(suit == CardSuit.hearts || suit == CardSuit.diamonds) {
       return CardColor.red;
     } else {
       return CardColor.black;
     }
   }
 
+  bool get isKing => (rank == CardRank.king);
+  bool get isAce => rank == CardRank.ace;
+
+  @override
+  String toString() {
+    return '{suit: $suit, rank: $rank, revealed: $revealed}';
+  }
 }

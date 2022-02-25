@@ -43,26 +43,22 @@ class TransformedCardState extends State<TransformedCard> {
   }
 
   Widget buildCardClickable() {
-    if (widget.playingCard.clickable) {
-      return !widget.playingCard.faceUp ? Container(
-        height: Utilities.cardHeight,
-        width: Utilities.cardWidth,
-        decoration: BoxDecoration(
-          color: Colors.blue,
-          border: Border.all(color: Colors.black),
-          borderRadius: BorderRadius.circular(8.0),
-        ),
-      ) : GestureDetector(
-        onTap: () => widget.onClick(widget.attachedCards, widget.columnIndex),
-        child: buildCard(),
-      );
-    } else {
-      return buildCard();
-    }
+    return !widget.playingCard.revealed ? Container(
+      height: Utilities.cardHeight,
+      width: Utilities.cardWidth,
+      decoration: BoxDecoration(
+        color: Colors.blue,
+        border: Border.all(color: Colors.black),
+        borderRadius: BorderRadius.circular(8.0),
+      ),
+    ) : GestureDetector(
+      onTap: () => widget.onClick(widget.attachedCards, widget.columnIndex),
+      child: buildCard(),
+    );
   }
 
   Widget buildCard() {
-    return !widget.playingCard.faceUp ? Container(
+    return !widget.playingCard.revealed ? Container(
       height: Utilities.cardHeight,
       width: Utilities.cardWidth,
       decoration: BoxDecoration(
@@ -147,32 +143,32 @@ class TransformedCardState extends State<TransformedCard> {
   }
 
   String cardTypeToString() {
-    switch (widget.playingCard.cardType) {
-      case CardType.ace:
+    switch (widget.playingCard.rank) {
+      case CardRank.ace:
         return "A";
-      case CardType.two:
+      case CardRank.two:
         return "2";
-      case CardType.three:
+      case CardRank.three:
         return "3";
-      case CardType.four:
+      case CardRank.four:
         return "4";
-      case CardType.five:
+      case CardRank.five:
         return "5";
-      case CardType.six:
+      case CardRank.six:
         return "6";
-      case CardType.seven:
+      case CardRank.seven:
         return "7";
-      case CardType.eight:
+      case CardRank.eight:
         return "8";
-      case CardType.nine:
+      case CardRank.nine:
         return "9";
-      case CardType.ten:
+      case CardRank.ten:
         return "10";
-      case CardType.jack:
+      case CardRank.jack:
         return "J";
-      case CardType.queen:
+      case CardRank.queen:
         return "Q";
-      case CardType.king:
+      case CardRank.king:
         return "K";
       default:
         return "";
@@ -180,7 +176,7 @@ class TransformedCardState extends State<TransformedCard> {
   }
 
   Image? suitToImage() {
-    switch (widget.playingCard.cardSuit) {
+    switch (widget.playingCard.suit) {
       case CardSuit.hearts:
         return Image.asset('images/hearts.png');
       case CardSuit.diamonds:
