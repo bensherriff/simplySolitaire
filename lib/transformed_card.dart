@@ -15,14 +15,14 @@ class TransformedCard extends StatefulWidget {
   final List<PlayingCard> attachedCards;
   final CardClickCallback onClick;
 
-  TransformedCard({
+  const TransformedCard({Key? key,
     required this.playingCard,
     required this.attachedCards,
     required this.onClick,
     this.transformDistance = Utilities.cardHeight/4,
     this.transformIndex = 0,
     this.columnIndex = -1
-  });
+  }) : super(key: key);
 
   @override
   TransformedCardState createState() => TransformedCardState();

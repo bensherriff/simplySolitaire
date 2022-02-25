@@ -2,10 +2,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:solitaire/utilities.dart';
-import 'controller.dart';
 import 'game_screen.dart';
 
 class MenuScreen extends StatefulWidget {
+  const MenuScreen({Key? key}) : super(key: key);
+
   @override
   MenuScreenState createState() => MenuScreenState();
 }
@@ -22,7 +23,7 @@ class MenuScreenState extends State<MenuScreen> {
   @override
   Widget build(BuildContext context) {
 
-    final Controller c = Get.put(Controller());
+    // final Controller c = Get.put(Controller());
 
     return Scaffold(
       backgroundColor: Utilities.backgroundColor,

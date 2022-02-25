@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:solitaire/menu_screen.dart';
 import 'package:get/get.dart';
 
-void main() => runApp(GetMaterialApp(home: MenuScreen()));
+void main() => runApp(const GetMaterialApp(home: MenuScreen()));
 
 class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
@@ -22,7 +24,7 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: MenuScreen(),
+      home: const MenuScreen(),
     );
   }
 }
