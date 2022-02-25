@@ -7,7 +7,6 @@ class Utilities {
 
   static const String applicationName = "Simple Solitaire";
   static Color textColor = Colors.white;
-  static Color backgroundColor = const Color(0xFF357960);
   static Color buttonBackgroundColor = Colors.white;
   static Color buttonTextColor = const Color(0xFF1A1F16);
 
@@ -24,13 +23,13 @@ class Utilities {
           menuIcon(),
           const Text(applicationName,
             style: TextStyle(
-              fontSize: 26
+              fontSize: 30
             ),
           )
         ],
       ),
       elevation: 0.0,
-      backgroundColor: backgroundColor,
+      backgroundColor: buttonTextColor,
       automaticallyImplyLeading: false,
       actions: widgets,
     );

@@ -1,11 +1,12 @@
+
 import 'package:flutter/material.dart';
 import 'package:solitaire/menu_screen.dart';
 import 'package:get/get.dart';
 
 void main() => runApp(const GetMaterialApp(home: MenuScreen()));
 
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+class App extends StatelessWidget {
+  const App({Key? key}) : super(key: key);
 
   // This widget is the root of your application.
   @override
