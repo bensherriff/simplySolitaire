@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:solitaire/playing_card.dart';
 
 class Move {
@@ -5,12 +7,14 @@ class Move {
   int newColumnIndex;
   int previousColumnIndex;
   bool flippedNewCard;
+  bool resetDeck;
 
   Move({
     required this.cards,
     required this.newColumnIndex,
     required this.previousColumnIndex,
     required this.flippedNewCard,
+    this.resetDeck = false,
   });
 
   int points({bool isKlondike = true}) {
@@ -36,6 +40,10 @@ class Move {
       points -= 15;
     }
 
+    if (resetDeck) {
+      points -= 100;
+    }
+
     return points;
   }
 
@@ -56,7 +64,7 @@ class Moves {
   int totalPoints({bool isKlondike = true}) {
     int totalPoints = 0;
     for (var move in list) {
-      totalPoints += move.points(isKlondike: isKlondike);
+      totalPoints = max(0, totalPoints + move.points(isKlondike: isKlondike));
     }
     return totalPoints;
   }

@@ -1,15 +1,12 @@
-import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:solitaire/screens/game_screen.dart';
 import 'package:solitaire/screens/menu_screen.dart';
-import 'package:solitaire/utilities.dart';
 import '../card_column.dart';
 import '../deck.dart';
 import '../final_card.dart';
-import '../game_timer.dart';
 import '../move.dart';
 import '../playing_card.dart';
 import '../transformed_card.dart';
@@ -198,6 +195,14 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
                     ..revealed = false;
                 }));
                 widget.wasteDeck.clear();
+                Move move = Move(
+                  cards: widget.stockDeck,
+                  previousColumnIndex: 7,
+                  newColumnIndex: 8,
+                  flippedNewCard: false,
+                  resetDeck: true
+                );
+                widget.moves.push(move);
               } else {
                 PlayingCard card = widget.stockDeck.removeAt(0)
                   ..revealed = true;
@@ -317,7 +322,7 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
 
     widget.allCardsRevealed = false;
 
-    Deck allCards = Deck();
+    Deck allCards = Deck(-1);
 
     // Add all cards to deck
     for (var suit in CardSuit.values) {
@@ -405,6 +410,11 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
         previousColumn.insertAll(0, move.cards.map((card) {
           return card
             ..revealed = false;
+        }));
+      } else if (move.previousColumnIndex == 7) {
+        previousColumn.insertAll(0, move.cards.map((card) {
+          return card
+            ..revealed = true;
         }));
       } else {
         if (previousColumn.isNotEmpty && move.flippedNewCard) {

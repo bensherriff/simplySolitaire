@@ -4,8 +4,14 @@ import 'playing_card.dart';
 
 class Deck {
   
+  final int index;
   List<PlayingCard> cards = [];
-  
+  bool isColumn = false;
+  bool isStock = false;
+  bool isWaste = false;
+
+  Deck(this.index);
+
   void append(PlayingCard card) {
     cards.add(card);
   }
