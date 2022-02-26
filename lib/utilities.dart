@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import 'menu_screen.dart';
+import 'screens/menu_screen.dart';
 
 class Utilities {
 
@@ -14,7 +14,7 @@ class Utilities {
   static const double cardHeight = 70.0;
   static const double cardWidth = 51.28;
 
-  static baseAppBar(List<Widget> widgets) {
+  static baseAppBar(Color backgroundColor, List<Widget> widgets) {
     return AppBar(
       title: Row(
         mainAxisAlignment: MainAxisAlignment.start,
@@ -29,7 +29,7 @@ class Utilities {
         ],
       ),
       elevation: 0.0,
-      backgroundColor: buttonTextColor,
+      backgroundColor: backgroundColor,
       automaticallyImplyLeading: false,
       actions: widgets,
     );

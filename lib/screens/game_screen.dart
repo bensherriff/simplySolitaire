@@ -1,6 +1,10 @@
-import 'package:flutter/material.dart';
+import 'dart:async';
 
-import 'move.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:solitaire/game_timer.dart';
+
+import '../move.dart';
 
 class GameScreen extends StatefulWidget {
 
@@ -11,7 +15,8 @@ class GameScreen extends StatefulWidget {
 
   bool initialized = false;
   int seed = -1;
-  MoveStack moves = MoveStack();
+  Moves moves = Moves();
+  GameTimer timer = Get.put(GameTimer());
 
   GameScreen({Key? key, required this.backgroundColor, required this.gameName}) : super(key: key);
 
@@ -25,5 +30,4 @@ class GameScreenState<T extends GameScreen> extends State<T> {
   Widget build(BuildContext context) {
     return const SizedBox.shrink();
   }
-
 }

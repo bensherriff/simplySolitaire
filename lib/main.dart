@@ -1,9 +1,11 @@
 
 import 'package:flutter/material.dart';
-import 'package:solitaire/menu_screen.dart';
+import 'package:solitaire/screens/menu_screen.dart';
 import 'package:get/get.dart';
 
-void main() => runApp(const GetMaterialApp(home: MenuScreen()));
+final MenuScreen menuScreen = Get.put(const MenuScreen());
+
+void main() => runApp(GetMaterialApp(home: menuScreen));
 
 class App extends StatelessWidget {
   const App({Key? key}) : super(key: key);
@@ -25,7 +27,7 @@ class App extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: const MenuScreen(),
+      home: menuScreen,
     );
   }
 }

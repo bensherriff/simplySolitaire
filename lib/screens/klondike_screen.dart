@@ -1,17 +1,20 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:solitaire/game_screen.dart';
+import 'package:get/get.dart';
+import 'package:solitaire/screens/game_screen.dart';
+import 'package:solitaire/screens/menu_screen.dart';
 import 'package:solitaire/utilities.dart';
-import 'card_column.dart';
-import 'final_card.dart';
-import 'move.dart';
-import 'playing_card.dart';
-import 'transformed_card.dart';
+import '../card_column.dart';
+import '../deck.dart';
+import '../final_card.dart';
+import '../game_timer.dart';
+import '../move.dart';
+import '../playing_card.dart';
+import '../transformed_card.dart';
 
 class KlondikeScreen extends GameScreen {
-
-
   // Stores the cards on the seven columns
   List<List<PlayingCard>> columns = List.generate(7, (index) => []);
 
@@ -24,6 +27,8 @@ class KlondikeScreen extends GameScreen {
   List<PlayingCard> heartsFoundation = [];
   List<PlayingCard> clubsFoundation = [];
   List<PlayingCard> diamondsFoundation = [];
+
+  bool allCardsRevealed = false;
 
   KlondikeScreen({Key? key}) : super(key: key, gameName: "Klondike", backgroundColor: const Color(0xFF357960));
 
@@ -47,92 +52,107 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async => false,
-      child: Scaffold(
-        backgroundColor: widget.backgroundColor,
-        appBar: Utilities.baseAppBar(appBarWidgets()),
-        body: Column(
-          children: <Widget>[
-            const SizedBox(
-              height: 60.0,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-                buildFoundationDecks(),
-                buildStockDeck(),
-                buildWasteDeck()
-              ],
-            ),
-            const SizedBox(
-              height: 16.0,
-            ),
-            buildColumns(),
-            const SizedBox(
-              height: 200.0,
-            ),
-            Text("Moves: " + widget.moves.size.toString())
-          ],
-        ),
-      )
-    );
-  }
-
-  List<Widget> appBarWidgets() {
-    List<Widget> widgets = [];
-    if (widget.moves.isNotEmpty) {
-      widgets.add(
-        Material(
-          type: MaterialType.transparency,
-          child: Ink(
-            child: InkWell(
-              borderRadius: BorderRadius.circular(1000.0),
-              onTap: () {
-                Move? lastMove = widget.moves.pop();
-                if (lastMove != null) {
-                  undoMove(lastMove);
+    return Scaffold(
+      backgroundColor: widget.backgroundColor,
+      body: Column(
+        children: <Widget>[
+          const SizedBox(
+            height: 80.0,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: <Widget>[
+              buildFoundationDecks(),
+              buildStockDeck(),
+              buildWasteDeck()
+            ],
+          ),
+          const SizedBox(
+            height: 16.0,
+          ),
+          buildColumns()
+        ],
+      ),
+      // floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      bottomNavigationBar: BottomAppBar(
+        shape: CircularNotchedRectangle(),
+        child: Container(
+          height: 75.0,
+          child: Row(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              IconButton(
+                icon: const Icon(Icons.home),
+                iconSize: 30.0,
+                padding: const EdgeInsets.only(left: 28.0, right: 28.0),
+                onPressed: () {
+                  widget.timer.stopTimer(reset: false);
+                  MenuScreen menuScreen = Get.find();
+                  Get.to(() => menuScreen);
                 }
-              },
-              child: const Padding(
-                padding: EdgeInsets.all(5.0),
-                child: Icon(
-                  Icons.arrow_back,
-                  size: 36.0,
-                  color: Colors.white
-                )
+              ),
+              Obx(() => widget.timer.buildTime()),
+              Padding(
+                padding: const EdgeInsets.only(left: 28.0, right: 28.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(widget.moves.totalPoints().toString(),
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black
+                      ),
+                    ),
+                    const Text("Points")
+                  ]
+                ),
+              ),
+              (widget.moves.isNotEmpty)? IconButton(
+                icon: const Icon(Icons.arrow_back),
+                iconSize: 30.0,
+                padding: const EdgeInsets.only(left: 28.0, right: 28.0),
+                onPressed: () {
+                  Move? lastMove = widget.moves.pop();
+                  if (lastMove != null) {
+                    undoMove(lastMove);
+                  }
+                }
+              ) : IconButton(
+                icon: const Icon(null),
+                iconSize: 30.0,
+                padding: const EdgeInsets.only(left: 28.0, right: 28.0),
+                onPressed: () {},
               )
-            )
+            ],
           )
-        )
-      );
-    }
-    return widgets;
+        ),
+      ),
+    );
   }
 
   Widget buildColumns() {
     List<Widget> columnWidgets = [];
 
     for (int i = 0; i < 7; i++) {
-      Widget test = Expanded(
-          child: CardColumn(
-            cards: widget.columns[i],
-            onCardsAdded: (cards, currentColumnIndex) {
-              handleCardsAdded(cards, currentColumnIndex, i);
-            },
-            columnIndex: i,
-            onClick: (cards, currentColumnIndex) {
-              moveToValidColumn(cards, currentColumnIndex);
-            },
-          )
-      );
-      columnWidgets.add(test);
+      columnWidgets.add(Expanded(
+        child: CardColumn(
+          cards: widget.columns[i],
+          onCardsAdded: (cards, currentColumnIndex) {
+            handleCardsAdded(cards, currentColumnIndex, i);
+          },
+          columnIndex: i,
+          onClick: (cards, currentColumnIndex) {
+            moveToValidColumn(cards, currentColumnIndex);
+          },
+        )
+      ));
     }
     return Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: <Widget>[
-          ...columnWidgets
-        ]
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: <Widget>[
+        ...columnWidgets
+      ]
     );
   }
 
@@ -169,6 +189,9 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
           ),
           onTap: () {
             setState(() {
+              if (!widget.timer.isTimerRunning()) {
+                widget.timer.startTimer(reset: false);
+              }
               if (widget.stockDeck.isEmpty) {
                 widget.stockDeck.addAll(widget.wasteDeck.map((card) {
                   return card
@@ -290,14 +313,16 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
     widget.spadesFoundation = [];
     widget.clubsFoundation = [];
 
-    List<PlayingCard> allCards = [];
+    widget.moves = Moves();
 
-    widget.moves = MoveStack();
+    widget.allCardsRevealed = false;
+
+    Deck allCards = Deck();
 
     // Add all cards to deck
     for (var suit in CardSuit.values) {
       for (var type in CardRank.values) {
-        allCards.add(PlayingCard(
+        allCards.append(PlayingCard(
           rank: type,
           suit: suit,
           revealed: false,
@@ -305,21 +330,22 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
       }
     }
 
+
     Random random = Random(seed);
+    allCards.shuffle(random);
 
     for (int i = 0; i < widget.columns.length; i++) {
       for (int j = 0; j <= i; j++) {
-        int randomNumber = random.nextInt(allCards.length);
-        PlayingCard card = allCards[randomNumber];
+        PlayingCard card = allCards.drawFront();
         if (j == i) {
           card.revealed = true;
         }
         widget.columns[i].add(card);
-        allCards.removeAt(randomNumber);
       }
     }
 
-    widget.stockDeck = allCards;
+    widget.stockDeck = allCards.cards;
+    widget.stockDeck.shuffle(random);
     widget.wasteDeck.add(
         widget.stockDeck.removeLast()
         ..revealed = true
@@ -341,17 +367,10 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
     allCards.removeAt(randomNumber);
   }
 
-  void checkWin() {
-    if (widget.diamondsFoundation.length +
-        widget.heartsFoundation.length +
-        widget.clubsFoundation.length +
-        widget.spadesFoundation.length ==
-        52) {
-      handleWin();
-    }
-  }
-
   void handleCardsAdded(List<PlayingCard> cards, int currentColumnIndex, int newColumnIndex) {
+    if (!widget.timer.isTimerRunning()) {
+      widget.timer.startTimer(reset: false);
+    }
 
     List<PlayingCard> currentColumn = getListFromIndex(currentColumnIndex);
     List<PlayingCard> newColumn = getListFromIndex(newColumnIndex);
@@ -484,8 +503,30 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
     return validColumns.first;
   }
 
+  void checkWin() {
+    if (widget.diamondsFoundation.length +
+        widget.heartsFoundation.length +
+        widget.clubsFoundation.length +
+        widget.spadesFoundation.length ==
+        52) {
+      handleWin();
+    } else if (checkAllCardsRevealed()) {
+      widget.allCardsRevealed = true;
+    }
+  }
+
+  bool checkAllCardsRevealed() {
+    for (int i = 0; i < widget.columns.length; i++) {
+      for (int j = 0; j < widget.columns[i].length; j++) {
+        if (!widget.columns[i][j].revealed) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
   void handleWin() {
-    widget.initialized = true;
     showDialog(
       context: context,
       builder: (context) {
@@ -495,8 +536,11 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
           actions: <Widget>[
             TextButton(
               onPressed: () {
-                initializeRandomGame();
                 Navigator.pop(context);
+                KlondikeScreen gameScreen = Get.find();
+                gameScreen.initialized = false;
+                gameScreen.seed = -1;
+                Get.to(() => gameScreen);
               },
               child: const Text("Play again"),
             ),

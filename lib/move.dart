@@ -13,13 +13,39 @@ class Move {
     required this.flippedNewCard,
   });
 
+  int points({bool isKlondike = true}) {
+    int points = 0;
+
+    // Waste to Column
+    if (previousColumnIndex == 7 && newColumnIndex <=6) {
+      points += 5 * cards.length;
+    }
+
+    // To Foundation
+    if (newColumnIndex >= 9 && newColumnIndex <= 12) {
+        points += 10;
+    }
+
+    // Turned over card
+    if (flippedNewCard) {
+      points += 5;
+    }
+
+    // Foundation to Column
+    if (previousColumnIndex >= 9 && previousColumnIndex <=12 && newColumnIndex <= 6) {
+      points -= 15;
+    }
+
+    return points;
+  }
+
   @override
   String toString() {
     return "{cards: $cards, newColumnIndex: $newColumnIndex, previousColumnIndex: $previousColumnIndex, flippedNewCard: $flippedNewCard}";
   }
 }
 
-class MoveStack {
+class Moves {
   final list = <Move>[];
 
   void push(Move move) => list.add(move);
@@ -27,8 +53,15 @@ class MoveStack {
   Move? pop() => (isEmpty) ? null : list.removeLast();
   Move? get peek => (isEmpty) ? null : list.last;
 
-  int get size => list.length;
+  int totalPoints({bool isKlondike = true}) {
+    int totalPoints = 0;
+    for (var move in list) {
+      totalPoints += move.points(isKlondike: isKlondike);
+    }
+    return totalPoints;
+  }
 
+  int get size => list.length;
   bool get isEmpty => list.isEmpty;
   bool get isNotEmpty => list.isNotEmpty;
 

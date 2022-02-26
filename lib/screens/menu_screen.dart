@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:solitaire/spider.dart';
+import 'package:solitaire/screens/options_screen.dart';
+import 'package:solitaire/screens/spider_screen.dart';
 import 'package:solitaire/utilities.dart';
 import 'game_screen.dart';
 import 'klondike_screen.dart';
@@ -14,8 +15,9 @@ class MenuScreen extends StatefulWidget {
 
 class MenuScreenState extends State<MenuScreen> {
 
-  final KlondikeScreen klondikeScreen = Get.put(KlondikeScreen());
-  final SpiderScreen spiderScreen = Get.put(SpiderScreen());
+  final OptionsScreen _optionsScreen = Get.put(OptionsScreen());
+  final KlondikeScreen _klondikeScreen = Get.put(KlondikeScreen());
+  final SpiderScreen _spiderScreen = Get.put(SpiderScreen());
 
   @override
   void initState() {
@@ -24,16 +26,34 @@ class MenuScreenState extends State<MenuScreen> {
 
   @override
   Widget build(BuildContext context) {
-
-    return PageView(
-      children: <Widget>[
-        Container(
-          child: gameMenu(klondikeScreen),
-        ),
-        Container(
-          child: gameMenu(spiderScreen),
-        ),
-      ],
+    return Scaffold(
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        actions: <Widget>[
+          IconButton(
+            icon: const Icon(
+              Icons.settings,
+              color: Colors.white
+            ),
+            onPressed: () {
+              Get.to(() => _optionsScreen);
+            },
+          )
+        ],
+        automaticallyImplyLeading: false
+      ),
+      body: PageView(
+        children: <Widget>[
+          Container(
+            child: gameMenu(_klondikeScreen),
+          ),
+          Container(
+            child: gameMenu(_spiderScreen),
+          ),
+        ],
+      ),
     );
   }
 
@@ -121,6 +141,7 @@ class MenuScreenState extends State<MenuScreen> {
   Widget newGame(GameScreen gameScreen) {
     return ElevatedButton(
         onPressed: () => {
+          gameScreen.timer.resetTimer(),
           gameScreen.initialized = false,
           gameScreen.seed = -1,
           Get.to(() => gameScreen)
@@ -156,6 +177,7 @@ class MenuScreenState extends State<MenuScreen> {
     if (gameScreen.initialized && gameScreen.seed != -1) {
       return ElevatedButton(
           onPressed: () => {
+            gameScreen.timer.resetTimer(),
             gameScreen.initialized = false,
             Get.to(() => gameScreen)
           },

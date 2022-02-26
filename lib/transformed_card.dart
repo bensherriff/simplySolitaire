@@ -19,7 +19,7 @@ class TransformedCard extends StatefulWidget {
     required this.playingCard,
     required this.attachedCards,
     required this.onClick,
-    this.transformDistance = Utilities.cardHeight/4,
+    this.transformDistance = Utilities.cardHeight/3,
     this.transformIndex = 0,
     this.columnIndex = -1
   }) : super(key: key);
@@ -69,10 +69,10 @@ class TransformedCardState extends State<TransformedCard> {
     ) : Draggable<Map>(
       child: buildFaceUpCard(),
       feedback: CardColumn(
-        cards: widget.attachedCards,
-        columnIndex: 1,
-        onCardsAdded: (card, position) {},
-        onClick: (cards, currentColumnIndex){}
+          cards: widget.attachedCards,
+          columnIndex: 1,
+          onCardsAdded: (card, position) {},
+          onClick: (cards, currentColumnIndex){}
       ),
       childWhenDragging: buildFaceUpCard(),
       data: {
