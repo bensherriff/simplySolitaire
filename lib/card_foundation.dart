@@ -1,33 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:solitaire/utilities.dart';
 import 'card_column.dart';
+import 'deck.dart';
 import 'playing_card.dart';
 import 'transformed_card.dart';
 
 // The deck of cards which accept the final cards (Ace to King)
-class FinalCardDeck extends StatefulWidget {
+class CardFoundation extends StatefulWidget {
   final CardSuit cardSuit;
-  final List<PlayingCard> cardsAdded;
+  final List<PlayingCard> cards;
   final CardAcceptCallback onCardAdded;
   final int columnIndex;
 
-  const FinalCardDeck({Key? key,
+  const CardFoundation({Key? key,
     required this.cardSuit,
-    required this.cardsAdded,
+    required this.cards,
     required this.onCardAdded,
     this.columnIndex = -1,
   }) : super(key: key);
 
   @override
-  FinalCardDeckState createState() => FinalCardDeckState();
+  CardFoundationState createState() => CardFoundationState();
 }
 
-class FinalCardDeckState extends State<FinalCardDeck> {
+class CardFoundationState extends State<CardFoundation> {
   @override
   Widget build(BuildContext context) {
     return DragTarget<Map>(
       builder: (context, listOne, listTwo) {
-        return widget.cardsAdded.isEmpty
+        return widget.cards.isEmpty
             ? Opacity(
           opacity: 0.7,
           child: Container(
@@ -53,10 +54,10 @@ class FinalCardDeckState extends State<FinalCardDeck> {
           ),
         )
             : TransformedCard(
-          playingCard: widget.cardsAdded.last,
+          playingCard: widget.cards.last,
           columnIndex: widget.columnIndex,
           attachedCards: [
-            widget.cardsAdded.last,
+            widget.cards.last,
           ], onClick: (List<PlayingCard> cards, int currentColumnIndex) {
             // Do not move cards from final deck on click
         },
@@ -67,7 +68,7 @@ class FinalCardDeckState extends State<FinalCardDeck> {
           PlayingCard cardAdded = value["cards"].last;
           if (cardAdded.suit == widget.cardSuit) {
             if (CardRank.values.indexOf(cardAdded.rank) ==
-                widget.cardsAdded.length) {
+                widget.cards.length) {
               return true;
             }
           }

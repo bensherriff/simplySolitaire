@@ -2,30 +2,34 @@ import 'dart:math';
 
 import 'playing_card.dart';
 
-class Deck {
-  
-  final int index;
-  List<PlayingCard> cards = [];
-  bool isColumn = false;
-  bool isStock = false;
-  bool isWaste = false;
+enum DeckType {
+  stock,
+  waste,
+  foundation,
+  column
+}
 
-  Deck(this.index);
+class Deck {
+  List<PlayingCard> cards = [];
+  DeckType type = DeckType.column;
+
+  Deck();
 
   void append(PlayingCard card) {
     cards.add(card);
   }
 
-  void appendAll(List<PlayingCard> _cards) {
-    cards.addAll(_cards);
+
+  void appendAll(List<PlayingCard> c) {
+    cards.addAll(c);
   }
   
   void prepend(PlayingCard card) {
     cards.insert(0, card);
   }
 
-  void prependAll(List<PlayingCard> _cards) {
-    cards.insertAll(0, _cards);
+  void prependAll(List<PlayingCard> c) {
+    cards.insertAll(0, c);
   }
   
   PlayingCard drawFront() {
@@ -44,9 +48,10 @@ class Deck {
     }
   }
 
-  // Fisher-Yates Shuffle
+  /// Fisher-Yates Shuffle
   void shuffle(Random random) {
-    for (int shuffleCount = 0; shuffleCount < 4; shuffleCount++) {
+    int _shuffleCount = 4;
+    for (int shuffleCount = 0; shuffleCount < _shuffleCount; shuffleCount++) {
       for (int i = cards.length - 1; i > 0; i--) {
         int j = random.nextInt(i+1);
 
@@ -56,6 +61,9 @@ class Deck {
       }
     }
   }
+
+  PlayingCard get first => cards.first;
+  PlayingCard get last => cards.last;
 
   int get size => cards.length;
 

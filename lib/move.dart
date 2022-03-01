@@ -2,6 +2,8 @@ import 'dart:math';
 
 import 'package:solitaire/playing_card.dart';
 
+import 'screens/game_screen.dart';
+
 class Move {
   List<PlayingCard> cards;
   int newColumnIndex;
@@ -17,7 +19,7 @@ class Move {
     this.resetDeck = false,
   });
 
-  int points({bool isKlondike = true}) {
+  int points({GameMode gameMode = GameMode.klondike}) {
     int points = 0;
 
     // Waste to Column
@@ -61,10 +63,10 @@ class Moves {
   Move? pop() => (isEmpty) ? null : list.removeLast();
   Move? get peek => (isEmpty) ? null : list.last;
 
-  int totalPoints({bool isKlondike = true}) {
+  int totalPoints({GameMode gameMode = GameMode.klondike}) {
     int totalPoints = 0;
     for (var move in list) {
-      totalPoints = max(0, totalPoints + move.points(isKlondike: isKlondike));
+      totalPoints = max(0, totalPoints + move.points(gameMode: gameMode));
     }
     return totalPoints;
   }

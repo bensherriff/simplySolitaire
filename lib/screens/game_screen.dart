@@ -5,8 +5,14 @@ import 'package:get/get.dart';
 import 'package:solitaire/game_timer.dart';
 import 'package:solitaire/screens/options_screen.dart';
 
+import '../deck.dart';
 import '../move.dart';
 import 'options_screen.dart';
+
+enum GameMode {
+  klondike,
+  spider
+}
 
 class GameScreen extends StatefulWidget {
 

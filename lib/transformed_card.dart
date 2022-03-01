@@ -5,8 +5,8 @@ import 'utilities.dart';
 
 typedef CardClickCallback = Null Function(List<PlayingCard> cards, int currentColumnIndex);
 
-// TransformedCard makes the card draggable and translates it according to
-// position in the stack.
+/// Transformed card that can be moved and translated according to the position
+/// in the card stack.
 class TransformedCard extends StatefulWidget {
   final PlayingCard playingCard;
   final double transformDistance;

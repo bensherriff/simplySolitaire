@@ -7,7 +7,7 @@ import 'package:solitaire/screens/game_screen.dart';
 import 'package:solitaire/screens/menu_screen.dart';
 import '../card_column.dart';
 import '../deck.dart';
-import '../final_card.dart';
+import '../card_foundation.dart';
 import '../move.dart';
 import '../playing_card.dart';
 import '../transformed_card.dart';
@@ -190,7 +190,7 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
     }
   }
 
-  // Build the deck of cards left after building card columns
+  /// Build the stock deck using the remaining cards
   Widget buildStockDeck() {
     return Row(
       children: <Widget>[
@@ -289,9 +289,9 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
       children: <Widget>[
         Padding(
           padding: const EdgeInsets.all(4.0),
-          child: FinalCardDeck(
+          child: CardFoundation(
             cardSuit: CardSuit.spades,
-            cardsAdded: widget.spadesFoundation,
+            cards: widget.spadesFoundation,
             onCardAdded: (cards, currentColumnIndex) {
               handleCardsAdded(cards, currentColumnIndex, 9);
             },
@@ -300,9 +300,9 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
         ),
         Padding(
           padding: const EdgeInsets.all(4.0),
-          child: FinalCardDeck(
+          child: CardFoundation(
             cardSuit: CardSuit.hearts,
-            cardsAdded: widget.heartsFoundation,
+            cards: widget.heartsFoundation,
             onCardAdded: (cards, currentColumnIndex) {
               handleCardsAdded(cards, currentColumnIndex, 10);
             },
@@ -311,9 +311,9 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
         ),
         Padding(
           padding: const EdgeInsets.all(4.0),
-          child: FinalCardDeck(
+          child: CardFoundation(
             cardSuit: CardSuit.clubs,
-            cardsAdded: widget.clubsFoundation,
+            cards: widget.clubsFoundation,
             onCardAdded: (cards, currentColumnIndex) {
               handleCardsAdded(cards, currentColumnIndex, 11);
             },
@@ -322,9 +322,9 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
         ),
         Padding(
           padding: const EdgeInsets.all(4.0),
-          child: FinalCardDeck(
+          child: CardFoundation(
             cardSuit: CardSuit.diamonds,
-            cardsAdded: widget.diamondsFoundation,
+            cards: widget.diamondsFoundation,
             onCardAdded: (cards, currentColumnIndex) {
               handleCardsAdded(cards, currentColumnIndex, 12);
             },
@@ -341,7 +341,8 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
     initializeGame(widget.seed);
   }
 
-  // Initialise a new game
+  /// Initialize a new game using a seed. The seed is used to generate the
+  /// random order of cards, and to allow for re-playability.
   void initializeGame(int seed) {
     widget.columns = List.generate(7, (index) => []);
 
@@ -361,7 +362,7 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
 
     widget.timer.resetTimer();
 
-    Deck allCards = Deck(-1);
+    Deck allCards = Deck();
 
     // Add all cards to deck
     for (var suit in CardSuit.values) {
