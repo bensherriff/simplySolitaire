@@ -46,7 +46,7 @@ class TransformedCardState extends State<TransformedCard> {
     return !widget.playingCard.revealed ? Container(
       height: Utilities.cardHeight,
       width: Utilities.cardWidth,
-      child: Image.asset('images/cardback1.png'),
+      child: Image.asset('images/backs/1.png'),
     ) : GestureDetector(
       onTap: () => widget.onClick(widget.attachedCards, widget.columnIndex),
       child: buildCard(),
@@ -57,7 +57,7 @@ class TransformedCardState extends State<TransformedCard> {
     return !widget.playingCard.revealed ? Container(
       height: Utilities.cardHeight,
       width: Utilities.cardWidth,
-      child: Image.asset('images/cardback1.png'),
+      child: Image.asset('images/backs/1.png'),
     ) : Draggable<Map>(
       child: buildFaceUpCard(),
       feedback: CardColumn(

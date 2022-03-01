@@ -63,7 +63,7 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
             height: 16.0,
           ),
           buildColumns(),
-          (widget.allCardsRevealed) ? ElevatedButton(
+          (checkAllCardsRevealed()) ? ElevatedButton(
             onPressed: () => {
               handleWin()
             },
@@ -359,6 +359,8 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
 
     widget.allCardsRevealed = false;
 
+    widget.timer.resetTimer();
+
     Deck allCards = Deck(-1);
 
     // Add all cards to deck
@@ -557,8 +559,6 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
         widget.spadesFoundation.length ==
         52) {
       handleWin();
-    } else if (checkAllCardsRevealed()) {
-      widget.allCardsRevealed = true;
     }
   }
 
@@ -574,6 +574,7 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
   }
 
   void handleWin() {
+    widget.timer.stopTimer(reset: false);
     showDialog(
       context: context,
       builder: (context) {
