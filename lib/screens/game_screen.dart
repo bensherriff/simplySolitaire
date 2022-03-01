@@ -3,8 +3,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:solitaire/game_timer.dart';
+import 'package:solitaire/screens/options_screen.dart';
 
 import '../move.dart';
+import 'options_screen.dart';
 
 class GameScreen extends StatefulWidget {
 
@@ -25,6 +27,8 @@ class GameScreen extends StatefulWidget {
 }
 
 class GameScreenState<T extends GameScreen> extends State<T> {
+
+  final OptionsScreen optionsScreen = Get.find();
 
   @override
   Widget build(BuildContext context) {

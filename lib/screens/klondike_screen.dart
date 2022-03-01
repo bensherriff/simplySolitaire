@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:solitaire/screens/game_screen.dart';
@@ -10,6 +11,7 @@ import '../final_card.dart';
 import '../move.dart';
 import '../playing_card.dart';
 import '../transformed_card.dart';
+import '../utilities.dart';
 
 class KlondikeScreen extends GameScreen {
   // Stores the cards on the seven columns
@@ -56,19 +58,28 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
           const SizedBox(
             height: 80.0,
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: <Widget>[
-              buildFoundationDecks(),
-              buildStockDeck(),
-              buildWasteDeck()
-            ],
-          ),
+          buildTopDecks(),
           const SizedBox(
             height: 16.0,
-          ), Expanded(
-           child: buildColumns()
-          )
+          ),
+          buildColumns(),
+          (widget.allCardsRevealed) ? ElevatedButton(
+            onPressed: () => {
+              handleWin()
+            },
+            child: Text("Auto Win",
+              style: TextStyle(
+                fontSize: 36.0,
+                color: Utilities.buttonTextColor
+              )
+            ),
+            style: ElevatedButton.styleFrom(
+              primary: Utilities.buttonBackgroundColor,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30.0)
+              ),
+            )
+          ): Container()
         ],
       ),
       // floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
@@ -146,13 +157,37 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
         )
       ));
     }
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: <Widget>[
-        ...columnWidgets
-      ]
+    return Expanded(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          ...columnWidgets
+        ]
+      )
     );
+  }
+
+  Widget buildTopDecks() {
+    if (optionsScreen.leftHandMode) {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: <Widget>[
+          buildStockDeck(),
+          buildWasteDeck(),
+          buildFoundationDecks()
+        ],
+      );
+    } else {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: <Widget>[
+          buildFoundationDecks(),
+          buildWasteDeck(),
+          buildStockDeck()
+        ],
+      );
+    }
   }
 
   // Build the deck of cards left after building card columns

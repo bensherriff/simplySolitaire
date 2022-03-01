@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class OptionsScreen extends StatefulWidget {
-  const OptionsScreen({Key? key}) : super(key: key);
+  OptionsScreen({Key? key}) : super(key: key);
+
+  bool leftHandMode = false;
 
   @override
   OptionsScreenState createState() => OptionsScreenState();
@@ -19,7 +21,6 @@ class OptionsScreenState extends State<OptionsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF0a9396),
-      extendBodyBehindAppBar: true,
       appBar: AppBar(
        backgroundColor: Colors.transparent,
         elevation: 0,
@@ -35,7 +36,27 @@ class OptionsScreenState extends State<OptionsScreen> {
           )
         ],
         automaticallyImplyLeading: false
-      )
+      ),
+      body: Column(
+        children: <Widget>[
+          Row(
+           children: <Widget>[
+             const Padding(
+               padding: EdgeInsets.only(left: 28.0, right: 28.0),
+               child: Text("Left-handed"),
+             ),
+             Checkbox(
+                 value: widget.leftHandMode,
+                 onChanged: (bool? value) {
+                   setState(() {
+                     widget.leftHandMode = value!;
+                   });
+                 }
+             )
+           ],
+          )
+        ]
+      ),
     );
   }
 }
