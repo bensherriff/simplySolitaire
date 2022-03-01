@@ -5,6 +5,12 @@ enum CardSuit {
   clubs,
 }
 
+extension CardSuitString on CardSuit {
+  String toShortString() {
+    return toString().split('.').last;
+  }
+}
+
 enum CardRank {
   ace,
   two,
@@ -21,7 +27,13 @@ enum CardRank {
   king
 }
 
-extension CardTypeExtension on CardRank {
+extension CardRankString on CardRank {
+  String toShortString() {
+    return toString().split('.').last;
+  }
+}
+
+extension CardRankValue on CardRank {
   int get value {
     switch (this) {
       case CardRank.ace:

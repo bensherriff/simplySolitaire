@@ -34,8 +34,6 @@ class CardColumnState extends State<CardColumn> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      // alignment: Alignment.topCenter,
-      height: (12.0 * (Utilities.cardHeight/4)) + Utilities.cardHeight,
       width: Utilities.cardWidth + 30,
       margin: const EdgeInsets.all(2.0),
       child: DragTarget<Map>(
@@ -104,7 +102,7 @@ class CardColumnState extends State<CardColumn> {
             value["currentColumnIndex"],
           );
         },
-      ),
+      )
     );
   }
 }

@@ -19,7 +19,7 @@ class TransformedCard extends StatefulWidget {
     required this.playingCard,
     required this.attachedCards,
     required this.onClick,
-    this.transformDistance = Utilities.cardHeight/3,
+    this.transformDistance = Utilities.cardHeight/4,
     this.transformIndex = 0,
     this.columnIndex = -1
   }) : super(key: key);
@@ -46,11 +46,7 @@ class TransformedCardState extends State<TransformedCard> {
     return !widget.playingCard.revealed ? Container(
       height: Utilities.cardHeight,
       width: Utilities.cardWidth,
-      decoration: BoxDecoration(
-        color: Colors.blue,
-        border: Border.all(color: Colors.black),
-        borderRadius: BorderRadius.circular(8.0),
-      ),
+      child: Image.asset('images/cardback1.png'),
     ) : GestureDetector(
       onTap: () => widget.onClick(widget.attachedCards, widget.columnIndex),
       child: buildCard(),
@@ -61,11 +57,7 @@ class TransformedCardState extends State<TransformedCard> {
     return !widget.playingCard.revealed ? Container(
       height: Utilities.cardHeight,
       width: Utilities.cardWidth,
-      decoration: BoxDecoration(
-        color: Colors.blue,
-        border: Border.all(color: Colors.black),
-        borderRadius: BorderRadius.circular(8.0),
-      ),
+      child: Image.asset('images/cardback1.png'),
     ) : Draggable<Map>(
       child: buildFaceUpCard(),
       feedback: CardColumn(
@@ -86,58 +78,9 @@ class TransformedCardState extends State<TransformedCard> {
     return Material(
       color: Colors.transparent,
       child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(8.0),
-          color: Colors.white,
-          border: Border.all(color: Colors.black),
-        ),
         height: Utilities.cardHeight,
         width: Utilities.cardWidth,
-        child: Stack(
-          children: <Widget>[
-            Center(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: <Widget>[
-                  Center(
-                    child: Text(
-                      cardTypeToString(),
-                      style: const TextStyle(
-                        fontSize: 16.0,
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    height: 20.0,
-                    child: suitToImage(),
-                  )
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(4.0),
-              child: Align(
-                alignment: Alignment.topRight,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text(
-                      cardTypeToString(),
-                      style: const TextStyle(
-                        fontSize: 10.0,
-                      ),
-                    ),
-                    SizedBox(
-                      height: 10.0,
-                      child: suitToImage(),
-                    )
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
+        child: Image.asset('images/${widget.playingCard.suit.toShortString()}/${widget.playingCard.rank.toShortString()}.png'),
       ),
     );
   }

@@ -66,8 +66,9 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
           ),
           const SizedBox(
             height: 16.0,
-          ),
-          buildColumns()
+          ), Expanded(
+           child: buildColumns()
+          )
         ],
       ),
       // floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
@@ -147,6 +148,7 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
     }
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
         ...columnWidgets
       ]
