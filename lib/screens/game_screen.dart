@@ -14,19 +14,25 @@ enum GameMode {
   spider
 }
 
+extension GameModeString on GameMode {
+  String toShortString() {
+    return toString().split('.').last.capitalizeFirst!;
+  }
+}
+
 class GameScreen extends StatefulWidget {
 
   static const int maxSeed = 4294967296;
 
   final Color backgroundColor;
-  final String gameName;
+  final GameMode gameMode;
 
   bool initialized = false;
   int seed = -1;
-  Moves moves = Moves();
+  Moves moves = Moves(gameMode: GameMode.klondike);
   GameTimer timer = Get.put(GameTimer());
 
-  GameScreen({Key? key, required this.backgroundColor, required this.gameName}) : super(key: key);
+  GameScreen({Key? key, required this.backgroundColor, required this.gameMode}) : super(key: key);
 
   @override
   GameScreenState createState() => GameScreenState();

@@ -43,7 +43,7 @@ class TransformedCardState extends State<TransformedCard> {
   }
 
   Widget buildCardClickable() {
-    return !widget.playingCard.revealed ? Container(
+    return !widget.playingCard.revealed ? SizedBox(
       height: Utilities.cardHeight,
       width: Utilities.cardWidth,
       child: Image.asset('images/backs/1.png'),
@@ -54,12 +54,11 @@ class TransformedCardState extends State<TransformedCard> {
   }
 
   Widget buildCard() {
-    return !widget.playingCard.revealed ? Container(
+    return !widget.playingCard.revealed ? SizedBox(
       height: Utilities.cardHeight,
       width: Utilities.cardWidth,
       child: Image.asset('images/backs/1.png'),
     ) : Draggable<Map>(
-      child: buildFaceUpCard(),
       feedback: CardColumn(
           cards: widget.attachedCards,
           columnIndex: 1,
@@ -71,13 +70,14 @@ class TransformedCardState extends State<TransformedCard> {
         "cards": widget.attachedCards,
         "currentColumnIndex": widget.columnIndex,
       },
+      child: buildFaceUpCard(),
     );
   }
 
   Widget buildFaceUpCard() {
     return Material(
       color: Colors.transparent,
-      child: Container(
+      child: SizedBox(
         height: Utilities.cardHeight,
         width: Utilities.cardWidth,
         child: Image.asset('images/${widget.playingCard.suit.toShortString()}/${widget.playingCard.rank.toShortString()}.png'),

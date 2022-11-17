@@ -3,17 +3,21 @@ import 'dart:math';
 import 'playing_card.dart';
 
 enum DeckType {
-  stock,
-  waste,
-  foundation,
-  column
+  stock, // Draw pile
+  waste, // Discard draw pile
+  foundation, // Finished card piles
+  column // Played piles
 }
 
 class Deck {
   List<PlayingCard> cards = [];
   DeckType type = DeckType.column;
+  int index = -1;
 
-  Deck();
+  Deck({
+    this.type = DeckType.column,
+    this.index = -1
+});
 
   void append(PlayingCard card) {
     cards.add(card);
@@ -48,10 +52,9 @@ class Deck {
     }
   }
 
-  /// Fisher-Yates Shuffle
-  void shuffle(Random random) {
-    int _shuffleCount = 4;
-    for (int shuffleCount = 0; shuffleCount < _shuffleCount; shuffleCount++) {
+  /// Fisher-Yates Shuffle using a random and number of shuffles to perform
+  void shuffle(Random random, {int shuffleCount = 4}) {
+    for (int count = 0; count < shuffleCount; count++) {
       for (int i = cards.length - 1; i > 0; i--) {
         int j = random.nextInt(i+1);
 

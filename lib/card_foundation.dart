@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:solitaire/utilities.dart';
 import 'card_column.dart';
-import 'deck.dart';
 import 'playing_card.dart';
 import 'transformed_card.dart';
 
@@ -28,8 +27,7 @@ class CardFoundationState extends State<CardFoundation> {
   Widget build(BuildContext context) {
     return DragTarget<Map>(
       builder: (context, listOne, listTwo) {
-        return widget.cards.isEmpty
-            ? Opacity(
+        return widget.cards.isEmpty ? Opacity(
           opacity: 0.7,
           child: Container(
             decoration: BoxDecoration(
@@ -52,8 +50,7 @@ class CardFoundationState extends State<CardFoundation> {
               ),
             ),
           ),
-        )
-            : TransformedCard(
+        ) : TransformedCard(
           playingCard: widget.cards.last,
           columnIndex: widget.columnIndex,
           attachedCards: [
