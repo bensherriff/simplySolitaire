@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:solitaire/game_timer.dart';
 import 'package:solitaire/screens/options_screen.dart';
-
-import '../move.dart';
-import 'menu_screen.dart';
+import 'package:solitaire/storage.dart';
+import 'package:solitaire/move.dart';
+import 'package:solitaire/screens/menu_screen.dart';
 
 enum GameMode {
   klondike,
@@ -21,6 +21,7 @@ class GameScreen extends StatefulWidget {
 
   static const int maxSeed = 4294967296;
 
+  final Storage storage;
   final Color backgroundColor;
   final GameMode gameMode;
 
@@ -29,7 +30,7 @@ class GameScreen extends StatefulWidget {
   Moves moves = Moves(gameMode: GameMode.klondike);
   GameTimer timer = Get.put(GameTimer());
 
-  GameScreen({Key? key, required this.backgroundColor, required this.gameMode}) : super(key: key);
+  GameScreen({Key? key, required this.storage, required this.backgroundColor, required this.gameMode}) : super(key: key);
 
   @override
   GameScreenState createState() => GameScreenState();

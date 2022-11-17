@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:solitaire/screens/menu_screen.dart';
 import 'package:get/get.dart';
+import 'package:solitaire/storage.dart';
 
-final MenuScreen menuScreen = Get.put(const MenuScreen());
+final MenuScreen menuScreen = Get.put(MenuScreen(storage: Storage()));
 
 void main() => runApp(GetMaterialApp(home: menuScreen));
 
