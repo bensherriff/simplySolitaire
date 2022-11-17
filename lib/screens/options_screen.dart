@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:settings_ui/settings_ui.dart';
 
 class OptionsScreen extends StatefulWidget {
   OptionsScreen({Key? key}) : super(key: key);
 
   bool leftHandMode = false;
+  bool drawOne = true;
 
   @override
   OptionsScreenState createState() => OptionsScreenState();
@@ -37,26 +39,34 @@ class OptionsScreenState extends State<OptionsScreen> {
         ],
         automaticallyImplyLeading: false
       ),
-      body: Column(
-        children: <Widget>[
-          Row(
-           children: <Widget>[
-             const Padding(
-               padding: EdgeInsets.only(left: 28.0, right: 28.0),
-               child: Text("Left-handed"),
-             ),
-             Checkbox(
-                 value: widget.leftHandMode,
-                 onChanged: (bool? value) {
-                   setState(() {
-                     widget.leftHandMode = value!;
-                   });
-                 }
-             )
-           ],
+      body: SettingsList(
+        sections: [
+          SettingsSection(
+            tiles: [
+              SettingsTile.switchTile(
+                title: const Text('Left-Hand Mode'),
+                leading: const Icon(Icons.front_hand),
+                initialValue: widget.leftHandMode,
+                onToggle: (value) {
+                  setState(() {
+                    widget.leftHandMode = value;
+                  });
+                }
+              ),
+              SettingsTile.switchTile(
+                  title: const Text('Draw One'),
+                  initialValue: widget.drawOne,
+                  onToggle: (value) {
+                    setState(() {
+                      widget.drawOne = value;
+                    });
+                  }
+              )
+            ]
           )
-        ]
-      ),
+        ],
+      )
+
     );
   }
 }

@@ -6,67 +6,78 @@ import 'screens/game_screen.dart';
 
 class Move {
   List<PlayingCard> cards;
-  int newColumnIndex;
-  int previousColumnIndex;
-  bool flippedNewCard;
+  int previousIndex;
+  int newIndex;
+  bool revealedCard;
   bool resetDeck;
 
   Move({
     required this.cards,
-    required this.newColumnIndex,
-    required this.previousColumnIndex,
-    required this.flippedNewCard,
+    required this.newIndex,
+    required this.previousIndex,
+    required this.revealedCard,
     this.resetDeck = false,
   });
 
-  int points({GameMode gameMode = GameMode.klondike}) {
+  int calculatePoints(GameMode gameMode) {
     int points = 0;
+    if (gameMode == GameMode.klondike) {
+      return calculateKlondikePoints(points);
+    } else {
+      return points;
+    }
+  }
 
+  int calculateKlondikePoints(int points) {
     // Waste to Column
-    if (previousColumnIndex == 7 && newColumnIndex <=6) {
+    if (previousIndex == 7 && newIndex <=6) {
       points += 5 * cards.length;
     }
 
     // To Foundation
-    if (newColumnIndex >= 9 && newColumnIndex <= 12) {
-        points += 10;
+    if (newIndex >= 9 && newIndex <= 12) {
+      points += 10;
     }
 
     // Turned over card
-    if (flippedNewCard) {
+    if (revealedCard) {
       points += 5;
     }
 
     // Foundation to Column
-    if (previousColumnIndex >= 9 && previousColumnIndex <=12 && newColumnIndex <= 6) {
+    if (previousIndex >= 9 && previousIndex <=12 && newIndex <= 6) {
       points -= 15;
     }
 
     if (resetDeck) {
       points -= 100;
     }
-
     return points;
   }
 
   @override
   String toString() {
-    return "{cards: $cards, newColumnIndex: $newColumnIndex, previousColumnIndex: $previousColumnIndex, flippedNewCard: $flippedNewCard}";
+    return "{cards: $cards, newIndex: $newIndex, previousIndex: $previousIndex, revealedCard: $revealedCard}";
   }
 }
 
 class Moves {
   final list = <Move>[];
+  final GameMode gameMode;
+
+  Moves({
+    required this.gameMode
+  });
 
   void push(Move move) => list.add(move);
 
   Move? pop() => (isEmpty) ? null : list.removeLast();
   Move? get peek => (isEmpty) ? null : list.last;
 
-  int totalPoints({GameMode gameMode = GameMode.klondike}) {
+  int totalPoints() {
     int totalPoints = 0;
     for (var move in list) {
-      totalPoints = max(0, totalPoints + move.points(gameMode: gameMode));
+      totalPoints = max(0, totalPoints + move.calculatePoints(gameMode));
     }
     return totalPoints;
   }

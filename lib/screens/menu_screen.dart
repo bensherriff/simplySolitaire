@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:solitaire/screens/options_screen.dart';
@@ -14,14 +16,19 @@ class MenuScreen extends StatefulWidget {
 }
 
 class MenuScreenState extends State<MenuScreen> {
-
   final OptionsScreen _optionsScreen = Get.put(OptionsScreen());
   final KlondikeScreen _klondikeScreen = Get.put(KlondikeScreen());
   final SpiderScreen _spiderScreen = Get.put(SpiderScreen());
 
+  final PageController _pageController = PageController(initialPage: 0);
+  List<Widget> _pages = [];
+  int _activePage = 0;
+
   @override
   void initState() {
     super.initState();
+    _pages.add(_klondikeScreen);
+    _pages.add(_spiderScreen);
   }
 
   @override
@@ -44,97 +51,111 @@ class MenuScreenState extends State<MenuScreen> {
         ],
         automaticallyImplyLeading: false
       ),
-      body: PageView(
-        children: <Widget>[
-          Container(
-            child: gameMenu(_klondikeScreen),
+      body: Stack(
+        children: [
+          PageView.builder(
+            controller: _pageController,
+            onPageChanged: (int page) {
+              setState(() {
+                _activePage = page;
+              });
+            },
+            itemCount: _pages.length,
+            itemBuilder: (BuildContext context, int index) {
+              return gameMenu(_pages[index % _pages.length] as GameScreen);
+            },
           ),
-          Container(
-            child: gameMenu(_spiderScreen),
-          ),
-        ],
-      ),
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height: 30,
+            child: Container(
+              color: Colors.black54,
+              child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List<Widget>.generate(
+                _pages.length,
+                (index) => Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: InkWell(
+                    onTap: () {
+                      _pageController.animateToPage(index,
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeIn);
+                    },
+                    child: CircleAvatar(
+                      radius: 8,
+                      // check if a dot is connected to the current page
+                      // if true, give it a different color
+                      backgroundColor: _activePage == index
+                          ? Colors.grey
+                          : Colors.black12,
+                    ),
+                  ),
+                )),
+              ),
+            ),
+          )
+        ]
+      )
     );
   }
 
   Scaffold gameMenu(GameScreen gameScreen) {
     return Scaffold(
-        backgroundColor: gameScreen.backgroundColor,
-        body: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      backgroundColor: gameScreen.backgroundColor,
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: <Widget>[
-              Column(
+              Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: <Widget>[
-                  Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: const <Widget>[
-                        Padding(
-                            padding: EdgeInsets.fromLTRB(0,100,0,16),
-                            child: Text(Utilities.applicationName,
-                                style: TextStyle(
-                                    fontSize: 46.0,
-                                    color: Colors.white
-                                ))
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(0,100,0,16),
+                    child: Text(gameScreen.gameMode.toShortString(),
+                        style: const TextStyle(
+                            fontSize: 46.0,
+                            color: Colors.white
                         )
-                      ]
-                  ),const SizedBox(
-                    height: 16.0,
-                  ),
-                  Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: <Widget>[
-                        Text("Created by Benjamin Sherriff",
-                          style: TextStyle(
-                              color: Utilities.textColor
-                          ),)
-                      ]
-                  ),
-                  const SizedBox(
-                    height: 50.0,
-                  ),
-                  Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: <Widget>[
-                        Text(gameScreen.gameName,
-                          style: TextStyle(
-                            fontSize: 36,
-                            color: Utilities.textColor
-                          ),
-                        )
-                      ]
-                  ),
-                  const SizedBox(
-                    height: 30.0,
-                  ),
-                  Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: <Widget>[
-                        newGame(gameScreen)
-                      ]
-                  ),
-                  const SizedBox(
-                    height: 16.0,
-                  ),
-                  Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: <Widget>[
-                        continueGame(gameScreen)
-                      ]
-                  ),
-                  const SizedBox(
-                    height: 16.0,
-                  ),
-                  Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: <Widget>[
-                        replayGame(gameScreen)
-                      ]
-                  ),
-                ],
+                    )
+                  )
+                ]
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 50, 0, 0),
+                    child: newGame(gameScreen)
+                  )
+                ]
+              ),
+              Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: <Widget>[
+                    Padding(
+                        padding: const EdgeInsets.fromLTRB(0, 50, 0, 0),
+                        child: continueGame(gameScreen)
+                    )
+                  ]
+              ),
+              Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: <Widget>[
+                    Padding(
+                        padding: const EdgeInsets.fromLTRB(0, 50, 0, 0),
+                        child: replayGame(gameScreen)
+                    )
+                  ]
               )
-            ]
-        )
+            ],
+          )
+        ]
+      )
     );
   }
 
@@ -146,10 +167,10 @@ class MenuScreenState extends State<MenuScreen> {
           gameScreen.seed = -1,
           Get.to(() => gameScreen)
         },
+        style: buttonStyle(),
         child: Text("New Game",
           style: textStyle()
-        ),
-        style: buttonStyle()
+        )
     );
   }
 
@@ -159,16 +180,16 @@ class MenuScreenState extends State<MenuScreen> {
         onPressed: () => {
           Get.to(() => gameScreen)
         },
+        style: buttonStyle(),
         child: Text("Continue",
             style: textStyle()
         ),
-        style: buttonStyle(),
       );
     } else {
       return ElevatedButton(
         onPressed: () {},
-        child: const Text(""),
         style: hiddenButtonStyle(gameScreen.backgroundColor),
+        child: const Text(""),
       );
     }
   }
@@ -181,23 +202,23 @@ class MenuScreenState extends State<MenuScreen> {
             gameScreen.initialized = false,
             Get.to(() => gameScreen)
           },
+          style: buttonStyle(),
           child: Text('Replay',
               style: textStyle()
-          ),
-          style: buttonStyle()
+          )
       );
     } else {
       return ElevatedButton(
         onPressed: (){},
-        child: const Text(""),
         style: hiddenButtonStyle(gameScreen.backgroundColor),
+        child: const Text(""),
       );
     }
   }
 
   ButtonStyle buttonStyle() {
     return ElevatedButton.styleFrom(
-        primary: Utilities.buttonBackgroundColor,
+        backgroundColor: Utilities.buttonBackgroundColor,
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(30.0)
         ),
@@ -206,7 +227,7 @@ class MenuScreenState extends State<MenuScreen> {
 
   ButtonStyle hiddenButtonStyle(Color backgroundColor) {
     return ElevatedButton.styleFrom(
-        primary: backgroundColor,
+        backgroundColor: backgroundColor,
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(30.0)
         ),
