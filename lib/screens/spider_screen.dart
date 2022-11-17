@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:solitaire/storage.dart';
 
 import 'game_screen.dart';
 
 class SpiderScreen extends GameScreen {
 
-  SpiderScreen({Key? key, required Storage storage}) : super(key: key, storage: storage, gameMode: GameMode.spider, backgroundColor: const Color(0xFF0a9396));
+  SpiderScreen({Key? key}) : super(key: key, gameMode: GameMode.spider, backgroundColor: const Color(0xFF0a9396));
 
   @override
   SpiderScreenState createState() => SpiderScreenState();

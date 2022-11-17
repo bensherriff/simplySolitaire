@@ -1,18 +1,14 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
+import 'package:solitaire/screens/game_screen.dart';
+import 'package:solitaire/screens/klondike_screen.dart';
 import 'package:solitaire/screens/options_screen.dart';
 import 'package:solitaire/screens/spider_screen.dart';
-import 'package:solitaire/storage.dart';
 import 'package:solitaire/utilities.dart';
-import 'game_screen.dart';
-import 'klondike_screen.dart';
 
 class MenuScreen extends StatefulWidget {
-  const MenuScreen({Key? key, required this.storage}) : super(key: key);
-
-  final Storage storage;
+  const MenuScreen({Key? key}) : super(key: key);
 
   @override
   MenuScreenState createState() => MenuScreenState();
@@ -22,16 +18,16 @@ class MenuScreenState extends State<MenuScreen> {
   final OptionsScreen _optionsScreen = Get.put(OptionsScreen());
 
   final PageController _pageController = PageController(initialPage: 0);
-  List<Widget> _pages = [];
+  final List<Widget> _pages = [];
   int _activePage = 0;
 
   @override
   void initState() {
     super.initState();
-    KlondikeScreen _klondikeScreen = Get.put(KlondikeScreen(storage: widget.storage));
-    SpiderScreen _spiderScreen = Get.put(SpiderScreen(storage: widget.storage));
-    _pages.add(_klondikeScreen);
-    _pages.add(_spiderScreen);
+    KlondikeScreen klondikeScreen = Get.put(KlondikeScreen());
+    SpiderScreen spiderScreen = Get.put(SpiderScreen());
+    _pages.add(klondikeScreen);
+    _pages.add(spiderScreen);
   }
 
   @override

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:solitaire/game_timer.dart';
 import 'package:solitaire/screens/options_screen.dart';
 import 'package:solitaire/storage.dart';
@@ -21,16 +22,16 @@ class GameScreen extends StatefulWidget {
 
   static const int maxSeed = 4294967296;
 
-  final Storage storage;
   final Color backgroundColor;
   final GameMode gameMode;
+  final box = GetStorage('storage');
 
   bool initialized = false;
   int seed = -1;
   Moves moves = Moves(gameMode: GameMode.klondike);
   GameTimer timer = Get.put(GameTimer());
 
-  GameScreen({Key? key, required this.storage, required this.backgroundColor, required this.gameMode}) : super(key: key);
+  GameScreen({Key? key, required this.backgroundColor, required this.gameMode}) : super(key: key);
 
   @override
   GameScreenState createState() => GameScreenState();
@@ -39,6 +40,16 @@ class GameScreen extends StatefulWidget {
 class GameScreenState<T extends GameScreen> extends State<T> {
 
   final OptionsScreen optionsScreen = Get.find();
+
+  @override
+  void initState() {
+    super.initState();
+    // widget.box.write('gameMode', widget.gameMode);
+    // widget.box.write('seed', widget.seed);
+    // widget.box.write('initialized', widget.initialized);
+    // widget.box.write('moves', widget.moves);
+    // widget.box.write('timer', widget.timer);
+  }
 
   @override
   Widget build(BuildContext context) {

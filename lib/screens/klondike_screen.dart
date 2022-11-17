@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:solitaire/screens/game_screen.dart';
 import 'package:solitaire/screens/menu_screen.dart';
-import 'package:solitaire/storage.dart';
 import 'package:solitaire/card_column.dart';
 import 'package:solitaire/deck.dart';
 import 'package:solitaire/card_foundation.dart';
@@ -29,7 +28,7 @@ class KlondikeScreen extends GameScreen {
 
   bool allCardsRevealed = false;
 
-  KlondikeScreen({Key? key, required Storage storage}) : super(key: key, storage: storage, gameMode: GameMode.klondike, backgroundColor: const Color(0xFF357960));
+  KlondikeScreen({Key? key}) : super(key: key, gameMode: GameMode.klondike, backgroundColor: const Color(0xFF357960));
 
   @override
   KlondikeScreenState createState() => KlondikeScreenState();
@@ -39,6 +38,7 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
 
   @override
   void initState() {
+    super.initState();
     if (!widget.initialized) {
       super.initState();
       if (widget.seed == -1) {
