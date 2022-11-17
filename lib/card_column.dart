@@ -37,7 +37,7 @@ class CardColumnState extends State<CardColumn> {
       width: Utilities.cardWidth + 30,
       margin: const EdgeInsets.all(2.0),
       child: DragTarget<Map>(
-        builder: (context, listOne, listTwo) {
+        builder: (context, data, rejectedData) {
           return Stack(
             children: widget.cards.map((card) {
               int index = widget.cards.indexOf(card);
@@ -58,6 +58,10 @@ class CardColumnState extends State<CardColumn> {
           if (value != null) {
             List<PlayingCard> draggedCards = value["cards"];
             PlayingCard firstCard = draggedCards.first;
+
+            // Hide cards in column
+            // int index = widget.cards.indexOf(firstCard);
+            // widget.cards.removeRange(index, index + draggedCards.length);
 
             // If empty and king, accept
             if (widget.cards.isEmpty) {
