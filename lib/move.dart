@@ -13,8 +13,8 @@ class Move {
 
   Move({
     required this.cards,
-    required this.newIndex,
     required this.previousIndex,
+    required this.newIndex,
     required this.revealedCard,
     this.resetDeck = false,
   });

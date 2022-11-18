@@ -33,6 +33,10 @@ extension CardRankString on CardRank {
   String toShortString() {
     return toString().split('.').last;
   }
+
+  int compareTo(CardRank other) {
+    return index.compareTo(other.index);
+  }
 }
 
 extension CardRankValue on CardRank {
