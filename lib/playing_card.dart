@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 enum CardSuit {
   spades,
   hearts,
@@ -95,6 +97,43 @@ class PlayingCard {
 
   bool get isKing => (rank == CardRank.king);
   bool get isAce => rank == CardRank.ace;
+
+  String cardTypeToString() {
+    switch (rank) {
+      case CardRank.ace:
+        return "A";
+      case CardRank.two:
+        return "2";
+      case CardRank.three:
+        return "3";
+      case CardRank.four:
+        return "4";
+      case CardRank.five:
+        return "5";
+      case CardRank.six:
+        return "6";
+      case CardRank.seven:
+        return "7";
+      case CardRank.eight:
+        return "8";
+      case CardRank.nine:
+        return "9";
+      case CardRank.ten:
+        return "10";
+      case CardRank.jack:
+        return "J";
+      case CardRank.queen:
+        return "Q";
+      case CardRank.king:
+        return "K";
+      default:
+        return "";
+    }
+  }
+
+  Image toAsset() {
+    return Image.asset('images/${suit.toShortString()}/${rank.toShortString()}.png');
+  }
 
   @override
   String toString() {

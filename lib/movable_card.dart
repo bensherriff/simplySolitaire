@@ -7,7 +7,7 @@ typedef CardClickCallback = Null Function(List<PlayingCard> cards, int currentCo
 
 /// Transformed card that can be moved and translated according to the position
 /// in the card stack.
-class TransformedCard extends StatefulWidget {
+class MovableCard extends StatefulWidget {
   final PlayingCard playingCard;
   final double transformDistance;
   final int transformIndex;
@@ -15,20 +15,20 @@ class TransformedCard extends StatefulWidget {
   final List<PlayingCard> attachedCards;
   final CardClickCallback onClick;
 
-  const TransformedCard({Key? key,
+  const MovableCard({Key? key,
     required this.playingCard,
     required this.attachedCards,
     required this.onClick,
-    this.transformDistance = Utilities.cardHeight/6,
+    this.transformDistance = Utilities.cardHeight/5,
     this.transformIndex = 0,
     this.columnIndex = -1
   }) : super(key: key);
 
   @override
-  TransformedCardState createState() => TransformedCardState();
+  MovableCardState createState() => MovableCardState();
 }
 
-class TransformedCardState extends State<TransformedCard> {
+class MovableCardState extends State<MovableCard> {
   @override
   Widget build(BuildContext context) {
     return Transform(
@@ -54,11 +54,7 @@ class TransformedCardState extends State<TransformedCard> {
   }
 
   Widget buildCard() {
-    return !widget.playingCard.revealed ? SizedBox(
-      height: Utilities.cardHeight,
-      width: Utilities.cardWidth,
-      child: Image.asset('images/backs/1.png'),
-    ) : Draggable<Map>(
+    return !widget.playingCard.revealed ? buildFaceDownCard(true) : Draggable<Map>(
       feedback: CardColumn(
           cards: widget.attachedCards,
           columnIndex: 1,
@@ -74,6 +70,13 @@ class TransformedCardState extends State<TransformedCard> {
     );
   }
 
+  Widget buildFaceDownCard(visible) {
+    return SizedBox(
+      height: Utilities.cardHeight,
+      width: Utilities.cardWidth,
+      child: visible? Image.asset('images/backs/1.png'): null,
+    );
+  }
 
   Widget buildFaceUpCard(visible) {
     return Material(
@@ -81,56 +84,8 @@ class TransformedCardState extends State<TransformedCard> {
       child: SizedBox(
         height: Utilities.cardHeight,
         width: Utilities.cardWidth,
-        child: visible? Image.asset('images/${widget.playingCard.suit.toShortString()}/${widget.playingCard.rank.toShortString()}.png') : null,
+        child: visible? widget.playingCard.toAsset() : null,
       ),
     );
-  }
-
-  String cardTypeToString() {
-    switch (widget.playingCard.rank) {
-      case CardRank.ace:
-        return "A";
-      case CardRank.two:
-        return "2";
-      case CardRank.three:
-        return "3";
-      case CardRank.four:
-        return "4";
-      case CardRank.five:
-        return "5";
-      case CardRank.six:
-        return "6";
-      case CardRank.seven:
-        return "7";
-      case CardRank.eight:
-        return "8";
-      case CardRank.nine:
-        return "9";
-      case CardRank.ten:
-        return "10";
-      case CardRank.jack:
-        return "J";
-      case CardRank.queen:
-        return "Q";
-      case CardRank.king:
-        return "K";
-      default:
-        return "";
-    }
-  }
-
-  Image? suitToImage() {
-    switch (widget.playingCard.suit) {
-      case CardSuit.hearts:
-        return Image.asset('images/hearts.png');
-      case CardSuit.diamonds:
-        return Image.asset('images/diamonds.png');
-      case CardSuit.clubs:
-        return Image.asset('images/clubs.png');
-      case CardSuit.spades:
-        return Image.asset('images/spades.png');
-      default:
-        return null;
-    }
   }
 }

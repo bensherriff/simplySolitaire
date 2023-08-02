@@ -9,7 +9,7 @@ import '../deck.dart';
 import '../card_foundation.dart';
 import '../move.dart';
 import '../playing_card.dart';
-import '../transformed_card.dart';
+import '../movable_card.dart';
 import '../utilities.dart';
 
 class KlondikeScreen extends GameScreen {
@@ -198,7 +198,7 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
         InkWell(
           child: widget.stockDeck.isNotEmpty ? Padding(
             padding: const EdgeInsets.all(4.0),
-            child: TransformedCard(
+            child: MovableCard(
               playingCard: widget.stockDeck.last,
               attachedCards: const [],
               onClick: (List<PlayingCard> cards, int currentColumnIndex) {
@@ -209,7 +209,7 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
             opacity: 0.4,
             child: Padding(
               padding: const EdgeInsets.all(4.0),
-              child: TransformedCard(
+              child: MovableCard(
                 playingCard: PlayingCard(
                   suit: CardSuit.spades,
                   rank: CardRank.ace,
@@ -261,26 +261,52 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
   }
 
   Widget buildWasteDeck() {
-    return Row(
-      children: <Widget>[
-        InkWell(
-          child: widget.wasteDeck.isNotEmpty ? Padding(
-            padding: const EdgeInsets.all(4.0),
-            child: TransformedCard(
-              playingCard: widget.wasteDeck.last,
-              attachedCards: [
-                widget.wasteDeck.last,
-              ],
-              onClick: (cards, currentColumnIndex) {
-                moveToValidColumn(cards, currentColumnIndex);
-              },
-              columnIndex: 7,
-            ),
-          ) : Container(
-            width: 40.0,
-          )
-        )
-      ]
+    return Container(
+      constraints: const BoxConstraints(
+        maxWidth: 100,
+        minWidth: 100,
+      ),
+      child: Stack(
+          children: <Widget>[
+            widget.wasteDeck.length >= 3 ? Positioned(
+              left: 50,
+              child: SizedBox(
+                height: Utilities.cardHeight,
+                width: Utilities.cardWidth,
+                child: widget.wasteDeck.elementAt(widget.wasteDeck.length - 3).toAsset(),
+              ),
+            ) : const SizedBox(height: Utilities.cardHeight, width: Utilities.cardWidth),
+            widget.wasteDeck.length >= 2 ? Positioned(
+              left: 25,
+              child: SizedBox(
+                height: Utilities.cardHeight,
+                width: Utilities.cardWidth,
+                child: widget.wasteDeck.elementAt(widget.wasteDeck.length - 2).toAsset(),
+              ),
+            ) : const SizedBox(height: Utilities.cardHeight, width: Utilities.cardWidth),
+            widget.wasteDeck.isNotEmpty ? InkWell(
+              child: Positioned(
+                left: 0,
+                  child: MovableCard(
+                    playingCard: widget.wasteDeck.last,
+                    attachedCards: [
+                      widget.wasteDeck.last,
+                    ],
+                    onClick: (cards, currentColumnIndex) {
+                      moveToValidColumn(cards, currentColumnIndex);
+                    },
+                    columnIndex: 7,
+                  )
+              ),
+            ) : const Padding(
+                padding: EdgeInsets.all(4.0),
+                child: SizedBox(
+                  height: Utilities.cardHeight,
+                  width: Utilities.cardWidth,
+                )
+            )
+          ]
+      )
     );
   }
 
@@ -289,9 +315,9 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
     return Row(
       children: <Widget>[
         Padding(
-          padding: const EdgeInsets.all(4.0),
+          padding: const EdgeInsets.all(2.0),
           child: CardFoundation(
-            cardSuit: CardSuit.spades,
+            suit: CardSuit.spades,
             cards: widget.spadesFoundation,
             columnIndex: 9,
             onCardAdded: (cards, currentColumnIndex) {
@@ -300,9 +326,9 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.all(4.0),
+          padding: const EdgeInsets.all(2.0),
           child: CardFoundation(
-            cardSuit: CardSuit.hearts,
+            suit: CardSuit.hearts,
             cards: widget.heartsFoundation,
             columnIndex: 10,
             onCardAdded: (cards, currentColumnIndex) {
@@ -311,9 +337,9 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.all(4.0),
+          padding: const EdgeInsets.all(2.0),
           child: CardFoundation(
-            cardSuit: CardSuit.clubs,
+            suit: CardSuit.clubs,
             cards: widget.clubsFoundation,
             columnIndex: 11,
             onCardAdded: (cards, currentColumnIndex) {
@@ -322,9 +348,9 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.all(4.0),
+          padding: const EdgeInsets.all(2.0),
           child: CardFoundation(
-            cardSuit: CardSuit.diamonds,
+            suit: CardSuit.diamonds,
             cards: widget.diamondsFoundation,
             columnIndex: 12,
             onCardAdded: (cards, currentColumnIndex) {

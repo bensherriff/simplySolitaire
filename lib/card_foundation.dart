@@ -2,17 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:solitaire/utilities.dart';
 import 'card_column.dart';
 import 'playing_card.dart';
-import 'transformed_card.dart';
+import 'movable_card.dart';
 
 // The deck of cards which accept the final cards (Ace to King)
 class CardFoundation extends StatefulWidget {
-  final CardSuit cardSuit;
+  final CardSuit suit;
   final List<PlayingCard> cards;
   final CardAcceptCallback onCardAdded;
   final int columnIndex;
 
   const CardFoundation({Key? key,
-    required this.cardSuit,
+    required this.suit,
     required this.cards,
     required this.onCardAdded,
     this.columnIndex = -1,
@@ -53,7 +53,7 @@ class CardFoundationState extends State<CardFoundation> {
         ),
         DragTarget<Map>(
           builder: (context, listOne, listTwo) {
-            return widget.cards.isEmpty ? const SizedBox() : TransformedCard(
+            return widget.cards.isEmpty ? const SizedBox() : MovableCard(
               playingCard: widget.cards.last,
               columnIndex: widget.columnIndex,
               attachedCards: [
@@ -66,7 +66,7 @@ class CardFoundationState extends State<CardFoundation> {
           onWillAccept: (value) {
             if (value != null) {
               PlayingCard cardAdded = value["cards"].last;
-              if (cardAdded.suit == widget.cardSuit) {
+              if (cardAdded.suit == widget.suit) {
                 if (CardRank.values.indexOf(cardAdded.rank) == widget.cards.length) {
                   return true;
                 }
@@ -86,7 +86,7 @@ class CardFoundationState extends State<CardFoundation> {
   }
 
   Image? suitToImage() {
-    switch (widget.cardSuit) {
+    switch (widget.suit) {
       case CardSuit.hearts:
         return Image.asset('images/hearts.png');
       case CardSuit.diamonds:

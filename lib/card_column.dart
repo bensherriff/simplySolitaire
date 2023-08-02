@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:solitaire/utilities.dart';
 import 'playing_card.dart';
-import 'transformed_card.dart';
+import 'movable_card.dart';
 
 typedef CardAcceptCallback = Null Function(List<PlayingCard> cards, int currentColumnIndex);
 
@@ -41,7 +41,7 @@ class CardColumnState extends State<CardColumn> {
           return Stack(
             children: widget.cards.map((card) {
               int index = widget.cards.indexOf(card);
-              return TransformedCard(
+              return MovableCard(
                 playingCard: card,
                 transformIndex: index,
                 attachedCards: widget.cards.sublist(index, widget.cards.length),
