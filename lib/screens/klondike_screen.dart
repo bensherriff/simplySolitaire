@@ -82,6 +82,7 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
         ],
       ),
       bottomNavigationBar: BottomAppBar(
+        color: const Color(0xFF15382b),
         shape: const CircularNotchedRectangle(),
         child: SizedBox(
           height: 75.0,
@@ -92,6 +93,7 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
               IconButton(
                 icon: const Icon(Icons.home),
                 iconSize: 30.0,
+                color: Colors.white,
                 padding: const EdgeInsets.only(left: 28.0, right: 28.0),
                 onPressed: () {
                   widget.timer.stopTimer(reset: false);
@@ -108,16 +110,17 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
                     Text(widget.moves.totalPoints().toString(),
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
-                        color: Colors.black
+                        color: Colors.white
                       ),
                     ),
-                    const Text("Points")
+                    const Text("Points", style: TextStyle(color: Colors.white) )
                   ]
                 ),
               ),
               (widget.moves.isNotEmpty)? IconButton(
                 icon: const Icon(Icons.arrow_back),
                 iconSize: 30.0,
+                color: Colors.white,
                 padding: const EdgeInsets.only(left: 28.0, right: 28.0),
                 onPressed: () {
                   Move? lastMove = widget.moves.pop();

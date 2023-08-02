@@ -19,7 +19,7 @@ class TransformedCard extends StatefulWidget {
     required this.playingCard,
     required this.attachedCards,
     required this.onClick,
-    this.transformDistance = Utilities.cardHeight/4,
+    this.transformDistance = Utilities.cardHeight/6,
     this.transformIndex = 0,
     this.columnIndex = -1
   }) : super(key: key);
@@ -63,24 +63,25 @@ class TransformedCardState extends State<TransformedCard> {
           cards: widget.attachedCards,
           columnIndex: 1,
           onCardsAdded: (card, position) {},
-          onClick: (cards, currentColumnIndex){}
+          onClick: (cards, currentColumnIndex) {}
       ),
-      childWhenDragging: buildFaceUpCard(),
+      childWhenDragging: buildFaceUpCard(false),
       data: {
         "cards": widget.attachedCards,
         "currentColumnIndex": widget.columnIndex,
       },
-      child: buildFaceUpCard(),
+      child: buildFaceUpCard(true),
     );
   }
 
-  Widget buildFaceUpCard() {
+
+  Widget buildFaceUpCard(visible) {
     return Material(
       color: Colors.transparent,
       child: SizedBox(
         height: Utilities.cardHeight,
         width: Utilities.cardWidth,
-        child: Image.asset('images/${widget.playingCard.suit.toShortString()}/${widget.playingCard.rank.toShortString()}.png'),
+        child: visible? Image.asset('images/${widget.playingCard.suit.toShortString()}/${widget.playingCard.rank.toShortString()}.png') : null,
       ),
     );
   }

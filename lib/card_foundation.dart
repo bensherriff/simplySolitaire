@@ -25,10 +25,10 @@ class CardFoundation extends StatefulWidget {
 class CardFoundationState extends State<CardFoundation> {
   @override
   Widget build(BuildContext context) {
-    return DragTarget<Map>(
-      builder: (context, listOne, listTwo) {
-        return widget.cards.isEmpty ? Opacity(
-          opacity: 0.7,
+    return Stack(
+      children: <Widget>[
+        Opacity(
+          opacity: 0.5,
           child: Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(8.0),
@@ -50,35 +50,38 @@ class CardFoundationState extends State<CardFoundation> {
               ),
             ),
           ),
-        ) : TransformedCard(
-          playingCard: widget.cards.last,
-          columnIndex: widget.columnIndex,
-          attachedCards: [
-            widget.cards.last,
-          ], onClick: (List<PlayingCard> cards, int currentColumnIndex) {
-            // Do not move cards from final deck on click
-        },
-        );
-      },
-      onWillAccept: (value) {
-        if (value != null) {
-          PlayingCard cardAdded = value["cards"].last;
-          if (cardAdded.suit == widget.cardSuit) {
-            if (CardRank.values.indexOf(cardAdded.rank) ==
-                widget.cards.length) {
-              return true;
+        ),
+        DragTarget<Map>(
+          builder: (context, listOne, listTwo) {
+            return widget.cards.isEmpty ? const SizedBox() : TransformedCard(
+              playingCard: widget.cards.last,
+              columnIndex: widget.columnIndex,
+              attachedCards: [
+                widget.cards.last,
+              ], onClick: (List<PlayingCard> cards, int currentColumnIndex) {
+              // Do not move cards from final deck on click
+            },
+            );
+          },
+          onWillAccept: (value) {
+            if (value != null) {
+              PlayingCard cardAdded = value["cards"].last;
+              if (cardAdded.suit == widget.cardSuit) {
+                if (CardRank.values.indexOf(cardAdded.rank) == widget.cards.length) {
+                  return true;
+                }
+              }
             }
-          }
-        }
-
-        return false;
-      },
-      onAccept: (value) {
-        widget.onCardAdded(
-          value["cards"],
-          value["currentColumnIndex"],
-        );
-      },
+            return false;
+          },
+          onAccept: (value) {
+            widget.onCardAdded(
+              value["cards"],
+              value["currentColumnIndex"],
+            );
+          },
+        )
+      ],
     );
   }
 

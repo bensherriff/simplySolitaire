@@ -44,7 +44,7 @@ class GameTimer {
       '$minutes:$seconds',
       style: const TextStyle(
           fontWeight: FontWeight.bold,
-          color: Colors.black
+          color: Colors.white
       ),
     );
   }

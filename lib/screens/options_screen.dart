@@ -26,6 +26,7 @@ class OptionsScreenState extends State<OptionsScreen> {
       appBar: AppBar(
        backgroundColor: Colors.transparent,
         elevation: 0,
+        title: const Text("Settings"),
         actions: <Widget>[
           IconButton(
             icon: const Icon(
@@ -41,29 +42,29 @@ class OptionsScreenState extends State<OptionsScreen> {
       ),
       body: SettingsList(
         sections: [
-          SettingsSection(
-            tiles: [
-              SettingsTile.switchTile(
-                title: const Text('Left-Hand Mode'),
-                leading: const Icon(Icons.front_hand),
-                initialValue: widget.leftHandMode,
-                onToggle: (value) {
-                  setState(() {
-                    widget.leftHandMode = value;
-                  });
-                }
-              ),
-              SettingsTile.switchTile(
-                  title: const Text('Draw One'),
-                  initialValue: widget.drawOne,
-                  onToggle: (value) {
-                    setState(() {
-                      widget.drawOne = value;
-                    });
-                  }
-              )
-            ]
-          )
+        //   SettingsSection(
+        //     tiles: [
+        //       SettingsTile.switchTile(
+        //         title: const Text('Left-Hand Mode'),
+        //         leading: const Icon(Icons.front_hand),
+        //         initialValue: widget.leftHandMode,
+        //         onToggle: (value) {
+        //           setState(() {
+        //             widget.leftHandMode = value;
+        //           });
+        //         }
+        //       ),
+        //       SettingsTile.switchTile(
+        //           title: const Text('Draw One'),
+        //           initialValue: widget.drawOne,
+        //           onToggle: (value) {
+        //             setState(() {
+        //               widget.drawOne = value;
+        //             });
+        //           }
+        //       )
+        //     ]
+        //   )
         ],
       )
 
