@@ -2,8 +2,8 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:solitaire/main.dart';
 import 'package:solitaire/screens/game_screen.dart';
-import 'package:solitaire/screens/menu_screen.dart';
 import '../card_column.dart';
 import '../deck.dart';
 import '../card_foundation.dart';
@@ -81,63 +81,7 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
           ): Container()
         ],
       ),
-      bottomNavigationBar: BottomAppBar(
-        color: const Color(0xFF15382b),
-        shape: const CircularNotchedRectangle(),
-        child: SizedBox(
-          height: 75.0,
-          child: Row(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              IconButton(
-                icon: const Icon(Icons.home),
-                iconSize: 30.0,
-                color: Colors.white,
-                padding: const EdgeInsets.only(left: 28.0, right: 28.0),
-                onPressed: () {
-                  widget.timer.stopTimer(reset: false);
-                  MenuScreen menuScreen = Get.find();
-                  Get.to(() => menuScreen);
-                }
-              ),
-              Obx(() => widget.timer.buildTime()),
-              Padding(
-                padding: const EdgeInsets.only(left: 28.0, right: 28.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(widget.moves.totalPoints().toString(),
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white
-                      ),
-                    ),
-                    const Text("Points", style: TextStyle(color: Colors.white) )
-                  ]
-                ),
-              ),
-              (widget.moves.isNotEmpty)? IconButton(
-                icon: const Icon(Icons.arrow_back),
-                iconSize: 30.0,
-                color: Colors.white,
-                padding: const EdgeInsets.only(left: 28.0, right: 28.0),
-                onPressed: () {
-                  Move? lastMove = widget.moves.pop();
-                  if (lastMove != null) {
-                    undoMove(lastMove);
-                  }
-                }
-              ) : IconButton(
-                icon: const Icon(null),
-                iconSize: 30.0,
-                padding: const EdgeInsets.only(left: 28.0, right: 28.0),
-                onPressed: () {},
-              )
-            ],
-          )
-        ),
-      ),
+      bottomNavigationBar: bottomNavBar(0xFF15382b, (move) => undoMove(move)),
     );
   }
 
@@ -261,32 +205,32 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
   }
 
   Widget buildWasteDeck() {
-    return Container(
-      constraints: const BoxConstraints(
-        maxWidth: 100,
-        minWidth: 100,
-      ),
-      child: Stack(
-          children: <Widget>[
-            widget.wasteDeck.length >= 3 ? Positioned(
-              left: 50,
-              child: SizedBox(
-                height: Utilities.cardHeight,
-                width: Utilities.cardWidth,
-                child: widget.wasteDeck.elementAt(widget.wasteDeck.length - 3).toAsset(),
-              ),
-            ) : const SizedBox(height: Utilities.cardHeight, width: Utilities.cardWidth),
-            widget.wasteDeck.length >= 2 ? Positioned(
-              left: 25,
-              child: SizedBox(
-                height: Utilities.cardHeight,
-                width: Utilities.cardWidth,
-                child: widget.wasteDeck.elementAt(widget.wasteDeck.length - 2).toAsset(),
-              ),
-            ) : const SizedBox(height: Utilities.cardHeight, width: Utilities.cardWidth),
-            widget.wasteDeck.isNotEmpty ? InkWell(
-              child: Positioned(
-                left: 0,
+    if (optionsScreen.leftHandMode) {
+      return Container(
+          constraints: const BoxConstraints(
+            maxWidth: 100,
+            minWidth: 100,
+          ),
+          child: Stack(
+            children: <Widget>[
+              widget.wasteDeck.length >= 3 ? Positioned(
+                left: 50,
+                child: SizedBox(
+                  height: Utilities.cardHeight,
+                  width: Utilities.cardWidth,
+                  child: widget.wasteDeck.elementAt(widget.wasteDeck.length - 3).toAsset(),
+                ),
+              ) : const SizedBox(height: Utilities.cardHeight, width: Utilities.cardWidth),
+              widget.wasteDeck.length >= 2 ? Positioned(
+                left: 25,
+                child: SizedBox(
+                  height: Utilities.cardHeight,
+                  width: Utilities.cardWidth,
+                  child: widget.wasteDeck.elementAt(widget.wasteDeck.length - 2).toAsset(),
+                ),
+              ) : const SizedBox(height: Utilities.cardHeight, width: Utilities.cardWidth),
+              widget.wasteDeck.isNotEmpty ? Positioned(
+                child: InkWell(
                   child: MovableCard(
                     playingCard: widget.wasteDeck.last,
                     attachedCards: [
@@ -297,17 +241,65 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
                     },
                     columnIndex: 7,
                   )
-              ),
-            ) : const Padding(
+                )
+              ) : const Padding(
                 padding: EdgeInsets.all(4.0),
                 child: SizedBox(
                   height: Utilities.cardHeight,
                   width: Utilities.cardWidth,
                 )
-            )
-          ]
-      )
-    );
+              )
+            ]
+          )
+      );
+    } else {
+      return Container(
+          constraints: const BoxConstraints(
+            maxWidth: 100,
+            minWidth: 100,
+          ),
+          child: Stack(
+              children: <Widget>[
+                widget.wasteDeck.length >= 3 ? Positioned(
+                  child: SizedBox(
+                    height: Utilities.cardHeight,
+                    width: Utilities.cardWidth,
+                    child: widget.wasteDeck.elementAt(widget.wasteDeck.length - 3).toAsset(),
+                  ),
+                ) : const SizedBox(height: Utilities.cardHeight, width: Utilities.cardWidth),
+                widget.wasteDeck.length >= 2 ? Positioned(
+                  left: 25,
+                  child: SizedBox(
+                    height: Utilities.cardHeight,
+                    width: Utilities.cardWidth,
+                    child: widget.wasteDeck.elementAt(widget.wasteDeck.length - 2).toAsset(),
+                  ),
+                ) : const SizedBox(height: Utilities.cardHeight, width: Utilities.cardWidth),
+                widget.wasteDeck.isNotEmpty ? Positioned(
+                    left: 50,
+                    child: InkWell(
+                        child: MovableCard(
+                          playingCard: widget.wasteDeck.last,
+                          attachedCards: [
+                            widget.wasteDeck.last,
+                          ],
+                          onClick: (cards, currentColumnIndex) {
+                            moveToValidColumn(cards, currentColumnIndex);
+                          },
+                          columnIndex: 7,
+                        )
+                    )
+                ) : const Padding(
+                    padding: EdgeInsets.all(4.0),
+                    child: SizedBox(
+                      height: Utilities.cardHeight,
+                      width: Utilities.cardWidth,
+                    )
+                )
+              ]
+          )
+      );
+    }
   }
 
   // Build the final decks of cards
@@ -418,11 +410,6 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
 
     widget.stockDeck = allCards.cards;
     widget.stockDeck.shuffle(random);
-    // Flip the first card and add it to the waste deck
-    widget.wasteDeck.add(
-        widget.stockDeck.removeLast()
-        ..revealed = true
-    );
 
     widget.initialized = true;
   }

@@ -11,5 +11,28 @@ class SpiderScreen extends GameScreen {
 }
 
 class SpiderScreenState extends GameScreenState<SpiderScreen> {
+  @override
+  void initState() {
+    if (!widget.initialized) {
+      super.initState();
+    }
+  }
 
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: widget.backgroundColor,
+      body: const Column(
+        children: <Widget>[
+          SizedBox(
+            height: 80.0,
+          ),
+          SizedBox(
+            height: 16.0,
+          )
+        ]
+      ),
+      bottomNavigationBar: bottomNavBar(0xFF0b3f40, (move) => {}),
+    );
+  }
 }
