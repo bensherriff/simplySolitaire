@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:solitaire/game_timer.dart';
 import 'package:solitaire/screens/options_screen.dart';
-import 'package:solitaire/storage.dart';
 import 'package:solitaire/move.dart';
 import 'package:solitaire/screens/menu_screen.dart';
 
