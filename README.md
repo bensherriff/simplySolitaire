@@ -1,4 +1,4 @@
-# Simple Solitaire
+# Simply Solitaire
 
 A simple solitaire app
 

@@ -43,7 +43,7 @@ class GameScreenState<T extends GameScreen> extends State<T> {
   @override
   void initState() {
     super.initState();
-    widget.box.write('gameMode', widget.gameMode);
+    widget.box.write('gameMode', widget.gameMode.toString());
   }
 
   @override

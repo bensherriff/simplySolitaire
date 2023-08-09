@@ -421,8 +421,8 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
     });
     widget.box.write('seed', widget.seed);
     widget.box.write('initialized', widget.initialized);
-    widget.box.write('moves', widget.moves);
-    widget.box.write('timer', widget.timer);
+    // widget.box.write('moves', widget.moves);
+    // widget.box.write('timer', widget.timer);
   }
 
   void moveCards(List<PlayingCard> cards, int currentIndex, int newIndex) {
