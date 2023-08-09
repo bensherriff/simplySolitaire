@@ -101,7 +101,7 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
           onCardsAdded: (cards, currentColumnIndex) {
             moveCards(cards, currentColumnIndex, i);
           },
-          onClick: (cards, currentColumnIndex) {
+          onTap: (cards, currentColumnIndex) {
             moveToValidColumn(cards, currentColumnIndex);
           },
         )
@@ -149,10 +149,6 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
             padding: const EdgeInsets.all(4.0),
             child: MovableCard(
               playingCard: widget.stockDeck.last,
-              attachedCards: const [],
-              onClick: (List<PlayingCard> cards, int currentColumnIndex) {
-                // Override onClick functionality with onTap method in waste deck
-              },
               columnIndex: 8
             ),
           ) : Opacity(
@@ -164,10 +160,6 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
                   suit: CardSuit.spades,
                   rank: CardRank.ace,
                 ),
-                attachedCards: const [],
-                onClick: (List<PlayingCard> cards, int currentColumnIndex) {
-                  // Override onClick functionality with onTap method in waste deck
-                },
                 columnIndex: 8
               ),
             ),
@@ -242,7 +234,7 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
                     attachedCards: [
                       widget.wasteDeck.last,
                     ],
-                    onClick: (cards, currentColumnIndex) {
+                    onTap: (cards, currentColumnIndex) {
                       moveToValidColumn(cards, currentColumnIndex);
                     },
                     columnIndex: 7,
@@ -289,7 +281,7 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
                           attachedCards: [
                             widget.wasteDeck.last,
                           ],
-                          onClick: (cards, currentColumnIndex) {
+                          onTap: (cards, currentColumnIndex) {
                             moveToValidColumn(cards, currentColumnIndex);
                           },
                           columnIndex: 7,

@@ -84,11 +84,13 @@ class PlayingCard {
   CardSuit suit;
   CardRank rank;
   bool revealed;
+  bool visible;
 
   PlayingCard({
     required this.suit,
     required this.rank,
     this.revealed = false,
+    this.visible = true,
   });
 
   CardColor get cardColor {
@@ -137,6 +139,10 @@ class PlayingCard {
 
   Image toAsset() {
     return Image.asset('images/${suit.toShortString()}/${rank.toShortString()}.png');
+  }
+
+  Image toBackAsset() {
+    return Image.asset('images/backs/1.png');
   }
 
   @override

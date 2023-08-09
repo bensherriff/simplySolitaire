@@ -3,7 +3,7 @@ import 'package:get_storage/get_storage.dart';
 import 'package:solitaire/screens/menu_screen.dart';
 import 'package:get/get.dart';
 
-final MenuScreen menuScreen = Get.put(MenuScreen());
+final MenuScreen menuScreen = Get.put(const MenuScreen());
 
 void main() async {
   await GetStorage.init('storage');

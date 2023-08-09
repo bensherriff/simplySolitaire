@@ -160,7 +160,7 @@ class MenuScreenState extends State<MenuScreen> {
                 children: <Widget>[
                   Padding(
                       padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-                      child: (box.read('seed') != null) ? Text(
+                      child: (box.read('seed') != null && gameScreen.initialized) ? Text(
                         '${box.read('seed')}',
                         style: const TextStyle(color: Colors.grey),
                       ) :
