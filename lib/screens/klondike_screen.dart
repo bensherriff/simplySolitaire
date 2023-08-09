@@ -360,7 +360,7 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
 
   /// Initialize a new game using a seed. The seed is used to generate the
   /// random order of cards, and to allow for re-playability.
-  void initializeGame(int seed, {bool debug = true}) {
+  void initializeGame(int seed, {bool debug = false}) {
     Deck allCards = Deck();
 
     // Add all cards to deck
