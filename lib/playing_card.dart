@@ -14,19 +14,23 @@ extension CardSuitString on CardSuit {
 }
 
 enum CardRank {
-  ace,
-  two,
-  three,
-  four,
-  five,
-  six,
-  seven,
-  eight,
-  nine,
-  ten,
-  jack,
-  queen,
-  king
+  ace(image: 'a.png'),
+  two(image: '2.png'),
+  three(image: '3.png'),
+  four(image: '4.png'),
+  five(image: '5.png'),
+  six(image: '6.png'),
+  seven(image: '7.png'),
+  eight(image: '8.png'),
+  nine(image: '9.png'),
+  ten(image: '10.png'),
+  jack(image: 'j.png'),
+  queen(image: 'q.png'),
+  king(image: 'k.png');
+
+  const CardRank({ required this.image });
+
+  final String image;
 }
 
 extension CardRankString on CardRank {
@@ -138,7 +142,7 @@ class PlayingCard {
   }
 
   Image toAsset() {
-    return Image.asset('images/${suit.toShortString()}/${rank.toShortString()}.png');
+    return Image.asset('images/${suit.toShortString()}/${rank.image}');
   }
 
   Image toBackAsset() {

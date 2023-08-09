@@ -29,7 +29,7 @@ class MovableCard extends StatefulWidget {
     this.onTap = emptyTapCallback,
     this.onDragStarted = emptyDragStartedCallback,
     this.onDragEnd = emptyDragEndCallback,
-    this.transformDistance = Utilities.cardHeight/4,
+    this.transformDistance = Utilities.cardHeight/3.5,
     this.transformIndex = 0,
     this.columnIndex = -1,
   }) : super(key: key);

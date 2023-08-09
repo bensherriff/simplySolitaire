@@ -726,7 +726,7 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
                               widget.initialized = false;
                               widget.seed = -1;
                             });
-                            Get.offAll(() => screen);
+                            Get.to(() => screen);
                           },
                           child: const Text("Main\nMenu", style: TextStyle(fontSize: 18)),
                         )
