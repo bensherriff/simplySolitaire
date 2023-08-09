@@ -62,8 +62,8 @@ class Move {
 }
 
 class Moves {
-  final list = <Move>[];
   final GameMode gameMode;
+  List<Move> list = <Move>[];
 
   Moves({
     required this.gameMode
@@ -85,6 +85,12 @@ class Moves {
   int get size => list.length;
   bool get isEmpty => list.isEmpty;
   bool get isNotEmpty => list.isNotEmpty;
+
+  Moves reversed() {
+    Moves reversedMoves = Moves(gameMode: gameMode);
+    reversedMoves.list = list.reversed.toList();
+    return reversedMoves;
+  }
 
   @override
   String toString() => list.toString();

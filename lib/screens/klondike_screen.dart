@@ -67,8 +67,8 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
             buildColumns(),
             (checkAllCardsRevealed()) ? ElevatedButton(
               onPressed: () => {
-                // handleAutoWin()
-                handleWin()
+                handleAutoWin()
+                // handleWin()
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Utilities.buttonBackgroundColor,
@@ -360,7 +360,7 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
 
   /// Initialize a new game using a seed. The seed is used to generate the
   /// random order of cards, and to allow for re-playability.
-  void initializeGame(int seed, {bool debug = false}) {
+  void initializeGame(int seed, {bool debug = true}) {
     Deck allCards = Deck();
 
     // Add all cards to deck
@@ -390,13 +390,23 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
 
       widget.timer.resetTimer();
 
-      for (int i = 0; i < widget.columns.length; i++) {
-        for (int j = 0; j <= i; j++) {
-          PlayingCard card = allCards.drawFront();
-          if (j == i) {
+      if (debug) {
+        for (int i = 0; i < 13; i++) {
+          for (int j = 0; j < 4; j++) {
+            PlayingCard card = allCards.drawFront();
             card.revealed = true;
+            widget.columns[j].add(card);
           }
-          widget.columns[i].add(card);
+        }
+      } else {
+        for (int i = 0; i < widget.columns.length; i++) {
+          for (int j = 0; j <= i; j++) {
+            PlayingCard card = allCards.drawFront();
+            if (j == i) {
+              card.revealed = true;
+            }
+            widget.columns[i].add(card);
+          }
         }
       }
 
@@ -624,7 +634,7 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
 
     // Sort moves by priority. Moves with a higher priority should be moved first
     validMoves.list.sort((a, b) => a.cards.first.rank.compareTo(b.cards.first.rank));
-    return validMoves;
+    return validMoves.reversed();
   }
 
   void handleAutoWin() {
@@ -644,7 +654,6 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
           moveCards(move.cards, move.previousIndex, move.newIndex);
         }
       }
-
     } while (validMoves.isNotEmpty);
 
     checkWin();
