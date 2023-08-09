@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:solitaire/screens/menu_screen.dart';
 import 'package:get/get.dart';
 
 final MenuScreen menuScreen = Get.put(const MenuScreen());
 
-void main() => runApp(GetMaterialApp(home: menuScreen));
+void main() async {
+  await GetStorage.init('storage');
+  runApp(GetMaterialApp(home: menuScreen));
+}
+
 
 class App extends StatelessWidget {
   const App({Key? key}) : super(key: key);

@@ -13,7 +13,7 @@ class CardColumn extends StatefulWidget {
 
   // Callback when card is added to the stack
   final CardAcceptCallback onCardsAdded;
-  final CardClickCallback onClick;
+  final CardTapCallback onTap;
 
   // The index of the list in the game
   final int columnIndex;
@@ -22,7 +22,7 @@ class CardColumn extends StatefulWidget {
   const CardColumn({Key? key,
     required this.cards,
     required this.onCardsAdded,
-    required this.onClick,
+    required this.onTap,
     required this.columnIndex,
   }) : super(key: key);
 
@@ -31,23 +31,41 @@ class CardColumn extends StatefulWidget {
 }
 
 class CardColumnState extends State<CardColumn> {
+  List<PlayingCard> cards = [];
+
+
   @override
   Widget build(BuildContext context) {
+    cards = widget.cards;
     return Container(
       width: Utilities.cardWidth + 30,
       margin: const EdgeInsets.all(2.0),
       child: DragTarget<Map>(
-        builder: (context, listOne, listTwo) {
+        builder: (context, data, rejectedData) {
           return Stack(
-            children: widget.cards.map((card) {
-              int index = widget.cards.indexOf(card);
+            children: cards.map((card) {
+              int index = cards.indexOf(card);
               return MovableCard(
                 playingCard: card,
                 transformIndex: index,
-                attachedCards: widget.cards.sublist(index, widget.cards.length),
+                attachedCards: [...cards.sublist(index, cards.length)],
                 columnIndex: widget.columnIndex,
-                onClick: (cards, currentColumnIndex) {
-                  widget.onClick(cards, currentColumnIndex);
+                onTap: (cards, currentColumnIndex) {
+                  widget.onTap(cards, currentColumnIndex);
+                },
+                onDragStarted: () {
+                  setState(() {
+                    for (var element in cards.sublist(index, cards.length)) {
+                      element.visible = false;
+                    }
+                  });
+                },
+                onDragEnd: () {
+                  setState(() {
+                    for (var element in cards.sublist(index, cards.length)) {
+                      element.visible = true;
+                    }
+                  });
                 },
               );
             }).toList(),
@@ -58,6 +76,10 @@ class CardColumnState extends State<CardColumn> {
           if (value != null) {
             List<PlayingCard> draggedCards = value["cards"];
             PlayingCard firstCard = draggedCards.first;
+
+            // Hide cards in column
+            // int index = widget.cards.indexOf(firstCard);
+            // widget.cards.removeRange(index, index + draggedCards.length);
 
             // If empty and king, accept
             if (widget.cards.isEmpty) {

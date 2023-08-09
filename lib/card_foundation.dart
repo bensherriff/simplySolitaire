@@ -58,9 +58,7 @@ class CardFoundationState extends State<CardFoundation> {
               columnIndex: widget.columnIndex,
               attachedCards: [
                 widget.cards.last,
-              ], onClick: (List<PlayingCard> cards, int currentColumnIndex) {
-              // Do not move cards from final deck on click
-            },
+              ]
             );
           },
           onWillAccept: (value) {

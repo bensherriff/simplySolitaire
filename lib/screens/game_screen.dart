@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:solitaire/game_timer.dart';
 import 'package:solitaire/screens/options_screen.dart';
-
-import '../move.dart';
-import 'menu_screen.dart';
+import 'package:solitaire/move.dart';
+import 'package:solitaire/screens/menu_screen.dart';
 
 enum GameMode {
   klondike,
@@ -23,6 +23,7 @@ class GameScreen extends StatefulWidget {
 
   final Color backgroundColor;
   final GameMode gameMode;
+  final box = GetStorage('storage');
 
   bool initialized = false;
   int seed = -1;
@@ -38,6 +39,12 @@ class GameScreen extends StatefulWidget {
 class GameScreenState<T extends GameScreen> extends State<T> {
 
   final OptionsScreen optionsScreen = Get.find();
+
+  @override
+  void initState() {
+    super.initState();
+    widget.box.write('gameMode', widget.gameMode.toString());
+  }
 
   @override
   Widget build(BuildContext context) {

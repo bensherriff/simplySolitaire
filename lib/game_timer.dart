@@ -35,13 +35,16 @@ class GameTimer {
     // setState(() => _timer?.cancel());
   }
 
-  Widget buildTime() {
+  String time() {
     String twoDigits(int n) => n.toString().padLeft(2, '0');
     final minutes = twoDigits(_duration.value.inMinutes).obs;
     final seconds = twoDigits(_duration.value.inSeconds.remainder(60)).obs;
+    return '$minutes:$seconds';
+  }
 
+  Widget buildTime() {
     return Text(
-      '$minutes:$seconds',
+      time(),
       style: const TextStyle(
           fontWeight: FontWeight.bold,
           color: Colors.white

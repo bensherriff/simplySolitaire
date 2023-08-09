@@ -19,6 +19,26 @@ class Deck {
     this.index = -1
 });
 
+  void initialize({bool debug = false}) {
+    if (debug) {
+      for (var rank in CardRank.values.reversed) {
+        for (var suit in CardSuit.values) {
+          cards.add(PlayingCard(suit: suit, rank: rank, revealed: false));
+        }
+      }
+    } else {
+      for (var suit in CardSuit.values) {
+        for (var rank in CardRank.values) {
+          cards.add(PlayingCard(
+            rank: rank,
+            suit: suit,
+            revealed: false,
+          ));
+        }
+      }
+    }
+  }
+
   void append(PlayingCard card) {
     cards.add(card);
   }
@@ -52,6 +72,14 @@ class Deck {
     }
   }
 
+  PlayingCard peekAt(int index) {
+    if (index > cards.length) {
+      return cards[0];
+    } else {
+      return cards[index];
+    }
+  }
+
   /// Fisher-Yates Shuffle using a random and number of shuffles to perform
   void shuffle(Random random, {int shuffleCount = 4}) {
     for (int count = 0; count < shuffleCount; count++) {
@@ -73,4 +101,8 @@ class Deck {
   bool get isEmpty => cards.isEmpty;
   bool get isNotEmpty => cards.isNotEmpty;
 
+  @override
+  String toString() {
+    return cards.toString();
+  }
 }

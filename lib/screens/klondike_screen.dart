@@ -2,15 +2,15 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:solitaire/main.dart';
 import 'package:solitaire/screens/game_screen.dart';
-import '../card_column.dart';
-import '../deck.dart';
-import '../card_foundation.dart';
-import '../move.dart';
-import '../playing_card.dart';
-import '../movable_card.dart';
-import '../utilities.dart';
+import 'package:solitaire/screens/menu_screen.dart';
+import 'package:solitaire/card_column.dart';
+import 'package:solitaire/deck.dart';
+import 'package:solitaire/card_foundation.dart';
+import 'package:solitaire/move.dart';
+import 'package:solitaire/playing_card.dart';
+import 'package:solitaire/movable_card.dart';
+import 'package:solitaire/utilities.dart';
 
 class KlondikeScreen extends GameScreen {
   // Stores the cards on the seven columns
@@ -38,6 +38,7 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
 
   @override
   void initState() {
+    super.initState();
     if (!widget.initialized) {
       super.initState();
       if (widget.seed == -1) {
@@ -50,38 +51,42 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: widget.backgroundColor,
-      body: Column(
-        children: <Widget>[
-          const SizedBox(
-            height: 80.0,
-          ),
-          buildTopDecks(),
-          const SizedBox(
-            height: 16.0,
-          ),
-          buildColumns(),
-          (checkAllCardsRevealed()) ? ElevatedButton(
-            onPressed: () => {
-              handleWin()
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Utilities.buttonBackgroundColor,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30.0)
-              ),
+    return WillPopScope(
+      onWillPop: () async => false,
+      child: Scaffold(
+        backgroundColor: widget.backgroundColor,
+        body: Column(
+          children: <Widget>[
+            const SizedBox(
+              height: 80.0,
             ),
-            child: Text("Auto Win",
-              style: TextStyle(
-                fontSize: 36.0,
-                color: Utilities.buttonTextColor
+            buildTopDecks(),
+            const SizedBox(
+              height: 16.0,
+            ),
+            buildColumns(),
+            (checkAllCardsRevealed()) ? ElevatedButton(
+              onPressed: () => {
+                handleAutoWin()
+                // handleWin()
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Utilities.buttonBackgroundColor,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30.0)
+                ),
+              ),
+              child: Text("Auto Win",
+                style: TextStyle(
+                  fontSize: 36.0,
+                  color: Utilities.buttonTextColor
+                )
               )
-            )
-          ): Container()
-        ],
-      ),
-      bottomNavigationBar: bottomNavBar(0xFF15382b, (move) => undoMove(move)),
+            ): Container(),
+          ],
+        ),
+        bottomNavigationBar: bottomNavBar(0xFF15382b, (move) => undoMove(move)),
+      )
     );
   }
 
@@ -96,7 +101,7 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
           onCardsAdded: (cards, currentColumnIndex) {
             moveCards(cards, currentColumnIndex, i);
           },
-          onClick: (cards, currentColumnIndex) {
+          onTap: (cards, currentColumnIndex) {
             moveToValidColumn(cards, currentColumnIndex);
           },
         )
@@ -144,9 +149,6 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
             padding: const EdgeInsets.all(4.0),
             child: MovableCard(
               playingCard: widget.stockDeck.last,
-              attachedCards: const [],
-              onClick: (List<PlayingCard> cards, int currentColumnIndex) {
-              },
               columnIndex: 8
             ),
           ) : Opacity(
@@ -158,10 +160,6 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
                   suit: CardSuit.spades,
                   rank: CardRank.ace,
                 ),
-                attachedCards: const [],
-                onClick: (List<PlayingCard> cards, int currentColumnIndex) {
-                  // Override onClick functionality with onTap method in waste deck
-                },
                 columnIndex: 8
               ),
             ),
@@ -171,7 +169,7 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
               if (!widget.timer.isTimerRunning()) {
                 widget.timer.startTimer(reset: false);
               }
-              if (widget.stockDeck.isEmpty) {
+              if (widget.stockDeck.isEmpty && widget.wasteDeck.isNotEmpty) {
                 widget.stockDeck.addAll(widget.wasteDeck.map((card) {
                   return card
                     ..revealed = false;
@@ -185,7 +183,7 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
                   resetDeck: true
                 );
                 widget.moves.push(move);
-              } else {
+              } else if (widget.stockDeck.isNotEmpty) {
                 PlayingCard card = widget.stockDeck.removeAt(0)
                   ..revealed = true;
                 widget.wasteDeck.add(card);
@@ -236,7 +234,7 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
                     attachedCards: [
                       widget.wasteDeck.last,
                     ],
-                    onClick: (cards, currentColumnIndex) {
+                    onTap: (cards, currentColumnIndex) {
                       moveToValidColumn(cards, currentColumnIndex);
                     },
                     columnIndex: 7,
@@ -283,7 +281,7 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
                           attachedCards: [
                             widget.wasteDeck.last,
                           ],
-                          onClick: (cards, currentColumnIndex) {
+                          onTap: (cards, currentColumnIndex) {
                             moveToValidColumn(cards, currentColumnIndex);
                           },
                           columnIndex: 7,
@@ -362,70 +360,66 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
 
   /// Initialize a new game using a seed. The seed is used to generate the
   /// random order of cards, and to allow for re-playability.
-  void initializeGame(int seed) {
-    widget.columns = List.generate(7, (index) => []);
-
-    // Stores the card deck
-    widget.stockDeck = [];
-    widget.wasteDeck = [];
-
-    // Stores the card in the upper boxes
-    widget.heartsFoundation = [];
-    widget.diamondsFoundation = [];
-    widget.spadesFoundation = [];
-    widget.clubsFoundation = [];
-
-    widget.moves = Moves(gameMode: GameMode.klondike);
-
-    widget.allCardsRevealed = false;
-
-    widget.timer.resetTimer();
-
+  void initializeGame(int seed, {bool debug = true}) {
     Deck allCards = Deck();
 
     // Add all cards to deck
-    for (var suit in CardSuit.values) {
-      for (var type in CardRank.values) {
-        allCards.append(PlayingCard(
-          rank: type,
-          suit: suit,
-          revealed: false,
-        ));
-      }
-    }
-
+    allCards.initialize(debug: debug);
 
     Random random = Random(seed);
-    allCards.shuffle(random);
-
-    for (int i = 0; i < widget.columns.length; i++) {
-      for (int j = 0; j <= i; j++) {
-        PlayingCard card = allCards.drawFront();
-        if (j == i) {
-          card.revealed = true;
-        }
-        widget.columns[i].add(card);
-      }
+    if (!debug) {
+      allCards.shuffle(random);
     }
 
-    widget.stockDeck = allCards.cards;
-    widget.stockDeck.shuffle(random);
+    setState(() {
+      widget.columns = List.generate(7, (index) => []);
 
-    widget.initialized = true;
+      // Stores the card deck
+      widget.stockDeck = [];
+      widget.wasteDeck = [];
+
+      // Stores the card in the upper boxes
+      widget.heartsFoundation = [];
+      widget.diamondsFoundation = [];
+      widget.spadesFoundation = [];
+      widget.clubsFoundation = [];
+
+      widget.moves = Moves(gameMode: GameMode.klondike);
+
+      widget.allCardsRevealed = false;
+
+      widget.timer.resetTimer();
+
+      if (debug) {
+        for (int i = 0; i < 13; i++) {
+          for (int j = 0; j < 4; j++) {
+            PlayingCard card = allCards.drawFront();
+            card.revealed = true;
+            widget.columns[j].add(card);
+          }
+        }
+      } else {
+        for (int i = 0; i < widget.columns.length; i++) {
+          for (int j = 0; j <= i; j++) {
+            PlayingCard card = allCards.drawFront();
+            if (j == i) {
+              card.revealed = true;
+            }
+            widget.columns[i].add(card);
+          }
+        }
+      }
+
+      // Set the stock to the remaining cards
+      widget.stockDeck = allCards.cards;
+
+      widget.initialized = true;
+    });
+    widget.box.write('seed', widget.seed);
+    widget.box.write('initialized', widget.initialized);
+    // widget.box.write('moves', widget.moves);
+    // widget.box.write('timer', widget.timer);
   }
-
-  // void addCardToColumn(List<PlayingCard> allCards, List<PlayingCard> cardColumn, int i, int limit, int randomNumber) {
-  //   if (i == limit) {
-  //     PlayingCard card = allCards[randomNumber];
-  //     cardColumn.add(
-  //       card
-  //         ..revealed = true
-  //     );
-  //   } else {
-  //     cardColumn.add(allCards[randomNumber]);
-  //   }
-  //   allCards.removeAt(randomNumber);
-  // }
 
   void moveCards(List<PlayingCard> cards, int currentIndex, int newIndex) {
     if (!widget.timer.isTimerRunning()) {
@@ -552,9 +546,10 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
 
   /// Find the best column out of a list of valid columns
   int findBestColumn(int currentColumnIndex, List<int> validColumns) {
-
     // If there is only one valid column, return the valid column
-    if (validColumns.length == 1) {
+    if (validColumns.isEmpty) {
+      return -1;
+    } else if (validColumns.length == 1) {
       return validColumns.first;
     }
 
@@ -593,26 +588,155 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
     }
   }
 
+  Moves findValidMoves() {
+    Moves validMoves = Moves(gameMode: widget.gameMode);
+
+    // Flip stock card if waste is empty
+    if (widget.wasteDeck.isEmpty && widget.stockDeck.isNotEmpty) {
+      setState(() {
+        PlayingCard card = widget.stockDeck.removeAt(0)
+          ..revealed = true;
+        widget.wasteDeck.add(card);
+        Move move = Move(
+            cards: [card],
+            previousIndex: 8,
+            newIndex: 7,
+            revealedCard: false
+        );
+        widget.moves.push(move);
+      });
+    }
+
+    // Check if waste card is movable
+    if (widget.wasteDeck.isNotEmpty) {
+      List<int> columns = findValidColumns([widget.wasteDeck.last], 7);
+      if (columns.isNotEmpty) {
+        int bestColumn = findBestColumn(7, columns);
+        Move move = Move(cards: [widget.wasteDeck.last], previousIndex: 7, newIndex: bestColumn, revealedCard: false);
+        validMoves.push(move);
+      }
+    }
+
+    // Columns
+    for (int i = 0; i < 7; i++) {
+      for (int j = 0; j < widget.columns[i].length; j++) {
+        if (widget.columns[i][j].revealed) {
+          List<PlayingCard> cards = widget.columns[i].sublist(j);
+          List<int> columns = findValidColumns(cards, i);
+          if (columns.isNotEmpty) {
+            int bestColumn = findBestColumn(i, columns);
+            Move move = Move(cards: cards, previousIndex: i, newIndex: bestColumn, revealedCard: (j >= 1 && !widget.columns[i][j].revealed));
+            validMoves.push(move);
+          }
+        }
+      }
+    }
+
+    // Sort moves by priority. Moves with a higher priority should be moved first
+    validMoves.list.sort((a, b) => a.cards.first.rank.compareTo(b.cards.first.rank));
+    return validMoves.reversed();
+  }
+
+  void handleAutoWin() {
+    // Use DFS to search for all possible moves.
+    // Scan the waste and stock decks for possible moves or combinations of moves
+    // i.e., move card from stock to waste, play card, then circle around and
+    // play first card.
+    // Scan possible moves from columns
+    // Be able to reverse decisions for DFS (undo)
+
+    Moves validMoves = Moves(gameMode: GameMode.klondike);
+    do {
+      validMoves = findValidMoves();
+      for (int i = 0; i < validMoves.size; i++) {
+        Move? move = validMoves.pop();
+        if (move != null) {
+          moveCards(move.cards, move.previousIndex, move.newIndex);
+        }
+      }
+    } while (validMoves.isNotEmpty);
+
+    checkWin();
+  }
+
   void handleWin() {
     widget.timer.stopTimer(reset: false);
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (context) {
-        return AlertDialog(
-          title: const Text("Congratulations!"),
-          content: const Text("You Win!"),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-                KlondikeScreen gameScreen = Get.find();
-                gameScreen.initialized = false;
-                gameScreen.seed = -1;
-                Get.to(() => gameScreen);
-              },
-              child: const Text("Play again"),
-            ),
-          ],
+        return Dialog(
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(20))
+          ),
+          elevation: 0,
+          backgroundColor: Colors.transparent,
+          child: Stack(
+            children: <Widget>[
+              Container(
+                padding: const EdgeInsets.only(left: 20, top: 35, right: 20, bottom: 20),
+                margin: const EdgeInsets.only(top: 15),
+                decoration: BoxDecoration(
+                  shape: BoxShape.rectangle,
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: const [
+                    BoxShadow(color: Colors.black, offset: Offset(0,5)),
+                  ]
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    const Text("You won!",
+                        style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600)),
+                    const SizedBox(height: 15),
+                    Text("Points: ${widget.moves.totalPoints().toString()}",
+                      style: const TextStyle(fontSize: 14),
+                      textAlign: TextAlign.center
+                    ),
+                    const SizedBox(height: 15),
+                    Text('Time: ${widget.timer.time()}',
+                      style: const TextStyle(fontSize: 14),
+                      textAlign: TextAlign.center
+                    ),
+                    const SizedBox(height: 22),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                            initializeGame(widget.seed);
+                          },
+                          child: const Text("Replay", style: TextStyle(fontSize: 18)),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                            initializeRandomGame();
+                          },
+                          child: const Text("New\nGame", style: TextStyle(fontSize: 18)),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                            MenuScreen screen = Get.find();
+                            setState(() {
+                              widget.timer.resetTimer();
+                              widget.initialized = false;
+                              widget.seed = -1;
+                            });
+                            Get.offAll(() => screen);
+                          },
+                          child: const Text("Main\nMenu", style: TextStyle(fontSize: 18)),
+                        )
+                      ],
+                    )
+                  ]
+                )
+              ),
+            ]
+          )
         );
       },
     );

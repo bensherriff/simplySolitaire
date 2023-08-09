@@ -1,12 +1,11 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
+import 'package:solitaire/screens/game_screen.dart';
+import 'package:solitaire/screens/klondike_screen.dart';
 import 'package:solitaire/screens/options_screen.dart';
 import 'package:solitaire/screens/spider_screen.dart';
 import 'package:solitaire/utilities.dart';
-import 'game_screen.dart';
-import 'klondike_screen.dart';
 
 class MenuScreen extends StatefulWidget {
   const MenuScreen({Key? key}) : super(key: key);
@@ -17,87 +16,91 @@ class MenuScreen extends StatefulWidget {
 
 class MenuScreenState extends State<MenuScreen> {
   final OptionsScreen _optionsScreen = Get.put(OptionsScreen());
-  final KlondikeScreen _klondikeScreen = Get.put(KlondikeScreen());
-  final SpiderScreen _spiderScreen = Get.put(SpiderScreen());
 
+  final box = GetStorage('storage');
   final PageController _pageController = PageController(initialPage: 0);
-  List<Widget> _pages = [];
+  final List<Widget> _pages = [];
   int _activePage = 0;
 
   @override
   void initState() {
     super.initState();
-    _pages.add(_klondikeScreen);
-    _pages.add(_spiderScreen);
+    KlondikeScreen klondikeScreen = Get.put(KlondikeScreen());
+    SpiderScreen spiderScreen = Get.put(SpiderScreen());
+    _pages.add(klondikeScreen);
+    _pages.add(spiderScreen);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        actions: <Widget>[
-          IconButton(
-            icon: const Icon(
-              Icons.settings,
-              color: Colors.white
-            ),
-            onPressed: () {
-              Get.to(() => _optionsScreen);
-            },
-          )
-        ],
-        automaticallyImplyLeading: false
-      ),
-      body: Stack(
-        children: [
-          PageView.builder(
-            controller: _pageController,
-            onPageChanged: (int page) {
-              setState(() {
-                _activePage = page;
-              });
-            },
-            itemCount: _pages.length,
-            itemBuilder: (BuildContext context, int index) {
-              return gameMenu(_pages[index % _pages.length] as GameScreen);
-            },
-          ),
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            height: 30,
-            child: Container(
-              color: Colors.black54,
-              child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List<Widget>.generate(
-                _pages.length,
-                (index) => Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: InkWell(
-                    onTap: () {
-                      _pageController.animateToPage(index,
-                          duration: const Duration(milliseconds: 300),
-                          curve: Curves.easeIn);
-                    },
-                    child: CircleAvatar(
-                      radius: 8,
-                      // check if a dot is connected to the current page
-                      // if true, give it a different color
-                      backgroundColor: _activePage == index
-                          ? Colors.grey
-                          : Colors.black12,
-                    ),
-                  ),
-                )),
+    return WillPopScope(
+      onWillPop: () async => false,
+      child: Scaffold(
+        extendBodyBehindAppBar: true,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          actions: <Widget>[
+            IconButton(
+              icon: const Icon(
+                Icons.settings,
+                color: Colors.white
               ),
+              onPressed: () {
+                Get.to(() => _optionsScreen);
+              },
+            )
+          ],
+          automaticallyImplyLeading: false
+        ),
+        body: Stack(
+          children: [
+            PageView.builder(
+              controller: _pageController,
+              onPageChanged: (int page) {
+                setState(() {
+                  _activePage = page;
+                });
+              },
+              itemCount: _pages.length,
+              itemBuilder: (BuildContext context, int index) {
+                return gameMenu(_pages[index % _pages.length] as GameScreen);
+              },
             ),
-          )
-        ]
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              height: 30,
+              child: Container(
+                color: Colors.black54,
+                child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List<Widget>.generate(
+                  _pages.length,
+                  (index) => Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: InkWell(
+                      onTap: () {
+                        _pageController.animateToPage(index,
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeIn);
+                      },
+                      child: CircleAvatar(
+                        radius: 8,
+                        // check if a dot is connected to the current page
+                        // if true, give it a different color
+                        backgroundColor: _activePage == index
+                            ? Colors.grey
+                            : Colors.black12,
+                      ),
+                    ),
+                  )),
+                ),
+              ),
+            )
+          ]
+        )
       )
     );
   }
@@ -151,6 +154,19 @@ class MenuScreenState extends State<MenuScreen> {
                         child: replayGame(gameScreen)
                     )
                   ]
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+                      child: (box.read('seed') != null && gameScreen.initialized) ? Text(
+                        '${box.read('seed')}',
+                        style: const TextStyle(color: Colors.grey),
+                      ) :
+                      const Text('')
+                  )
+                ]
               )
             ],
           )
