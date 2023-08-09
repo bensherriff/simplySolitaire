@@ -360,22 +360,16 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
 
   /// Initialize a new game using a seed. The seed is used to generate the
   /// random order of cards, and to allow for re-playability.
-  void initializeGame(int seed) {
+  void initializeGame(int seed, {bool debug = false}) {
     Deck allCards = Deck();
 
     // Add all cards to deck
-    for (var suit in CardSuit.values) {
-      for (var type in CardRank.values) {
-        allCards.append(PlayingCard(
-          rank: type,
-          suit: suit,
-          revealed: false,
-        ));
-      }
-    }
+    allCards.initialize(debug: debug);
 
     Random random = Random(seed);
-    allCards.shuffle(random);
+    if (!debug) {
+      allCards.shuffle(random);
+    }
 
     setState(() {
       widget.columns = List.generate(7, (index) => []);
@@ -406,8 +400,8 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
         }
       }
 
-    widget.stockDeck = allCards.cards;
-    widget.stockDeck.shuffle(random);
+      // Set the stock to the remaining cards
+      widget.stockDeck = allCards.cards;
 
       widget.initialized = true;
     });
@@ -542,8 +536,6 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
 
   /// Find the best column out of a list of valid columns
   int findBestColumn(int currentColumnIndex, List<int> validColumns) {
-
-
     // If there is only one valid column, return the valid column
     if (validColumns.isEmpty) {
       return -1;
@@ -586,6 +578,55 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
     }
   }
 
+  Moves findValidMoves() {
+    Moves validMoves = Moves(gameMode: widget.gameMode);
+
+    // Flip stock card if waste is empty
+    if (widget.wasteDeck.isEmpty && widget.stockDeck.isNotEmpty) {
+      setState(() {
+        PlayingCard card = widget.stockDeck.removeAt(0)
+          ..revealed = true;
+        widget.wasteDeck.add(card);
+        Move move = Move(
+            cards: [card],
+            previousIndex: 8,
+            newIndex: 7,
+            revealedCard: false
+        );
+        widget.moves.push(move);
+      });
+    }
+
+    // Check if waste card is movable
+    if (widget.wasteDeck.isNotEmpty) {
+      List<int> columns = findValidColumns([widget.wasteDeck.last], 7);
+      if (columns.isNotEmpty) {
+        int bestColumn = findBestColumn(7, columns);
+        Move move = Move(cards: [widget.wasteDeck.last], previousIndex: 7, newIndex: bestColumn, revealedCard: false);
+        validMoves.push(move);
+      }
+    }
+
+    // Columns
+    for (int i = 0; i < 7; i++) {
+      for (int j = 0; j < widget.columns[i].length; j++) {
+        if (widget.columns[i][j].revealed) {
+          List<PlayingCard> cards = widget.columns[i].sublist(j);
+          List<int> columns = findValidColumns(cards, i);
+          if (columns.isNotEmpty) {
+            int bestColumn = findBestColumn(i, columns);
+            Move move = Move(cards: cards, previousIndex: i, newIndex: bestColumn, revealedCard: (j >= 1 && !widget.columns[i][j].revealed));
+            validMoves.push(move);
+          }
+        }
+      }
+    }
+
+    // Sort moves by priority. Moves with a higher priority should be moved first
+    validMoves.list.sort((a, b) => a.cards.first.rank.compareTo(b.cards.first.rank));
+    return validMoves;
+  }
+
   void handleAutoWin() {
     // Use DFS to search for all possible moves.
     // Scan the waste and stock decks for possible moves or combinations of moves
@@ -594,52 +635,9 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
     // Scan possible moves from columns
     // Be able to reverse decisions for DFS (undo)
 
-    Moves validMoves = Moves(gameMode: widget.gameMode);
+    Moves validMoves = Moves(gameMode: GameMode.klondike);
     do {
-      // Flip stock card if waste is empty
-      if (widget.wasteDeck.isEmpty && widget.stockDeck.isNotEmpty) {
-        setState(() {
-          PlayingCard card = widget.stockDeck.removeAt(0)
-            ..revealed = true;
-          widget.wasteDeck.add(card);
-          Move move = Move(
-              cards: [card],
-              previousIndex: 8,
-              newIndex: 7,
-              revealedCard: false
-          );
-          widget.moves.push(move);
-        });
-      }
-
-      // Check if waste card is movable
-      if (widget.wasteDeck.isNotEmpty) {
-        List<int> columns = findValidColumns([widget.wasteDeck.last], 7);
-        if (columns.isNotEmpty) {
-          int bestColumn = findBestColumn(7, columns);
-          Move move = Move(cards: [widget.wasteDeck.last], previousIndex: 7, newIndex: bestColumn, revealedCard: false);
-          validMoves.push(move);
-        }
-      }
-
-      // Columns
-      for (int i = 0; i < 7; i++) {
-        for (int j = 0; j < widget.columns[i].length; j++) {
-          if (widget.columns[i][j].revealed) {
-            List<PlayingCard> cards = widget.columns[i].sublist(j);
-            List<int> columns = findValidColumns(cards, i);
-            if (columns.isNotEmpty) {
-              int bestColumn = findBestColumn(i, columns);
-              Move move = Move(cards: cards, previousIndex: i, newIndex: bestColumn, revealedCard: (j >= 1 && !widget.columns[i][j].revealed));
-              validMoves.push(move);
-            }
-          }
-        }
-      }
-
-      // Sort moves by priority. Moves with a higher priority should be moved first
-      validMoves.list.sort((a, b) => a.cards.first.rank.compareTo(b.cards.first.rank));
-
+      validMoves = findValidMoves();
       for (int i = 0; i < validMoves.size; i++) {
         Move? move = validMoves.pop();
         if (move != null) {

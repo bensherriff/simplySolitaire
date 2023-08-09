@@ -19,6 +19,26 @@ class Deck {
     this.index = -1
 });
 
+  void initialize({bool debug = false}) {
+    if (debug) {
+      for (var rank in CardRank.values.reversed) {
+        for (var suit in CardSuit.values) {
+          cards.add(PlayingCard(suit: suit, rank: rank));
+        }
+      }
+    } else {
+      for (var suit in CardSuit.values) {
+        for (var rank in CardRank.values) {
+          cards.add(PlayingCard(
+            rank: rank,
+            suit: suit,
+            revealed: false,
+          ));
+        }
+      }
+    }
+  }
+
   void append(PlayingCard card) {
     cards.add(card);
   }
