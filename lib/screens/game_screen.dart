@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:solitaire/game_timer.dart';
-import 'package:solitaire/screens/options_screen.dart';
+import 'package:solitaire/screens/settings_screen.dart';
 import 'package:solitaire/move.dart';
-import 'package:solitaire/screens/menu_screen.dart';
+import 'package:solitaire/screens/home.dart';
 import 'package:solitaire/utilities.dart';
 
 enum GameMode {
@@ -31,7 +31,7 @@ abstract class GameScreen extends StatefulWidget {
 }
 
 abstract class GameScreenState<T extends GameScreen> extends State<T> {
-  final OptionsScreen optionsScreen = Get.find();
+  final SettingsScreen optionsScreen = Get.find();
 
   @override
   void initState() {
@@ -61,7 +61,7 @@ abstract class GameScreenState<T extends GameScreen> extends State<T> {
                   padding: const EdgeInsets.only(left: 28.0, right: 28.0),
                   onPressed: () {
                     widget.timer.stopTimer(reset: false);
-                    MenuScreen menuScreen = Get.find();
+                    Home menuScreen = Get.find();
                     Get.to(() => menuScreen);
                   }
               ),

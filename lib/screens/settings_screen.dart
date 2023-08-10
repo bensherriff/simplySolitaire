@@ -5,15 +5,15 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:settings_ui/settings_ui.dart';
 import 'package:solitaire/utilities.dart';
 
-class OptionsScreen extends StatefulWidget {
-  const OptionsScreen({Key? key}) : super(key: key);
+class SettingsScreen extends StatefulWidget {
+  const SettingsScreen({Key? key}) : super(key: key);
 
   @override
-  OptionsScreenState createState() => OptionsScreenState();
+  SettingsScreenState createState() => SettingsScreenState();
 }
 
-class OptionsScreenState extends State<OptionsScreen> {
-  final logger = Logger("OptionsScreenState");
+class SettingsScreenState extends State<SettingsScreen> {
+  final logger = Logger("SettingsScreenState");
   bool leftHandMode = false;
   bool dealThree = false;
   bool hints = false;
@@ -41,7 +41,7 @@ class OptionsScreenState extends State<OptionsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0a9396),
+      backgroundColor: const Color(0xff392850),
       appBar: AppBar(
        backgroundColor: Colors.transparent,
         elevation: 0,
@@ -49,7 +49,7 @@ class OptionsScreenState extends State<OptionsScreen> {
         actions: <Widget>[
           IconButton(
             icon: const Icon(
-              Icons.arrow_back,
+              Icons.undo,
               color: Colors.white
             ),
             onPressed: () {
@@ -98,28 +98,6 @@ class OptionsScreenState extends State<OptionsScreen> {
               )
             ],
           ),
-          Padding(
-            padding: const EdgeInsets.only(left: 6.0, bottom: 6.0),
-            child:  FutureBuilder<PackageInfo>(
-              future: PackageInfo.fromPlatform(),
-              builder: (context, snapshot) {
-                switch (snapshot.connectionState) {
-                  case ConnectionState.done:
-                    return Align(
-                      alignment: Alignment.bottomLeft,
-                      child: Text(
-                        'v${snapshot.data!.version} build ${snapshot.data!.buildNumber}',
-                        style: const TextStyle(
-                            fontSize: 10.0,
-                            color: Colors.grey
-                        ),),
-                    );
-                  default:
-                    return const SizedBox();
-                }
-              },
-            )
-          )
         ],
       )
     );

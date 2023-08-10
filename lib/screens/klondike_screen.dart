@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:logging/logging.dart';
 import 'package:solitaire/screens/game_screen.dart';
-import 'package:solitaire/screens/menu_screen.dart';
+import 'package:solitaire/screens/home.dart';
 import 'package:solitaire/card_column.dart';
 import 'package:solitaire/deck.dart';
 import 'package:solitaire/card_foundation.dart';
@@ -166,38 +166,7 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
             ),
           ),
           onTap: () {
-            setState(() {
-              if (!widget.timer.isTimerRunning()) {
-                widget.timer.startTimer(reset: false);
-              }
-              if (widget.stockDeck.isEmpty && widget.wasteDeck.isNotEmpty) {
-                widget.stockDeck.addAll(widget.wasteDeck.map((card) {
-                  return card
-                    ..revealed = false;
-                }));
-                widget.wasteDeck.clear();
-                Move move = Move(
-                  cards: widget.stockDeck,
-                  sourceIndex: 7,
-                  destinationIndex: 8,
-                  revealedCard: false,
-                  resetStockDeck: true
-                );
-                widget.moves.push(move);
-              } else if (widget.stockDeck.isNotEmpty) {
-                PlayingCard card = widget.stockDeck.removeAt(0)
-                  ..revealed = true;
-                widget.wasteDeck.add(card);
-                Move move = Move(
-                  cards: [card],
-                  sourceIndex: 8,
-                  destinationIndex: 7,
-                  revealedCard: false
-                );
-                widget.moves.push(move);
-              }
-            });
-            checkWin();
+            handleStockDeck();
           },
         ),
       ],
@@ -361,7 +330,7 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
   /// random order of cards, and to allow for re-playability.
   void initializeGame(int seed, {bool debug = false}) {
     Deck allCards = Deck();
-    seed = 1393796464;
+    // seed = 1393796464;
 
     // Add all cards to deck
     allCards.initialize(debug: debug);
@@ -471,6 +440,7 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
       }
       newColumn.removeRange(length - move.cards.length, length);
     });
+    checkWin();
   }
 
   /// Move card(s) to the first valid column if one exists
@@ -677,7 +647,6 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
       MapEntry<Move, double> entry = validMoves.entries.toList()[i];
       Move move = entry.key;
       if (lastMove != null && move.destinationIndex == lastMove.sourceIndex && move.sourceIndex == lastMove.destinationIndex) {
-        print('was last move');
         validMoves[move] = validMoves[move]! - 10;
       }
     }
@@ -718,11 +687,50 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
       for (int i = 0; i < validMoves.size; i++) {
         Move? move = validMoves.pop();
         if (move != null) {
-          moveCards(move.cards, move.sourceIndex, move.destinationIndex);
+          if (move.sourceIndex == 7 && move.destinationIndex == 8) {
+            handleStockDeck();
+          } else {
+            moveCards(move.cards, move.sourceIndex, move.destinationIndex);
+          }
         }
       }
       validMoves = findValidMoves();
     } while (validMoves.isNotEmpty);
+  }
+
+  void handleStockDeck() {
+    setState(() {
+      if (!widget.timer.isTimerRunning()) {
+        widget.timer.startTimer(reset: false);
+      }
+      if (widget.stockDeck.isEmpty && widget.wasteDeck.isNotEmpty) {
+        widget.stockDeck.addAll(widget.wasteDeck.map((card) {
+          return card
+            ..revealed = false;
+        }));
+        widget.wasteDeck.clear();
+        Move move = Move(
+            cards: widget.stockDeck,
+            sourceIndex: 7,
+            destinationIndex: 8,
+            revealedCard: false,
+            resetStockDeck: true
+        );
+        widget.moves.push(move);
+      } else if (widget.stockDeck.isNotEmpty) {
+        PlayingCard card = widget.stockDeck.removeAt(0)
+          ..revealed = true;
+        widget.wasteDeck.add(card);
+        Move move = Move(
+            cards: [card],
+            sourceIndex: 8,
+            destinationIndex: 7,
+            revealedCard: false
+        );
+        widget.moves.push(move);
+      }
+    });
+    checkWin();
   }
 
   void handleWin() {
@@ -786,7 +794,7 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
                         TextButton(
                           onPressed: () {
                             Navigator.pop(context);
-                            MenuScreen screen = Get.find();
+                            Home screen = Get.find();
                             setState(() {
                               widget.timer.resetTimer();
                               widget.initialized = false;

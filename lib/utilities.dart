@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:solitaire/playing_card.dart';
 
-import 'screens/menu_screen.dart';
+import 'screens/home.dart';
 
 class Utilities {
 
@@ -72,7 +72,7 @@ class Utilities {
   static menuIcon() {
     return IconButton(
       onPressed: () {
-        MenuScreen screen = Get.find();
+        Home screen = Get.find();
         Get.to(() => screen);
       }, icon: Icon(
         Icons.menu,
