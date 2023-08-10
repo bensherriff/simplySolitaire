@@ -1,7 +1,9 @@
+import 'dart:collection';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:solitaire/game_utilities.dart';
 import 'package:solitaire/screens/game_screen.dart';
 import 'package:solitaire/screens/menu_screen.dart';
 import 'package:solitaire/card_column.dart';
@@ -177,10 +179,10 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
                 widget.wasteDeck.clear();
                 Move move = Move(
                   cards: widget.stockDeck,
-                  previousIndex: 7,
-                  newIndex: 8,
+                  sourceIndex: 7,
+                  destinationIndex: 8,
                   revealedCard: false,
-                  resetDeck: true
+                  resetStockDeck: true
                 );
                 widget.moves.push(move);
               } else if (widget.stockDeck.isNotEmpty) {
@@ -189,8 +191,8 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
                 widget.wasteDeck.add(card);
                 Move move = Move(
                   cards: [card],
-                  previousIndex: 8,
-                  newIndex: 7,
+                  sourceIndex: 8,
+                  destinationIndex: 7,
                   revealedCard: false
                 );
                 widget.moves.push(move);
@@ -431,8 +433,8 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
 
     Move move = Move(
       cards: cards,
-      previousIndex: currentIndex,
-      newIndex: newIndex,
+      sourceIndex: currentIndex,
+      destinationIndex: newIndex,
       revealedCard: false
     );
 
@@ -450,17 +452,17 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
   }
 
   void undoMove(Move move) {
-    List<PlayingCard> previousColumn = getListFromIndex(move.previousIndex);
-    List<PlayingCard> newColumn = getListFromIndex(move.newIndex);
+    List<PlayingCard> previousColumn = getListFromIndex(move.sourceIndex);
+    List<PlayingCard> newColumn = getListFromIndex(move.destinationIndex);
     int length = newColumn.length;
 
     setState(() {
-      if (move.previousIndex == 8) {
+      if (move.sourceIndex == 8) {
         previousColumn.insertAll(0, move.cards.map((card) {
           return card
             ..revealed = false;
         }));
-      } else if (move.previousIndex == 7) {
+      } else if (move.sourceIndex == 7) {
         previousColumn.addAll(move.cards.map((card) {
           return card
             ..revealed = true;
@@ -482,7 +484,7 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
     if (validColumns.isEmpty) {
       return;
     }
-    int newColumnIndex = findBestColumn(currentColumnIndex, validColumns);
+    int newColumnIndex = findBestColumn(currentColumnIndex, cards.first, validColumns);
     moveCards(cards, currentColumnIndex, newColumnIndex);
   }
 
@@ -545,7 +547,7 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
   }
 
   /// Find the best column out of a list of valid columns
-  int findBestColumn(int currentColumnIndex, List<int> validColumns) {
+  int findBestColumn(int currentColumnIndex, PlayingCard card, List<int> validColumns) {
     // If there is only one valid column, return the valid column
     if (validColumns.isEmpty) {
       return -1;
@@ -553,18 +555,45 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
       return validColumns.first;
     }
 
+    Map<int, double> columnScores = HashMap();
+    for (int columnIndex in validColumns) {
+      columnScores[columnIndex] = 0;
+    }
+
+    for (int columnIndex in validColumns) {
+      int score = 0;
+
+      // Evaluate scores of the normal columns
+      if (columnIndex <= 6) {
+        int hiddenCount = countHiddenCards(widget.columns[columnIndex]);
+        score += hiddenCount;
+      }
+      columnScores[columnIndex] = columnScores[columnIndex]! + score;
+    }
+
+    // Determine if a foundation column is valid
     var validColumnsSet = validColumns.toSet();
     var foundationSet = {9, 10, 11, 12};
     var resultSet = validColumnsSet.intersection(foundationSet);
-
-    // If a foundation column is valid, return the foundation column
     if (resultSet.length == 1) {
-      return resultSet.first;
-    } else if (resultSet.length > 1){
-      throw Exception("Invalid");
+      columnScores[resultSet.first] = columnScores[resultSet.first]! + 35;
+      if (card.rank == CardRank.ace) {
+        columnScores[resultSet.first] = columnScores[resultSet.first]! + 100;
+      }
+    } else if (resultSet.length > 1) {
+      throw Exception("Cannot determine best column with multiple foundations");
     }
 
-    return validColumns.first;
+    // Return the column with the best score
+    int bestColumn = validColumns.first;
+    double bestScore = -1;
+    columnScores.forEach((column, score) {
+      if (score > bestScore) {
+        bestColumn = column;
+        bestScore = score;
+      }
+    });
+    return bestColumn;
   }
 
   bool checkAllCardsRevealed() {
@@ -591,28 +620,13 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
   Moves findValidMoves() {
     Moves validMoves = Moves(gameMode: widget.gameMode);
 
-    // Flip stock card if waste is empty
-    if (widget.wasteDeck.isEmpty && widget.stockDeck.isNotEmpty) {
-      setState(() {
-        PlayingCard card = widget.stockDeck.removeAt(0)
-          ..revealed = true;
-        widget.wasteDeck.add(card);
-        Move move = Move(
-            cards: [card],
-            previousIndex: 8,
-            newIndex: 7,
-            revealedCard: false
-        );
-        widget.moves.push(move);
-      });
-    }
-
     // Check if waste card is movable
     if (widget.wasteDeck.isNotEmpty) {
-      List<int> columns = findValidColumns([widget.wasteDeck.last], 7);
+      PlayingCard card = widget.wasteDeck.last;
+      List<int> columns = findValidColumns([card], 7);
       if (columns.isNotEmpty) {
-        int bestColumn = findBestColumn(7, columns);
-        Move move = Move(cards: [widget.wasteDeck.last], previousIndex: 7, newIndex: bestColumn, revealedCard: false);
+        int bestColumn = findBestColumn(7, card, columns);
+        Move move = Move(cards: [card], sourceIndex: 7, destinationIndex: bestColumn, revealedCard: false);
         validMoves.push(move);
       }
     }
@@ -624,8 +638,8 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
           List<PlayingCard> cards = widget.columns[i].sublist(j);
           List<int> columns = findValidColumns(cards, i);
           if (columns.isNotEmpty) {
-            int bestColumn = findBestColumn(i, columns);
-            Move move = Move(cards: cards, previousIndex: i, newIndex: bestColumn, revealedCard: (j >= 1 && !widget.columns[i][j].revealed));
+            int bestColumn = findBestColumn(i, cards.first, columns);
+            Move move = Move(cards: cards, sourceIndex: i, destinationIndex: bestColumn, revealedCard: (j >= 1 && !widget.columns[i][j].revealed));
             validMoves.push(move);
           }
         }
@@ -651,7 +665,7 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
       for (int i = 0; i < validMoves.size; i++) {
         Move? move = validMoves.pop();
         if (move != null) {
-          moveCards(move.cards, move.previousIndex, move.newIndex);
+          moveCards(move.cards, move.sourceIndex, move.destinationIndex);
         }
       }
     } while (validMoves.isNotEmpty);

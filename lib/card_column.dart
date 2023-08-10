@@ -18,7 +18,6 @@ class CardColumn extends StatefulWidget {
   // The index of the list in the game
   final int columnIndex;
 
-
   const CardColumn({Key? key,
     required this.cards,
     required this.onCardsAdded,
@@ -38,7 +37,7 @@ class CardColumnState extends State<CardColumn> {
   Widget build(BuildContext context) {
     cards = widget.cards;
     return Container(
-      width: Utilities.cardWidth + 30,
+      width: Utilities.cardWidth,
       margin: const EdgeInsets.all(2.0),
       child: DragTarget<Map>(
         builder: (context, data, rejectedData) {
