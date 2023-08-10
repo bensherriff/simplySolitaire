@@ -4,7 +4,6 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:logging/logging.dart';
-import 'package:solitaire/game_utilities.dart';
 import 'package:solitaire/screens/game_screen.dart';
 import 'package:solitaire/screens/menu_screen.dart';
 import 'package:solitaire/card_column.dart';
@@ -39,6 +38,7 @@ class KlondikeScreen extends GameScreen {
 
 class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
   final logger = Logger('KlondikeScreenState');
+
   @override
   void initState() {
     super.initState();
@@ -122,7 +122,7 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
   }
 
   Widget buildTopDecks() {
-    if (optionsScreen.leftHandMode) {
+    if (Utilities.readData('leftHandMode')) {
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: <Widget>[
@@ -207,7 +207,7 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
   }
 
   Widget buildWasteDeck() {
-    if (optionsScreen.leftHandMode) {
+    if (Utilities.readData('leftHandMode')) {
       return Container(
           constraints: const BoxConstraints(
             maxWidth: 100,
@@ -222,7 +222,7 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
                   width: Utilities.cardWidth,
                   child: widget.wasteDeck.elementAt(widget.wasteDeck.length - 3).toAsset(),
                 ),
-              ) : const SizedBox(height: Utilities.cardHeight, width: Utilities.cardWidth),
+              ) : Utilities.emptyCard(),
               widget.wasteDeck.length >= 2 ? Positioned(
                 left: 25,
                 child: SizedBox(
@@ -230,7 +230,7 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
                   width: Utilities.cardWidth,
                   child: widget.wasteDeck.elementAt(widget.wasteDeck.length - 2).toAsset(),
                 ),
-              ) : const SizedBox(height: Utilities.cardHeight, width: Utilities.cardWidth),
+              ) : Utilities.emptyCard(),
               widget.wasteDeck.isNotEmpty ? Positioned(
                 child: InkWell(
                   child: MovableCard(
@@ -268,7 +268,7 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
                     width: Utilities.cardWidth,
                     child: widget.wasteDeck.elementAt(widget.wasteDeck.length - 3).toAsset(),
                   ),
-                ) : const SizedBox(height: Utilities.cardHeight, width: Utilities.cardWidth),
+                ) : Utilities.emptyCard(),
                 widget.wasteDeck.length >= 2 ? Positioned(
                   left: 25,
                   child: SizedBox(
@@ -276,7 +276,7 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
                     width: Utilities.cardWidth,
                     child: widget.wasteDeck.elementAt(widget.wasteDeck.length - 2).toAsset(),
                   ),
-                ) : const SizedBox(height: Utilities.cardHeight, width: Utilities.cardWidth),
+                ) : Utilities.emptyCard(),
                 widget.wasteDeck.isNotEmpty ? Positioned(
                     left: 50,
                     child: InkWell(
@@ -291,12 +291,9 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
                           columnIndex: 7,
                         )
                     )
-                ) : const Padding(
-                    padding: EdgeInsets.all(4.0),
-                    child: SizedBox(
-                      height: Utilities.cardHeight,
-                      width: Utilities.cardWidth,
-                    )
+                ) : Padding(
+                    padding: const EdgeInsets.all(4.0),
+                    child: Utilities.emptyCard()
                 )
               ]
           )
@@ -419,8 +416,8 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
 
       widget.initialized = true;
     });
-    widget.box.write('seed', widget.seed);
-    widget.box.write('initialized', widget.initialized);
+    Utilities.writeData('seed', widget.seed);
+    Utilities.writeData('initialized', widget.initialized);
     // widget.box.write('moves', widget.moves);
     // widget.box.write('timer', widget.timer);
   }
@@ -517,9 +514,10 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
         PlayingCard compareCard = widget.columns[i].last;
         // Check if card can be placed onto another card in a new column
         if (card.cardColor.name != compareCard.cardColor.name && compareCard.rank.value - card.rank.value == 1) {
+          add(i, 5);
           // Prioritize columns with less hidden cards
-          int hiddenCards = GameUtilities.countHiddenCards(widget.columns[i]);
-          add(i, 5 / hiddenCards);
+          int hiddenCards = Utilities.countHiddenCards(widget.columns[i]);
+          add(i, -(hiddenCards/3));
         }
       }
     }
@@ -542,15 +540,15 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
         }
       } else if (card.suit == CardSuit.hearts) {
         if (getListFromIndex(10).isNotEmpty && card.rank.value - getListFromIndex(10).last.rank.value == 1) {
-          add(9, 20);
+          add(10, 20);
         }
       } else if (card.suit == CardSuit.clubs) {
         if (getListFromIndex(11).isNotEmpty && card.rank.value - getListFromIndex(11).last.rank.value == 1) {
-          add(9, 20);
+          add(11, 20);
         }
       } else if (card.suit == CardSuit.diamonds) {
         if (getListFromIndex(12).isNotEmpty && card.rank.value - getListFromIndex(12).last.rank.value == 1) {
-          add(9, 20);
+          add(12, 20);
         }
       }
     }

@@ -1,24 +1,41 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:logging/logging.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:settings_ui/settings_ui.dart';
+import 'package:solitaire/utilities.dart';
 
 class OptionsScreen extends StatefulWidget {
-  OptionsScreen({Key? key}) : super(key: key);
-
-  bool leftHandMode = false;
-  bool drawOne = true;
-  bool hints = false;
+  const OptionsScreen({Key? key}) : super(key: key);
 
   @override
   OptionsScreenState createState() => OptionsScreenState();
 }
 
 class OptionsScreenState extends State<OptionsScreen> {
+  final logger = Logger("OptionsScreenState");
+  bool leftHandMode = false;
+  bool dealThree = false;
+  bool hints = false;
 
   @override
   void initState() {
     super.initState();
+    if (Utilities.hasData('leftHandMode')) {
+      leftHandMode = Utilities.readData('leftHandMode');
+    } else {
+      Utilities.writeData('leftHandMode', leftHandMode).then((value) => logger.fine("Set leftHandMode to $leftHandMode"));
+    }
+    if (Utilities.hasData('dealThree')) {
+      dealThree = Utilities.readData('dealThree');
+    } else {
+      Utilities.writeData('dealThree', dealThree).then((value) => logger.fine("Set dealThree to $dealThree"));
+    }
+    if (Utilities.hasData('hints')) {
+      hints = Utilities.readData('hints');
+    } else {
+      Utilities.writeData('hints', hints).then((value) => logger.fine("Set hints to $hints"));
+    }
   }
 
   @override
@@ -47,36 +64,37 @@ class OptionsScreenState extends State<OptionsScreen> {
           SettingsList(
             sections: [
               SettingsSection(
-                  tiles: [
-                    SettingsTile.switchTile(
-                        title: const Text('Left-Hand Mode'),
-                        leading: const Icon(Icons.front_hand),
-                        initialValue: widget.leftHandMode,
-                        onToggle: (value) {
-                          setState(() {
-                            widget.leftHandMode = value;
-                          });
-                        }
-                    ),
-                    SettingsTile.switchTile(
-                        title: const Text('Draw One'),
-                        initialValue: widget.drawOne,
-                        onToggle: (value) {
-                          setState(() {
-                            widget.drawOne = value;
-                          });
-                        }
-                    ),
-                    SettingsTile.switchTile(
-                        title: const Text('Hints'),
-                        initialValue: widget.hints,
-                        onToggle: (value) {
-                          setState(() {
-                            widget.hints = value;
-                          });
-                        }
-                    )
-                  ]
+                title: const Text('Play Modes'),
+                tiles: [
+                  SettingsTile.switchTile(
+                    title: const Text('Left-Handed Mode'),
+                    initialValue: leftHandMode,
+                    onToggle: (value) {
+                      Utilities.writeData('leftHandMode', value).then((value) => setState(() {
+                        leftHandMode = value;
+                      }));
+
+                    }
+                  ),
+                  SettingsTile.switchTile(
+                    title: const Text('Deal Three Cards'),
+                    initialValue: dealThree,
+                    onToggle: (value) {
+                      Utilities.writeData('dealThree', value).then((value) => setState(() {
+                        dealThree = value;
+                      }));
+                    }
+                  ),
+                  SettingsTile.switchTile(
+                    title: const Text('Hints'),
+                    initialValue: hints,
+                    onToggle: (value) {
+                      Utilities.writeData('hints', value).then((value) => setState(() {
+                        hints = value;
+                      }));
+                    }
+                  )
+                ]
               )
             ],
           ),

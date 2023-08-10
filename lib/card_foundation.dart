@@ -53,7 +53,7 @@ class CardFoundationState extends State<CardFoundation> {
         ),
         DragTarget<Map>(
           builder: (context, listOne, listTwo) {
-            return widget.cards.isEmpty ? const SizedBox() : MovableCard(
+            return widget.cards.isEmpty ? Utilities.emptyCard() : MovableCard(
               playingCard: widget.cards.last,
               columnIndex: widget.columnIndex,
               attachedCards: [

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
 import 'package:solitaire/screens/game_screen.dart';
 import 'package:solitaire/screens/klondike_screen.dart';
 import 'package:solitaire/screens/options_screen.dart';
@@ -15,9 +14,8 @@ class MenuScreen extends StatefulWidget {
 }
 
 class MenuScreenState extends State<MenuScreen> {
-  final OptionsScreen _optionsScreen = Get.put(OptionsScreen());
+  final OptionsScreen _optionsScreen = Get.put(const OptionsScreen());
 
-  final box = GetStorage('storage');
   final PageController _pageController = PageController(initialPage: 0);
   final List<Widget> _pages = [];
   int _activePage = 0;
@@ -160,8 +158,8 @@ class MenuScreenState extends State<MenuScreen> {
                 children: <Widget>[
                   Padding(
                       padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-                      child: (box.read('seed') != null && gameScreen.initialized) ? Text(
-                        '${box.read('seed')}',
+                      child: (Utilities.readData('seed') != null && gameScreen.initialized) ? Text(
+                        '${Utilities.readData('seed')}',
                         style: const TextStyle(color: Colors.grey),
                       ) :
                       const Text('')
