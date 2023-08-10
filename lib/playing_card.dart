@@ -130,11 +130,11 @@ class PlayingCard {
   bool get isAce => rank == CardRank.ace;
 
   Image toAsset() {
-    return Image.asset('images/${suit.toShortString()}/${rank.image}');
+    return Image.asset('assets/cards/${suit.toShortString()}/${rank.image}');
   }
 
   Image toBackAsset() {
-    return Image.asset('images/backs/1.png');
+    return Image.asset('assets/cards/backs/1.png');
   }
 
   String name() => '${rank.name} of ${suit.name}';

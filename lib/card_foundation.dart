@@ -86,13 +86,13 @@ class CardFoundationState extends State<CardFoundation> {
   Image? suitToImage() {
     switch (widget.suit) {
       case CardSuit.hearts:
-        return Image.asset('images/hearts.png');
+        return Image.asset('assets/cards/hearts.png');
       case CardSuit.diamonds:
-        return Image.asset('images/diamonds.png');
+        return Image.asset('assets/cards/diamonds.png');
       case CardSuit.clubs:
-        return Image.asset('images/clubs.png');
+        return Image.asset('assets/cards/clubs.png');
       case CardSuit.spades:
-        return Image.asset('images/spades.png');
+        return Image.asset('assets/cards/spades.png');
       default:
         return null;
     }

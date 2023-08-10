@@ -28,14 +28,14 @@ class GridDashboardState extends State<GridDashboard> {
       title: "Klondike",
       subtitle: gameSeedSubtitle(klondikeScreen),
       backgroundColor: const Color(0xFF357960),
-      image: "images/spades.png",
+      image: "assets/cards/spades.png",
       screen: klondikeScreen
     ));
     menuItems.add(MenuItem(
       title: "Spider",
       subtitle: "Coming Soon!",
       backgroundColor: const Color(0xFF0a9396),
-      image: "images/diamonds.png",
+      image: "assets/cards/diamonds.png",
         screen: spiderScreen,
       disabled: true
     ));
@@ -43,7 +43,7 @@ class GridDashboardState extends State<GridDashboard> {
       title: "FreeCell",
       subtitle: "Coming Soon!",
       backgroundColor: const Color(0xFFc42323),
-      image: "images/hearts.png",
+      image: "assets/cards/hearts.png",
       screen: spiderScreen,
       disabled: true
     ));
@@ -51,7 +51,7 @@ class GridDashboardState extends State<GridDashboard> {
       title: "Pyramid",
       subtitle: "Coming Soon!",
       backgroundColor: const Color(0xFFd6701e),
-      image: "images/clubs.png",
+      image: "assets/cards/clubs.png",
       screen: spiderScreen,
       disabled: true
     ));
@@ -59,14 +59,14 @@ class GridDashboardState extends State<GridDashboard> {
       title: "TriPeaks",
       subtitle: "Coming Soon!",
       backgroundColor: const Color(0xFFc4b41d),
-      image: "images/spades.png",
+      image: "assets/cards/spades.png",
       screen: spiderScreen,
       disabled: true
     ));
     menuItems.add(MenuItem(
       title: "Settings",
       backgroundColor: const Color(0xFF6e6e6e),
-      image: "images/gear.png",
+      image: "assets/gear.png",
       screen: optionsScreen
     ));
   }

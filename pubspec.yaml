@@ -30,15 +30,11 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-    - images/icon.png
-    - images/back_side.png
-    - images/hearts.png
-    - images/diamonds.png
-    - images/clubs.png
-    - images/spades.png
-    - images/gear.png
-    - images/backs/
-    - images/spades/
-    - images/hearts/
-    - images/clubs/
-    - images/diamonds/
+    - assets/back_side.png
+    - assets/gear.png
+    - assets/cards/
+    - assets/cards/backs/
+    - assets/cards/clubs/
+    - assets/cards/diamonds/
+    - assets/cards/hearts/
+    - assets/cards/spades/
