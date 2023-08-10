@@ -51,4 +51,6 @@ class GameTimer {
       ),
     );
   }
+
+  Map toJson() => _duration.toJson();
 }

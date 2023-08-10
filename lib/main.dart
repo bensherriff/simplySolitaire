@@ -11,7 +11,7 @@ void main() async {
   Logger.root.onRecord.listen((record) {
     print('${record.level.name} | ${record.time} | ${record.message}');
   });
-  await GetStorage.init('storage');
+  await Get.putAsync(() => GetStorage.init('storage'));
   runApp(GetMaterialApp(home: menuScreen));
 }
 

@@ -64,6 +64,14 @@ class Move {
   String toString() {
     return "{cards: $cards, newIndex: $destinationIndex, previousIndex: $sourceIndex, revealedCard: $revealedCard}";
   }
+
+  Map toJson() => {
+    'cards': cards,
+    'sourceIndex': sourceIndex,
+    'destinationIndex': destinationIndex,
+    'revealedCard': revealedCard,
+    'resetStockDeck': resetStockDeck
+  };
 }
 
 class Moves {
@@ -99,4 +107,13 @@ class Moves {
 
   @override
   String toString() => list.toString();
+
+  Map toJson() => {
+    'gameMode': gameMode.toString(),
+    'list': list
+  };
+
+  Moves.fromJson(Map<String, dynamic> json)
+    : gameMode = json['gameMode'],
+      list = json['list'];
 }

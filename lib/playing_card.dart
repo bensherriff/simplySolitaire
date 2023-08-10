@@ -7,9 +7,18 @@ enum CardSuit {
   clubs,
 }
 
-extension CardSuitString on CardSuit {
+extension CardSuitExt on CardSuit {
   String toShortString() {
     return toString().split('.').last;
+  }
+
+  CardSuit? fromString(String string) {
+    for (CardSuit element in CardSuit.values) {
+      if (element.toString() == string) {
+        return element;
+      }
+    }
+    return null;
   }
 }
 
@@ -33,7 +42,7 @@ enum CardRank {
   final String image;
 }
 
-extension CardRankString on CardRank {
+extension CardRankExt on CardRank {
   String toShortString() {
     return toString().split('.').last;
   }
@@ -41,9 +50,16 @@ extension CardRankString on CardRank {
   int compareTo(CardRank other) {
     return index.compareTo(other.index);
   }
-}
 
-extension CardRankValue on CardRank {
+  CardRank? fromString(String string) {
+    for (CardRank element in CardRank.values) {
+      if (element.toString() == string) {
+        return element;
+      }
+    }
+    return null;
+  }
+
   int get value {
     switch (this) {
       case CardRank.ace:
@@ -153,4 +169,17 @@ class PlayingCard {
   String toString() {
     return '{suit: $suit, rank: $rank, revealed: $revealed}';
   }
+
+  Map toJson() => {
+    'suit': suit.toString(),
+    'rank': rank.toString(),
+    'revealed': revealed,
+    'visible': visible
+  };
+
+  PlayingCard.fromJson(Map<String, dynamic> json)
+    : suit = json['suit'],
+      rank = json['rank'],
+      revealed = json['revealed'],
+      visible = json['visible'];
 }

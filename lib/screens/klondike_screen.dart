@@ -28,8 +28,6 @@ class KlondikeScreen extends GameScreen {
   List<PlayingCard> clubsFoundation = [];
   List<PlayingCard> diamondsFoundation = [];
 
-  bool allCardsRevealed = false;
-
   KlondikeScreen({Key? key}) : super(key: key, gameMode: GameMode.klondike, backgroundColor: const Color(0xFF357960));
 
   @override
@@ -387,8 +385,6 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
 
       widget.moves = Moves(gameMode: GameMode.klondike);
 
-      widget.allCardsRevealed = false;
-
       widget.timer.resetTimer();
 
       if (debug) {
@@ -416,7 +412,7 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
 
       widget.initialized = true;
     });
-    Utilities.writeData('seed', widget.seed);
+    Utilities.writeData('seed', seed);
     Utilities.writeData('initialized', widget.initialized);
     // widget.box.write('moves', widget.moves);
     // widget.box.write('timer', widget.timer);
@@ -765,5 +761,24 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
       default:
         return [];
     }
+  }
+
+  @override
+  Map toJson() => {
+    'columns': widget.columns,
+    'waste': widget.wasteDeck,
+    'stock': widget.stockDeck,
+    'spades': widget.spadesFoundation,
+    'hearts': widget.heartsFoundation,
+    'clubs': widget.clubsFoundation,
+    'diamonds': widget.diamondsFoundation,
+    'initialized': widget.initialized,
+    'seed': widget.seed,
+    'moves': widget.moves,
+    'timer': widget.timer.toJson()
+  };
+
+  @override
+  void fromJson(Map<String, dynamic> json) {
   }
 }

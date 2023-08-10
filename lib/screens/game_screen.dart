@@ -17,10 +17,8 @@ extension GameModeString on GameMode {
   }
 }
 
-class GameScreen extends StatefulWidget {
-
+abstract class GameScreen extends StatefulWidget {
   static const int maxSeed = 4294967296;
-
   final Color backgroundColor;
   final GameMode gameMode;
 
@@ -30,12 +28,9 @@ class GameScreen extends StatefulWidget {
   GameTimer timer = Get.put(GameTimer());
 
   GameScreen({Key? key, required this.backgroundColor, required this.gameMode}) : super(key: key);
-
-  @override
-  GameScreenState createState() => GameScreenState();
 }
 
-class GameScreenState<T extends GameScreen> extends State<T> {
+abstract class GameScreenState<T extends GameScreen> extends State<T> {
   final OptionsScreen optionsScreen = Get.find();
 
   @override
@@ -92,10 +87,12 @@ class GameScreenState<T extends GameScreen> extends State<T> {
                   color: Colors.white,
                   padding: const EdgeInsets.only(left: 28.0, right: 28.0),
                   onPressed: () {
-                    Move? lastMove = widget.moves.pop();
-                    if (lastMove != null) {
-                      undoMove(lastMove);
-                    }
+                    setState(() {
+                      Move? lastMove = widget.moves.pop();
+                      if (lastMove != null) {
+                        undoMove(lastMove);
+                      }
+                    });
                   }
               ) : IconButton(
                 icon: const Icon(null),
@@ -108,4 +105,7 @@ class GameScreenState<T extends GameScreen> extends State<T> {
       ),
     );
   }
+
+  Map toJson();
+  void fromJson(Map<String, dynamic> json);
 }
