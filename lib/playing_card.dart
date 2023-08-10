@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 
 enum CardSuit {
-  spades,
-  hearts,
-  diamonds,
-  clubs,
+  spades(name: "Spades"),
+  hearts(name: "Hearts"),
+  diamonds(name: "Diamonds"),
+  clubs(name: "Clubs");
+
+  const CardSuit({ required this.name });
+
+  final String name;
 }
 
 extension CardSuitExt on CardSuit {
@@ -23,22 +27,23 @@ extension CardSuitExt on CardSuit {
 }
 
 enum CardRank {
-  ace(image: 'a.png'),
-  two(image: '2.png'),
-  three(image: '3.png'),
-  four(image: '4.png'),
-  five(image: '5.png'),
-  six(image: '6.png'),
-  seven(image: '7.png'),
-  eight(image: '8.png'),
-  nine(image: '9.png'),
-  ten(image: '10.png'),
-  jack(image: 'j.png'),
-  queen(image: 'q.png'),
-  king(image: 'k.png');
+  ace(name: 'Ace', image: 'a.png'),
+  two(name: '2', image: '2.png'),
+  three(name: '3', image: '3.png'),
+  four(name: '4', image: '4.png'),
+  five(name: '5', image: '5.png'),
+  six(name: '6', image: '6.png'),
+  seven(name: '7', image: '7.png'),
+  eight(name: '8', image: '8.png'),
+  nine(name: '9', image: '9.png'),
+  ten(name: '10', image: '10.png'),
+  jack(name: 'Jack', image: 'j.png'),
+  queen(name: 'Queen', image: 'q.png'),
+  king(name: 'King', image: 'k.png');
 
-  const CardRank({ required this.image });
+  const CardRank({ required this.name, required this.image });
 
+  final String name;
   final String image;
 }
 
@@ -124,39 +129,6 @@ class PlayingCard {
   bool get isKing => (rank == CardRank.king);
   bool get isAce => rank == CardRank.ace;
 
-  String cardTypeToString() {
-    switch (rank) {
-      case CardRank.ace:
-        return "A";
-      case CardRank.two:
-        return "2";
-      case CardRank.three:
-        return "3";
-      case CardRank.four:
-        return "4";
-      case CardRank.five:
-        return "5";
-      case CardRank.six:
-        return "6";
-      case CardRank.seven:
-        return "7";
-      case CardRank.eight:
-        return "8";
-      case CardRank.nine:
-        return "9";
-      case CardRank.ten:
-        return "10";
-      case CardRank.jack:
-        return "J";
-      case CardRank.queen:
-        return "Q";
-      case CardRank.king:
-        return "K";
-      default:
-        return "";
-    }
-  }
-
   Image toAsset() {
     return Image.asset('images/${suit.toShortString()}/${rank.image}');
   }
@@ -164,6 +136,8 @@ class PlayingCard {
   Image toBackAsset() {
     return Image.asset('images/backs/1.png');
   }
+
+  String name() => '${rank.name} of ${suit.name}';
 
   @override
   String toString() {
