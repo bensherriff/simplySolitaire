@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:logging/logging.dart';
 import 'package:solitaire/game_utilities.dart';
 import 'package:solitaire/screens/game_screen.dart';
 import 'package:solitaire/screens/menu_screen.dart';
@@ -37,7 +38,7 @@ class KlondikeScreen extends GameScreen {
 }
 
 class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
-
+  final logger = Logger('KlondikeScreenState');
   @override
   void initState() {
     super.initState();
@@ -197,6 +198,7 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
                 );
                 widget.moves.push(move);
               }
+              checkWin();
             });
           },
         ),
@@ -479,35 +481,45 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
 
   /// Move card(s) to the first valid column if one exists
   void moveToValidColumn(List<PlayingCard> cards, int currentColumnIndex) {
-    List<int> validColumns = findValidColumns(cards, currentColumnIndex);
-
-    if (validColumns.isEmpty) {
-      return;
+    int newColumnIndex = determineBestColumn(currentColumnIndex, cards);
+    if (newColumnIndex != -1) {
+      moveCards(cards, currentColumnIndex, newColumnIndex);
     }
-    int newColumnIndex = findBestColumn(currentColumnIndex, cards.first, validColumns);
-    moveCards(cards, currentColumnIndex, newColumnIndex);
   }
 
-  /// Find all valid columns for a card
-  List<int> findValidColumns(List<PlayingCard> cards, int currentColumnIndex) {
-    List<int> validColumns = [];
-
+  /// Find the best column out of a list of valid columns
+  int determineBestColumn(int currentColumnIndex, List<PlayingCard> cards) {
+    // If there are no cards, there is no best column
     if (cards.isEmpty) {
-      return validColumns;
+      return -1;
     }
     PlayingCard card = cards.first;
+
+    Map<int, double> validColumns = HashMap();
+
+    void add(int columnIndex, double score) {
+      if (validColumns.containsKey(columnIndex)) {
+        validColumns[columnIndex] = validColumns[columnIndex]! + score;
+      } else {
+        validColumns[columnIndex] = score;
+      }
+    }
 
     // Check main columns
     for (int i = 0; i < widget.columns.length; i++) {
       if (i == currentColumnIndex) {
-        continue;
+        validColumns[i] = -1;
       }
+      // Check if king can be moved to empty column
       if (widget.columns[i].isEmpty && card.isKing) {
-        validColumns.add(i);
+        add(i, 10);
       } else if (widget.columns[i].isNotEmpty) {
         PlayingCard compareCard = widget.columns[i].last;
+        // Check if card can be placed onto another card in a new column
         if (card.cardColor.name != compareCard.cardColor.name && compareCard.rank.value - card.rank.value == 1) {
-          validColumns.add(i);
+          // Prioritize columns with less hidden cards
+          int hiddenCards = GameUtilities.countHiddenCards(widget.columns[i]);
+          add(i, 5 / hiddenCards);
         }
       }
     }
@@ -516,78 +528,37 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
     if (cards.length == 1) {
       if (card.isAce) {
         if (card.suit == CardSuit.spades) {
-          validColumns.add(9);
+          add(9, 100);
         } else if (card.suit == CardSuit.hearts) {
-          validColumns.add(10);
+          add(10, 100);
         } else if (card.suit == CardSuit.clubs) {
-          validColumns.add(11);
+          add(11, 100);
         } else if (card.suit == CardSuit.diamonds) {
-          validColumns.add(12);
+          add(12, 100);
         }
       } else if (card.suit == CardSuit.spades) {
         if (getListFromIndex(9).isNotEmpty && card.rank.value - getListFromIndex(9).last.rank.value == 1) {
-          validColumns.add(9);
+          add(9, 20);
         }
       } else if (card.suit == CardSuit.hearts) {
         if (getListFromIndex(10).isNotEmpty && card.rank.value - getListFromIndex(10).last.rank.value == 1) {
-          validColumns.add(10);
+          add(9, 20);
         }
       } else if (card.suit == CardSuit.clubs) {
         if (getListFromIndex(11).isNotEmpty && card.rank.value - getListFromIndex(11).last.rank.value == 1) {
-          validColumns.add(11);
+          add(9, 20);
         }
       } else if (card.suit == CardSuit.diamonds) {
         if (getListFromIndex(12).isNotEmpty && card.rank.value - getListFromIndex(12).last.rank.value == 1) {
-          validColumns.add(12);
+          add(9, 20);
         }
       }
     }
 
-    return validColumns;
-  }
-
-  /// Find the best column out of a list of valid columns
-  int findBestColumn(int currentColumnIndex, PlayingCard card, List<int> validColumns) {
-    // If there is only one valid column, return the valid column
-    if (validColumns.isEmpty) {
-      return -1;
-    } else if (validColumns.length == 1) {
-      return validColumns.first;
-    }
-
-    Map<int, double> columnScores = HashMap();
-    for (int columnIndex in validColumns) {
-      columnScores[columnIndex] = 0;
-    }
-
-    for (int columnIndex in validColumns) {
-      int score = 0;
-
-      // Evaluate scores of the normal columns
-      if (columnIndex <= 6) {
-        int hiddenCount = countHiddenCards(widget.columns[columnIndex]);
-        score += hiddenCount;
-      }
-      columnScores[columnIndex] = columnScores[columnIndex]! + score;
-    }
-
-    // Determine if a foundation column is valid
-    var validColumnsSet = validColumns.toSet();
-    var foundationSet = {9, 10, 11, 12};
-    var resultSet = validColumnsSet.intersection(foundationSet);
-    if (resultSet.length == 1) {
-      columnScores[resultSet.first] = columnScores[resultSet.first]! + 35;
-      if (card.rank == CardRank.ace) {
-        columnScores[resultSet.first] = columnScores[resultSet.first]! + 100;
-      }
-    } else if (resultSet.length > 1) {
-      throw Exception("Cannot determine best column with multiple foundations");
-    }
-
     // Return the column with the best score
-    int bestColumn = validColumns.first;
+    int bestColumn = -1;
     double bestScore = -1;
-    columnScores.forEach((column, score) {
+    validColumns.forEach((column, score) {
       if (score > bestScore) {
         bestColumn = column;
         bestScore = score;
@@ -623,28 +594,37 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
     // Check if waste card is movable
     if (widget.wasteDeck.isNotEmpty) {
       PlayingCard card = widget.wasteDeck.last;
-      List<int> columns = findValidColumns([card], 7);
-      if (columns.isNotEmpty) {
-        int bestColumn = findBestColumn(7, card, columns);
+      int bestColumn = determineBestColumn(7, [card]);
+      if (bestColumn != -1) {
         Move move = Move(cards: [card], sourceIndex: 7, destinationIndex: bestColumn, revealedCard: false);
         validMoves.push(move);
       }
     }
 
     // Columns
-    for (int i = 0; i < 7; i++) {
+    for (int i = 0; i < widget.columns.length; i++) {
       for (int j = 0; j < widget.columns[i].length; j++) {
         if (widget.columns[i][j].revealed) {
           List<PlayingCard> cards = widget.columns[i].sublist(j);
-          List<int> columns = findValidColumns(cards, i);
-          if (columns.isNotEmpty) {
-            int bestColumn = findBestColumn(i, cards.first, columns);
+          int bestColumn = determineBestColumn(i, cards);
+          if (bestColumn != -1) {
             Move move = Move(cards: cards, sourceIndex: i, destinationIndex: bestColumn, revealedCard: (j >= 1 && !widget.columns[i][j].revealed));
             validMoves.push(move);
           }
         }
       }
     }
+
+    // Check if stock deck has a movable card
+    // for (var card in widget.stockDeck) {
+    //   int bestColumn = determineBestColumn(8, [card]);
+    //   if (bestColumn != -1) {
+    //     Move move = Move(cards: [widget.stockDeck.first], sourceIndex: 8, destinationIndex: 7, revealedCard: false);
+    //     validMoves.push(move);
+    //   }
+    //   // Stock deck can only be moved once per evaluation
+    //   break;
+    // }
 
     // Sort moves by priority. Moves with a higher priority should be moved first
     validMoves.list.sort((a, b) => a.cards.first.rank.compareTo(b.cards.first.rank));
