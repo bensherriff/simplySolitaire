@@ -361,6 +361,7 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
   /// random order of cards, and to allow for re-playability.
   void initializeGame(int seed, {bool debug = false}) {
     Deck allCards = Deck();
+    seed = 1393796464;
 
     // Add all cards to deck
     allCards.initialize(debug: debug);
@@ -486,7 +487,7 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
   (int, double) determineBestColumn(int currentColumnIndex, List<PlayingCard> cards) {
     // If there are no cards, there is no best column
     if (cards.isEmpty) {
-      return (-1, -1.0);
+      return (-1, -1);
     }
     PlayingCard card = cards.first;
 
@@ -507,14 +508,20 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
       currentColumnHiddenCards = Utilities.countHiddenCards(widget.columns[currentColumnIndex]);
     }
 
-    // Check main columns
+    // Check if cards can be placed onto the main columns
     for (int i = 0; i < widget.columns.length; i++) {
       if (i == currentColumnIndex) {
         validColumns[i] = -1;
+        continue;
       }
       // Check if king can be moved to empty column
       if (widget.columns[i].isEmpty && card.isKing) {
-        add(i, 10 + (1.6 * currentColumnHiddenCards));
+        // Disfavor kings that are already the first card
+        if (currentColumnIndex < widget.columns.length - 1 && currentColumnHiddenCards == 0) {
+          add(i, -50);
+        } else {
+          add(i, 10 + (1.6 * currentColumnHiddenCards));
+        }
       } else if (widget.columns[i].isNotEmpty) {
         PlayingCard compareCard = widget.columns[i].last;
         // Check if card can be placed onto another card in a new column
@@ -524,11 +531,26 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
           // Prioritize columns with less hidden cards
           int hiddenCards = Utilities.countHiddenCards(widget.columns[i]);
           add(i, -(hiddenCards/2.5));
+          // Disfavor moving a card to another card if it's already placed
+          if (currentColumnIndex < widget.columns.length - 1) {
+            List<PlayingCard> currentColumn = widget.columns[currentColumnIndex];
+            int currentCardIndex = currentColumn.indexOf(card);
+            // Check if moving the card helps move the above card
+            if (currentCardIndex > 0) {
+              List<PlayingCard> aboveCards = currentColumn.sublist(currentCardIndex - 1, currentColumn.length - 1);
+              (int, double) aboveCardResults = determineBestColumn(currentColumnIndex, aboveCards);
+              if (aboveCardResults.$1 == -1) {
+                add(i, -20 * (aboveCards.first.revealed? 1: 0));
+              } else if (aboveCardResults.$2 >= validColumns[i]!) {
+                add(i, aboveCardResults.$2 / 2);
+              }
+            }
+          }
         }
       }
     }
 
-    // Check foundation decks
+    // Check if cards can be placed onto the foundation decks
     if (cards.length == 1) {
       if (card.isAce) {
         if (card.suit == CardSuit.spades) {
@@ -542,19 +564,19 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
         }
       } else if (card.suit == CardSuit.spades) {
         if (getListFromIndex(9).isNotEmpty && card.rank.value - getListFromIndex(9).last.rank.value == 1) {
-          add(9, 12);
+          add(9, 9);
         }
       } else if (card.suit == CardSuit.hearts) {
         if (getListFromIndex(10).isNotEmpty && card.rank.value - getListFromIndex(10).last.rank.value == 1) {
-          add(10, 12);
+          add(10, 9);
         }
       } else if (card.suit == CardSuit.clubs) {
         if (getListFromIndex(11).isNotEmpty && card.rank.value - getListFromIndex(11).last.rank.value == 1) {
-          add(11, 12);
+          add(11, 9);
         }
       } else if (card.suit == CardSuit.diamonds) {
         if (getListFromIndex(12).isNotEmpty && card.rank.value - getListFromIndex(12).last.rank.value == 1) {
-          add(12, 12);
+          add(12, 9);
         }
       }
     }
@@ -586,8 +608,11 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
     Moves validMoves = findValidMoves();
     Move? move = validMoves.pop();
     if (move != null) {
-      logger.fine(
-          'Move ${move.cards.first.name()} from ${move.sourceIndex} to ${move.destinationIndex} (${validMoves.size + 1} possible moves)');
+      if (move.sourceIndex == 8) {
+        logger.fine('Reveal Stock (${validMoves.size + 1} possible moves)');
+      } else {
+        logger.fine('Move ${move.cards.first.name()} from ${move.sourceIndex} to ${move.destinationIndex} (${validMoves.size + 1} possible moves)');
+      }
     } else {
       logger.fine('No moves found');
     }
@@ -612,7 +637,7 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
           (int, double) record = determineBestColumn(i, cards);
           if (record.$1 != -1) {
             Move move = Move(cards: cards, sourceIndex: i, destinationIndex: record.$1, revealedCard: (j >= 1 && !widget.columns[i][j].revealed));
-            validMoves[move] = (record.$2 * 2.0);
+            validMoves[move] = record.$2 * 3.0;
           }
         }
       }
@@ -624,20 +649,36 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
       (int, double) record = determineBestColumn(7, [card]);
       if (record.$1 != -1) {
         Move move = Move(cards: [card], sourceIndex: 7, destinationIndex: record.$1, revealedCard: false);
-        validMoves[move] = record.$2;
+        validMoves[move] = record.$2 * 1.5;
       }
     }
 
     // Check if stock deck has a movable card
     for (int i = 0; i < widget.stockDeck.length; i++) {
       PlayingCard card = widget.stockDeck[i];
-      (int, double) r = determineBestColumn(8, [card]);
-      if (r.$1 != -1) {
-        Move move = Move(cards: widget.stockDeck.sublist(0, min(i + 1, widget.stockDeck.length - 1)), sourceIndex: 8, destinationIndex: 7, revealedCard: false);
-        validMoves[move] = (r.$2 - (i * 6.5));
-        // Stock deck can only be moved once per evaluation
-        // TODO evaluate removing this break to determine if there is a better move further down in the stock pile
-        break;
+      (int, double) record = determineBestColumn(8, [card]);
+      if (record.$1 != -1) {
+        Move move = Move(cards: widget.stockDeck.sublist(0, min(i + 1, widget.stockDeck.length)), sourceIndex: 8, destinationIndex: 7, revealedCard: false);
+        validMoves[move] = record.$2 - (i * 4.5);
+      }
+    }
+    // Check if reset stock deck (from waste deck) has a movable card
+    for (int i = 0; i < widget.wasteDeck.length; i++) {
+      PlayingCard card = widget.wasteDeck[i];
+      (int, double) record = determineBestColumn(7, [card]);
+      if (record.$1 != -1) {
+        Move move = Move(cards: widget.wasteDeck.sublist(0, min(i + 1, widget.wasteDeck.length)), sourceIndex: 7, destinationIndex: 8, revealedCard: false);
+        validMoves[move] = record.$2 - (i * 4.5) - widget.stockDeck.length;
+      }
+    }
+
+    Move? lastMove = widget.moves.peek;
+    for (int i = 0; i < validMoves.entries.length; i++) {
+      MapEntry<Move, double> entry = validMoves.entries.toList()[i];
+      Move move = entry.key;
+      if (lastMove != null && move.destinationIndex == lastMove.sourceIndex && move.sourceIndex == lastMove.destinationIndex) {
+        print('was last move');
+        validMoves[move] = validMoves[move]! - 10;
       }
     }
 
@@ -645,14 +686,20 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
     Map<Move, double> sortedMap = Map.fromEntries(
         validMoves.entries.toList()..sort((e1, e2) => e1.value.compareTo(e2.value))
     );
-    String possibleMovesString = "";
-    for (MapEntry<Move, double> entry in sortedMap.entries) {
+
+    // Debug printing
+    String possibleMovesString = "Possible moves:\n";
+    for (int i = 0; i < sortedMap.entries.length; i++) {
+      MapEntry<Move, double> entry = sortedMap.entries.toList()[i];
+      possibleMovesString += '${entry.key.sourceIndex} to ${entry.key.destinationIndex} (';
       for (PlayingCard card in entry.key.cards) {
-        possibleMovesString += card.name();
+        possibleMovesString += '${card.name()}${entry.key.cards.last != card? ', ': ''}';
       }
-      possibleMovesString += ': ${entry.value}\n';
+      possibleMovesString += ')';
+      possibleMovesString += ': ${entry.value}${i < sortedMap.entries.length - 1? '\n': ''}';
     }
-    logger.finer('Possible moves: $possibleMovesString');
+    logger.finer(possibleMovesString);
+
     Moves moves = Moves(gameMode: widget.gameMode);
     moves.set(sortedMap.keys.toList());
     return moves;
