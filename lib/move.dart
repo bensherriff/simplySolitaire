@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'dart:math';
 
 import 'package:solitaire/playing_card.dart';
@@ -76,44 +77,53 @@ class Move {
 
 class Moves {
   final GameMode gameMode;
-  List<Move> list = <Move>[];
+  List<Move> _list = <Move>[];
 
   Moves({
     required this.gameMode
   });
 
-  void push(Move move) => list.add(move);
+  void set(List<Move> moves) {
+    _list = moves;
+  }
 
-  Move? pop() => (isEmpty) ? null : list.removeLast();
-  Move? get peek => (isEmpty) ? null : list.last;
+  void push(Move move) => _list.add(move);
+
+  Move? pop() => (isEmpty) ? null : _list.removeLast();
+  Move? get peek => (isEmpty) ? null : _list.last;
 
   int totalPoints() {
     int totalPoints = 0;
-    for (var move in list) {
+    for (var move in _list) {
       totalPoints = max(0, totalPoints + move.calculatePoints(gameMode));
     }
     return totalPoints;
   }
 
-  int get size => list.length;
-  bool get isEmpty => list.isEmpty;
-  bool get isNotEmpty => list.isNotEmpty;
+  int get size => _list.length;
+  bool get isEmpty => _list.isEmpty;
+  bool get isNotEmpty => _list.isNotEmpty;
 
-  Moves reversed() {
-    Moves reversedMoves = Moves(gameMode: gameMode);
-    reversedMoves.list = list.reversed.toList();
-    return reversedMoves;
+  List<Move> prioritize() {
+    HashMap<Move, double> moveScores = HashMap();
+    for (var move in _list) {
+      moveScores[move] = 0;
+    }
+
+    var sortedMap = SplayTreeMap<Move, double>.from(
+      moveScores, (key1, key2) => moveScores[key1]!.compareTo(moveScores[key2] as num));
+    return sortedMap.keys.toList();
   }
 
   @override
-  String toString() => list.toString();
+  String toString() => _list.toString();
 
   Map toJson() => {
     'gameMode': gameMode.toString(),
-    'list': list
+    'list': _list
   };
 
   Moves.fromJson(Map<String, dynamic> json)
     : gameMode = json['gameMode'],
-      list = json['list'];
+      _list = json['list'];
 }

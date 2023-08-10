@@ -610,19 +610,19 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
     }
 
     // Check if stock deck has a movable card
-    // for (var card in widget.stockDeck) {
-    //   int bestColumn = determineBestColumn(8, [card]);
-    //   if (bestColumn != -1) {
-    //     Move move = Move(cards: [widget.stockDeck.first], sourceIndex: 8, destinationIndex: 7, revealedCard: false);
-    //     validMoves.push(move);
-    //   }
-    //   // Stock deck can only be moved once per evaluation
-    //   break;
-    // }
+    for (var card in widget.stockDeck) {
+      int bestColumn = determineBestColumn(8, [card]);
+      if (bestColumn != -1) {
+        Move move = Move(cards: [widget.stockDeck.first], sourceIndex: 8, destinationIndex: 7, revealedCard: false);
+        validMoves.push(move);
+      }
+      // Stock deck can only be moved once per evaluation
+      break;
+    }
 
-    // Sort moves by priority. Moves with a higher priority should be moved first
-    validMoves.list.sort((a, b) => a.cards.first.rank.compareTo(b.cards.first.rank));
-    return validMoves.reversed();
+    // Return a list of prioritized moves
+    validMoves.set(validMoves.prioritize());
+    return validMoves;
   }
 
   void handleAutoWin() {
