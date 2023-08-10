@@ -35,4 +35,11 @@ class SpiderScreenState extends GameScreenState<SpiderScreen> {
       bottomNavigationBar: bottomNavBar(0xFF0b3f40, (move) => {}),
     );
   }
+
+  @override
+  Map toJson() => {};
+
+  @override
+  void fromJson(Map<String, dynamic> json) {
+  }
 }

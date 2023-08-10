@@ -7,29 +7,42 @@ enum CardSuit {
   clubs,
 }
 
-extension CardSuitString on CardSuit {
+extension CardSuitExt on CardSuit {
   String toShortString() {
     return toString().split('.').last;
+  }
+
+  CardSuit? fromString(String string) {
+    for (CardSuit element in CardSuit.values) {
+      if (element.toString() == string) {
+        return element;
+      }
+    }
+    return null;
   }
 }
 
 enum CardRank {
-  ace,
-  two,
-  three,
-  four,
-  five,
-  six,
-  seven,
-  eight,
-  nine,
-  ten,
-  jack,
-  queen,
-  king
+  ace(image: 'a.png'),
+  two(image: '2.png'),
+  three(image: '3.png'),
+  four(image: '4.png'),
+  five(image: '5.png'),
+  six(image: '6.png'),
+  seven(image: '7.png'),
+  eight(image: '8.png'),
+  nine(image: '9.png'),
+  ten(image: '10.png'),
+  jack(image: 'j.png'),
+  queen(image: 'q.png'),
+  king(image: 'k.png');
+
+  const CardRank({ required this.image });
+
+  final String image;
 }
 
-extension CardRankString on CardRank {
+extension CardRankExt on CardRank {
   String toShortString() {
     return toString().split('.').last;
   }
@@ -37,9 +50,16 @@ extension CardRankString on CardRank {
   int compareTo(CardRank other) {
     return index.compareTo(other.index);
   }
-}
 
-extension CardRankValue on CardRank {
+  CardRank? fromString(String string) {
+    for (CardRank element in CardRank.values) {
+      if (element.toString() == string) {
+        return element;
+      }
+    }
+    return null;
+  }
+
   int get value {
     switch (this) {
       case CardRank.ace:
@@ -138,7 +158,7 @@ class PlayingCard {
   }
 
   Image toAsset() {
-    return Image.asset('images/${suit.toShortString()}/${rank.toShortString()}.png');
+    return Image.asset('images/${suit.toShortString()}/${rank.image}');
   }
 
   Image toBackAsset() {
@@ -149,4 +169,17 @@ class PlayingCard {
   String toString() {
     return '{suit: $suit, rank: $rank, revealed: $revealed}';
   }
+
+  Map toJson() => {
+    'suit': suit.toString(),
+    'rank': rank.toString(),
+    'revealed': revealed,
+    'visible': visible
+  };
+
+  PlayingCard.fromJson(Map<String, dynamic> json)
+    : suit = json['suit'],
+      rank = json['rank'],
+      revealed = json['revealed'],
+      visible = json['visible'];
 }

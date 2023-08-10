@@ -1,7 +1,9 @@
+import 'dart:collection';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:logging/logging.dart';
 import 'package:solitaire/screens/game_screen.dart';
 import 'package:solitaire/screens/menu_screen.dart';
 import 'package:solitaire/card_column.dart';
@@ -26,8 +28,6 @@ class KlondikeScreen extends GameScreen {
   List<PlayingCard> clubsFoundation = [];
   List<PlayingCard> diamondsFoundation = [];
 
-  bool allCardsRevealed = false;
-
   KlondikeScreen({Key? key}) : super(key: key, gameMode: GameMode.klondike, backgroundColor: const Color(0xFF357960));
 
   @override
@@ -35,6 +35,7 @@ class KlondikeScreen extends GameScreen {
 }
 
 class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
+  final logger = Logger('KlondikeScreenState');
 
   @override
   void initState() {
@@ -119,7 +120,7 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
   }
 
   Widget buildTopDecks() {
-    if (optionsScreen.leftHandMode) {
+    if (Utilities.readData('leftHandMode')) {
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: <Widget>[
@@ -177,10 +178,10 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
                 widget.wasteDeck.clear();
                 Move move = Move(
                   cards: widget.stockDeck,
-                  previousIndex: 7,
-                  newIndex: 8,
+                  sourceIndex: 7,
+                  destinationIndex: 8,
                   revealedCard: false,
-                  resetDeck: true
+                  resetStockDeck: true
                 );
                 widget.moves.push(move);
               } else if (widget.stockDeck.isNotEmpty) {
@@ -189,12 +190,13 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
                 widget.wasteDeck.add(card);
                 Move move = Move(
                   cards: [card],
-                  previousIndex: 8,
-                  newIndex: 7,
+                  sourceIndex: 8,
+                  destinationIndex: 7,
                   revealedCard: false
                 );
                 widget.moves.push(move);
               }
+              checkWin();
             });
           },
         ),
@@ -203,7 +205,7 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
   }
 
   Widget buildWasteDeck() {
-    if (optionsScreen.leftHandMode) {
+    if (Utilities.readData('leftHandMode')) {
       return Container(
           constraints: const BoxConstraints(
             maxWidth: 100,
@@ -218,7 +220,7 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
                   width: Utilities.cardWidth,
                   child: widget.wasteDeck.elementAt(widget.wasteDeck.length - 3).toAsset(),
                 ),
-              ) : const SizedBox(height: Utilities.cardHeight, width: Utilities.cardWidth),
+              ) : Utilities.emptyCard(),
               widget.wasteDeck.length >= 2 ? Positioned(
                 left: 25,
                 child: SizedBox(
@@ -226,7 +228,7 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
                   width: Utilities.cardWidth,
                   child: widget.wasteDeck.elementAt(widget.wasteDeck.length - 2).toAsset(),
                 ),
-              ) : const SizedBox(height: Utilities.cardHeight, width: Utilities.cardWidth),
+              ) : Utilities.emptyCard(),
               widget.wasteDeck.isNotEmpty ? Positioned(
                 child: InkWell(
                   child: MovableCard(
@@ -264,7 +266,7 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
                     width: Utilities.cardWidth,
                     child: widget.wasteDeck.elementAt(widget.wasteDeck.length - 3).toAsset(),
                   ),
-                ) : const SizedBox(height: Utilities.cardHeight, width: Utilities.cardWidth),
+                ) : Utilities.emptyCard(),
                 widget.wasteDeck.length >= 2 ? Positioned(
                   left: 25,
                   child: SizedBox(
@@ -272,7 +274,7 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
                     width: Utilities.cardWidth,
                     child: widget.wasteDeck.elementAt(widget.wasteDeck.length - 2).toAsset(),
                   ),
-                ) : const SizedBox(height: Utilities.cardHeight, width: Utilities.cardWidth),
+                ) : Utilities.emptyCard(),
                 widget.wasteDeck.isNotEmpty ? Positioned(
                     left: 50,
                     child: InkWell(
@@ -287,12 +289,9 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
                           columnIndex: 7,
                         )
                     )
-                ) : const Padding(
-                    padding: EdgeInsets.all(4.0),
-                    child: SizedBox(
-                      height: Utilities.cardHeight,
-                      width: Utilities.cardWidth,
-                    )
+                ) : Padding(
+                    padding: const EdgeInsets.all(4.0),
+                    child: Utilities.emptyCard()
                 )
               ]
           )
@@ -386,8 +385,6 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
 
       widget.moves = Moves(gameMode: GameMode.klondike);
 
-      widget.allCardsRevealed = false;
-
       widget.timer.resetTimer();
 
       if (debug) {
@@ -415,8 +412,8 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
 
       widget.initialized = true;
     });
-    widget.box.write('seed', widget.seed);
-    widget.box.write('initialized', widget.initialized);
+    Utilities.writeData('seed', seed);
+    Utilities.writeData('initialized', widget.initialized);
     // widget.box.write('moves', widget.moves);
     // widget.box.write('timer', widget.timer);
   }
@@ -431,8 +428,8 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
 
     Move move = Move(
       cards: cards,
-      previousIndex: currentIndex,
-      newIndex: newIndex,
+      sourceIndex: currentIndex,
+      destinationIndex: newIndex,
       revealedCard: false
     );
 
@@ -450,17 +447,17 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
   }
 
   void undoMove(Move move) {
-    List<PlayingCard> previousColumn = getListFromIndex(move.previousIndex);
-    List<PlayingCard> newColumn = getListFromIndex(move.newIndex);
+    List<PlayingCard> previousColumn = getListFromIndex(move.sourceIndex);
+    List<PlayingCard> newColumn = getListFromIndex(move.destinationIndex);
     int length = newColumn.length;
 
     setState(() {
-      if (move.previousIndex == 8) {
+      if (move.sourceIndex == 8) {
         previousColumn.insertAll(0, move.cards.map((card) {
           return card
             ..revealed = false;
         }));
-      } else if (move.previousIndex == 7) {
+      } else if (move.sourceIndex == 7) {
         previousColumn.addAll(move.cards.map((card) {
           return card
             ..revealed = true;
@@ -477,35 +474,46 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
 
   /// Move card(s) to the first valid column if one exists
   void moveToValidColumn(List<PlayingCard> cards, int currentColumnIndex) {
-    List<int> validColumns = findValidColumns(cards, currentColumnIndex);
-
-    if (validColumns.isEmpty) {
-      return;
+    int newColumnIndex = determineBestColumn(currentColumnIndex, cards);
+    if (newColumnIndex != -1) {
+      moveCards(cards, currentColumnIndex, newColumnIndex);
     }
-    int newColumnIndex = findBestColumn(currentColumnIndex, validColumns);
-    moveCards(cards, currentColumnIndex, newColumnIndex);
   }
 
-  /// Find all valid columns for a card
-  List<int> findValidColumns(List<PlayingCard> cards, int currentColumnIndex) {
-    List<int> validColumns = [];
-
+  /// Find the best column out of a list of valid columns
+  int determineBestColumn(int currentColumnIndex, List<PlayingCard> cards) {
+    // If there are no cards, there is no best column
     if (cards.isEmpty) {
-      return validColumns;
+      return -1;
     }
     PlayingCard card = cards.first;
+
+    Map<int, double> validColumns = HashMap();
+
+    void add(int columnIndex, double score) {
+      if (validColumns.containsKey(columnIndex)) {
+        validColumns[columnIndex] = validColumns[columnIndex]! + score;
+      } else {
+        validColumns[columnIndex] = score;
+      }
+    }
 
     // Check main columns
     for (int i = 0; i < widget.columns.length; i++) {
       if (i == currentColumnIndex) {
-        continue;
+        validColumns[i] = -1;
       }
+      // Check if king can be moved to empty column
       if (widget.columns[i].isEmpty && card.isKing) {
-        validColumns.add(i);
+        add(i, 10);
       } else if (widget.columns[i].isNotEmpty) {
         PlayingCard compareCard = widget.columns[i].last;
+        // Check if card can be placed onto another card in a new column
         if (card.cardColor.name != compareCard.cardColor.name && compareCard.rank.value - card.rank.value == 1) {
-          validColumns.add(i);
+          add(i, 5);
+          // Prioritize columns with less hidden cards
+          int hiddenCards = Utilities.countHiddenCards(widget.columns[i]);
+          add(i, -(hiddenCards/3));
         }
       }
     }
@@ -514,57 +522,43 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
     if (cards.length == 1) {
       if (card.isAce) {
         if (card.suit == CardSuit.spades) {
-          validColumns.add(9);
+          add(9, 100);
         } else if (card.suit == CardSuit.hearts) {
-          validColumns.add(10);
+          add(10, 100);
         } else if (card.suit == CardSuit.clubs) {
-          validColumns.add(11);
+          add(11, 100);
         } else if (card.suit == CardSuit.diamonds) {
-          validColumns.add(12);
+          add(12, 100);
         }
       } else if (card.suit == CardSuit.spades) {
         if (getListFromIndex(9).isNotEmpty && card.rank.value - getListFromIndex(9).last.rank.value == 1) {
-          validColumns.add(9);
+          add(9, 20);
         }
       } else if (card.suit == CardSuit.hearts) {
         if (getListFromIndex(10).isNotEmpty && card.rank.value - getListFromIndex(10).last.rank.value == 1) {
-          validColumns.add(10);
+          add(10, 20);
         }
       } else if (card.suit == CardSuit.clubs) {
         if (getListFromIndex(11).isNotEmpty && card.rank.value - getListFromIndex(11).last.rank.value == 1) {
-          validColumns.add(11);
+          add(11, 20);
         }
       } else if (card.suit == CardSuit.diamonds) {
         if (getListFromIndex(12).isNotEmpty && card.rank.value - getListFromIndex(12).last.rank.value == 1) {
-          validColumns.add(12);
+          add(12, 20);
         }
       }
     }
 
-    return validColumns;
-  }
-
-  /// Find the best column out of a list of valid columns
-  int findBestColumn(int currentColumnIndex, List<int> validColumns) {
-    // If there is only one valid column, return the valid column
-    if (validColumns.isEmpty) {
-      return -1;
-    } else if (validColumns.length == 1) {
-      return validColumns.first;
-    }
-
-    var validColumnsSet = validColumns.toSet();
-    var foundationSet = {9, 10, 11, 12};
-    var resultSet = validColumnsSet.intersection(foundationSet);
-
-    // If a foundation column is valid, return the foundation column
-    if (resultSet.length == 1) {
-      return resultSet.first;
-    } else if (resultSet.length > 1){
-      throw Exception("Invalid");
-    }
-
-    return validColumns.first;
+    // Return the column with the best score
+    int bestColumn = -1;
+    double bestScore = -1;
+    validColumns.forEach((column, score) {
+      if (score > bestScore) {
+        bestColumn = column;
+        bestScore = score;
+      }
+    });
+    return bestColumn;
   }
 
   bool checkAllCardsRevealed() {
@@ -591,50 +585,44 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
   Moves findValidMoves() {
     Moves validMoves = Moves(gameMode: widget.gameMode);
 
-    // Flip stock card if waste is empty
-    if (widget.wasteDeck.isEmpty && widget.stockDeck.isNotEmpty) {
-      setState(() {
-        PlayingCard card = widget.stockDeck.removeAt(0)
-          ..revealed = true;
-        widget.wasteDeck.add(card);
-        Move move = Move(
-            cards: [card],
-            previousIndex: 8,
-            newIndex: 7,
-            revealedCard: false
-        );
-        widget.moves.push(move);
-      });
-    }
-
     // Check if waste card is movable
     if (widget.wasteDeck.isNotEmpty) {
-      List<int> columns = findValidColumns([widget.wasteDeck.last], 7);
-      if (columns.isNotEmpty) {
-        int bestColumn = findBestColumn(7, columns);
-        Move move = Move(cards: [widget.wasteDeck.last], previousIndex: 7, newIndex: bestColumn, revealedCard: false);
+      PlayingCard card = widget.wasteDeck.last;
+      int bestColumn = determineBestColumn(7, [card]);
+      if (bestColumn != -1) {
+        Move move = Move(cards: [card], sourceIndex: 7, destinationIndex: bestColumn, revealedCard: false);
         validMoves.push(move);
       }
     }
 
     // Columns
-    for (int i = 0; i < 7; i++) {
+    for (int i = 0; i < widget.columns.length; i++) {
       for (int j = 0; j < widget.columns[i].length; j++) {
         if (widget.columns[i][j].revealed) {
           List<PlayingCard> cards = widget.columns[i].sublist(j);
-          List<int> columns = findValidColumns(cards, i);
-          if (columns.isNotEmpty) {
-            int bestColumn = findBestColumn(i, columns);
-            Move move = Move(cards: cards, previousIndex: i, newIndex: bestColumn, revealedCard: (j >= 1 && !widget.columns[i][j].revealed));
+          int bestColumn = determineBestColumn(i, cards);
+          if (bestColumn != -1) {
+            Move move = Move(cards: cards, sourceIndex: i, destinationIndex: bestColumn, revealedCard: (j >= 1 && !widget.columns[i][j].revealed));
             validMoves.push(move);
           }
         }
       }
     }
 
-    // Sort moves by priority. Moves with a higher priority should be moved first
-    validMoves.list.sort((a, b) => a.cards.first.rank.compareTo(b.cards.first.rank));
-    return validMoves.reversed();
+    // Check if stock deck has a movable card
+    for (var card in widget.stockDeck) {
+      int bestColumn = determineBestColumn(8, [card]);
+      if (bestColumn != -1) {
+        Move move = Move(cards: [widget.stockDeck.first], sourceIndex: 8, destinationIndex: 7, revealedCard: false);
+        validMoves.push(move);
+      }
+      // Stock deck can only be moved once per evaluation
+      break;
+    }
+
+    // Return a list of prioritized moves
+    validMoves.set(validMoves.prioritize());
+    return validMoves;
   }
 
   void handleAutoWin() {
@@ -651,7 +639,7 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
       for (int i = 0; i < validMoves.size; i++) {
         Move? move = validMoves.pop();
         if (move != null) {
-          moveCards(move.cards, move.previousIndex, move.newIndex);
+          moveCards(move.cards, move.sourceIndex, move.destinationIndex);
         }
       }
     } while (validMoves.isNotEmpty);
@@ -726,7 +714,7 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
                               widget.initialized = false;
                               widget.seed = -1;
                             });
-                            Get.offAll(() => screen);
+                            Get.to(() => screen);
                           },
                           child: const Text("Main\nMenu", style: TextStyle(fontSize: 18)),
                         )
@@ -773,5 +761,24 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
       default:
         return [];
     }
+  }
+
+  @override
+  Map toJson() => {
+    'columns': widget.columns,
+    'waste': widget.wasteDeck,
+    'stock': widget.stockDeck,
+    'spades': widget.spadesFoundation,
+    'hearts': widget.heartsFoundation,
+    'clubs': widget.clubsFoundation,
+    'diamonds': widget.diamondsFoundation,
+    'initialized': widget.initialized,
+    'seed': widget.seed,
+    'moves': widget.moves,
+    'timer': widget.timer.toJson()
+  };
+
+  @override
+  void fromJson(Map<String, dynamic> json) {
   }
 }

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
 import 'package:solitaire/game_timer.dart';
 import 'package:solitaire/screens/options_screen.dart';
 import 'package:solitaire/move.dart';
 import 'package:solitaire/screens/menu_screen.dart';
+import 'package:solitaire/utilities.dart';
 
 enum GameMode {
   klondike,
@@ -17,13 +17,10 @@ extension GameModeString on GameMode {
   }
 }
 
-class GameScreen extends StatefulWidget {
-
+abstract class GameScreen extends StatefulWidget {
   static const int maxSeed = 4294967296;
-
   final Color backgroundColor;
   final GameMode gameMode;
-  final box = GetStorage('storage');
 
   bool initialized = false;
   int seed = -1;
@@ -31,19 +28,15 @@ class GameScreen extends StatefulWidget {
   GameTimer timer = Get.put(GameTimer());
 
   GameScreen({Key? key, required this.backgroundColor, required this.gameMode}) : super(key: key);
-
-  @override
-  GameScreenState createState() => GameScreenState();
 }
 
-class GameScreenState<T extends GameScreen> extends State<T> {
-
+abstract class GameScreenState<T extends GameScreen> extends State<T> {
   final OptionsScreen optionsScreen = Get.find();
 
   @override
   void initState() {
     super.initState();
-    widget.box.write('gameMode', widget.gameMode.toString());
+    Utilities.writeData('gameMode', widget.gameMode.toString());
   }
 
   @override
@@ -94,10 +87,12 @@ class GameScreenState<T extends GameScreen> extends State<T> {
                   color: Colors.white,
                   padding: const EdgeInsets.only(left: 28.0, right: 28.0),
                   onPressed: () {
-                    Move? lastMove = widget.moves.pop();
-                    if (lastMove != null) {
-                      undoMove(lastMove);
-                    }
+                    setState(() {
+                      Move? lastMove = widget.moves.pop();
+                      if (lastMove != null) {
+                        undoMove(lastMove);
+                      }
+                    });
                   }
               ) : IconButton(
                 icon: const Icon(null),
@@ -110,4 +105,7 @@ class GameScreenState<T extends GameScreen> extends State<T> {
       ),
     );
   }
+
+  Map toJson();
+  void fromJson(Map<String, dynamic> json);
 }
