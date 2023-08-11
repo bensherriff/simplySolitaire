@@ -3,7 +3,7 @@ import 'package:solitaire/utilities.dart';
 import 'playing_card.dart';
 import 'movable_card.dart';
 
-typedef CardAcceptCallback = Null Function(List<PlayingCard> cards, int currentColumnIndex);
+typedef CardAcceptCallback = Future<Null> Function(List<PlayingCard> cards, int currentColumnIndex);
 
 // This is a stack of overlayed cards (implemented using a stack)
 class CardColumn extends StatefulWidget {
@@ -49,17 +49,17 @@ class CardColumnState extends State<CardColumn> {
                 transformIndex: index,
                 attachedCards: [...cards.sublist(index, cards.length)],
                 columnIndex: widget.columnIndex,
-                onTap: (cards, currentColumnIndex) {
+                onTap: (cards, currentColumnIndex) async {
                   widget.onTap(cards, currentColumnIndex);
                 },
-                onDragStarted: () {
+                onDragStarted: () async {
                   setState(() {
                     for (var element in cards.sublist(index, cards.length)) {
                       element.visible = false;
                     }
                   });
                 },
-                onDragEnd: () {
+                onDragEnd: () async {
                   setState(() {
                     for (var element in cards.sublist(index, cards.length)) {
                       element.visible = true;

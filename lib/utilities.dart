@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:solitaire/playing_card.dart';
 
 import 'screens/home.dart';
@@ -55,8 +56,8 @@ class Utilities {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
           menuIcon(),
-          const Text(applicationName,
-            style: TextStyle(
+          Text(applicationName,
+            style: GoogleFonts.quicksand(
               fontSize: 30
             ),
           )
@@ -80,5 +81,35 @@ class Utilities {
         size: 36.0,
       ),
     );
+  }
+
+  static TextStyle buttonTextStyle() {
+    return GoogleFonts.quicksand(
+      color: Colors.white,
+      fontSize: 38,
+      fontWeight: FontWeight.w400
+    );
+  }
+
+  static ButtonStyle buttonStyle() {
+    return ElevatedButton.styleFrom(
+      minimumSize: const Size(230, 60),
+      backgroundColor: const Color(0xFF55688a),
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(30.0)
+      ),
+    );
+  }
+
+  static int stringToSeed(String value) {
+    try {
+      return int.parse(value, radix: 16);
+    } catch (e) {
+      return -1;
+    }
+  }
+
+  static String seedToString(int value) {
+    return value.toRadixString(16).padLeft(8, '0').toUpperCase();
   }
 }

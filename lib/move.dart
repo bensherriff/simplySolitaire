@@ -3,7 +3,7 @@ import 'dart:math';
 
 import 'package:solitaire/playing_card.dart';
 
-import 'screens/game_screen.dart';
+import 'screens/game.dart';
 
 class Move {
   /// List of cards in the move

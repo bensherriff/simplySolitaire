@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:solitaire/screens/game_screen.dart';
-import 'package:solitaire/screens/klondike_screen.dart';
-import 'package:solitaire/screens/settings_screen.dart';
-import 'package:solitaire/screens/spider_screen.dart';
+import 'package:solitaire/screens/game.dart';
+import 'package:solitaire/screens/klondike.dart';
+import 'package:solitaire/screens/settings.dart';
+import 'package:solitaire/screens/spider.dart';
+import 'package:solitaire/utilities.dart';
 
 class GridDashboard extends StatefulWidget {
   const GridDashboard({Key? key}): super(key: key);
@@ -72,7 +73,7 @@ class GridDashboardState extends State<GridDashboard> {
 
   String gameSeedSubtitle(GameScreen gameScreen) {
     if (gameScreen.initialized && gameScreen.seed != -1) {
-      return gameScreen.seed.toRadixString(16);
+      return Utilities.seedToString(gameScreen.seed);
     } else {
       return '';
     }
@@ -124,19 +125,15 @@ class GridDashboardState extends State<GridDashboard> {
                   ),
                   const SizedBox(height: 8),
                   Text(menuItem.title, style: GoogleFonts.quicksand(
-                      textStyle: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 28,
-                          fontWeight: FontWeight.w600
-                      )
+                    color: Colors.white,
+                    fontSize: 28,
+                    fontWeight: FontWeight.w600
                   )),
                   const SizedBox(height: 8),
                   Text(menuItem.subtitle, style: GoogleFonts.quicksand(
-                      textStyle: const TextStyle(
-                          color: Colors.white38,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600
-                      )
+                    color: Colors.white38,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600
                   )),
                 ],
               ): Center(
@@ -159,16 +156,18 @@ Widget alert(GameScreen gameScreen) {
     content: Container(
       constraints: BoxConstraints(
         minHeight: 5,
-        maxHeight: gameScreen.initialized? 220 : 100
+        maxHeight: gameScreen.initialized? 300 : 180
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           continueGameButton(gameScreen),
           const SizedBox(height: 20),
+          restartGameButton(gameScreen),
+          const SizedBox(height: 20),
           newGameButton(gameScreen),
           const SizedBox(height: 20),
-          restartGameButton(gameScreen)
+          customGameButton(gameScreen),
         ],
       )
     )
@@ -178,8 +177,16 @@ Widget alert(GameScreen gameScreen) {
 Widget newGameButton(GameScreen gameScreen) {
   return ElevatedButton(
     onPressed: () => gameScreen.newGame(),
-    style: buttonStyle(),
-    child: Text("New Game", style: buttonTextStyle())
+    style: Utilities.buttonStyle(),
+    child: Text("New Game", style: Utilities.buttonTextStyle())
+  );
+}
+
+Widget customGameButton(GameScreen gameScreen) {
+  return ElevatedButton(
+    onPressed: () => gameScreen.customGame(),
+    style: Utilities.buttonStyle(),
+    child: Text("Custom", style: Utilities.buttonTextStyle())
   );
 }
 
@@ -187,8 +194,8 @@ Widget continueGameButton(GameScreen gameScreen) {
   if (gameScreen.initialized) {
     return ElevatedButton(
       onPressed: () => Get.to(() => gameScreen),
-      style: buttonStyle(),
-      child: Text("Continue", style: buttonTextStyle()),
+      style: Utilities.buttonStyle(),
+      child: Text("Continue", style: Utilities.buttonTextStyle()),
     );
   } else {
     return const SizedBox();
@@ -199,32 +206,12 @@ Widget restartGameButton(GameScreen gameScreen) {
   if (gameScreen.initialized && gameScreen.seed != -1) {
     return ElevatedButton(
         onPressed: () => gameScreen.restartGame(),
-        style: buttonStyle(),
-        child: Text('Restart', style: buttonTextStyle())
+        style: Utilities.buttonStyle(),
+        child: Text('Restart', style: Utilities.buttonTextStyle())
     );
   } else {
     return const SizedBox();
   }
-}
-
-TextStyle buttonTextStyle() {
-  return GoogleFonts.quicksand(
-    textStyle: const TextStyle(
-      color: Colors.white,
-      fontSize: 38,
-      fontWeight: FontWeight.w400
-    )
-  );
-}
-
-ButtonStyle buttonStyle() {
-  return ElevatedButton.styleFrom(
-    minimumSize: const Size(230, 60),
-    backgroundColor: const Color(0xFF55688a),
-    shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(30.0)
-    ),
-  );
 }
 
 class MenuItem {

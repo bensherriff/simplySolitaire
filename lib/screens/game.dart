@@ -1,10 +1,11 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:solitaire/game_timer.dart';
-import 'package:solitaire/screens/settings_screen.dart';
+import 'package:solitaire/screens/settings.dart';
 import 'package:solitaire/move.dart';
 import 'package:solitaire/screens/home.dart';
 import 'package:solitaire/utilities.dart';
@@ -37,13 +38,15 @@ abstract class GameScreen extends StatefulWidget {
     required this.style
   }) : super(key: key);
 
-  void newGame() {
+  void newGame({seed = -1}) {
     timer.stopTimer(reset: true);
     initialized = false;
-    seed = -1;
+    this.seed = seed;
     autoMove = false;
     Get.to(() => this);
   }
+
+  void customGame();
 
   void restartGame() {
     timer.stopTimer(reset: true);
@@ -87,15 +90,21 @@ abstract class GameScreenState<T extends GameScreen> extends State<T> {
                     color: Colors.white
                   ),
                 ),
-                const Text("Points", style: TextStyle(color: Colors.white))
+                Text("Points", style: GoogleFonts.quicksand(color: Colors.white))
               ]
             ),
           ),
-          Text(widget.seed.toRadixString(16).toUpperCase(), style: GoogleFonts.quicksand(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: Colors.white54
-          )),
+          TextButton(
+            onPressed: () async => await Clipboard.setData(ClipboardData(text: Utilities.seedToString(widget.seed))),
+            child: Text(
+              Utilities.seedToString(widget.seed),
+              style: GoogleFonts.quicksand(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Colors.white54
+              )
+            )
+          ),
         ],
       ),
     );
@@ -115,7 +124,7 @@ abstract class GameScreenState<T extends GameScreen> extends State<T> {
                   icon: const Icon(Icons.home),
                   iconSize: 30.0,
                   color: Colors.white,
-                  padding: const EdgeInsets.only(left: 16.0, right: 16.0),
+                  padding: const EdgeInsets.only(left: 24.0, right: 8.0),
                   onPressed: () {
                     widget.timer.stopTimer(reset: false);
                     widget.autoMove = false;
@@ -124,10 +133,21 @@ abstract class GameScreenState<T extends GameScreen> extends State<T> {
                   }
               ),
               IconButton(
+                  icon: const Icon(Icons.more_horiz),
+                  iconSize: 30.0,
+                  color: Colors.white,
+                  padding: const EdgeInsets.only(left: 8.0, right: 8.0),
+                  onPressed: () {
+                    setState(() {
+                      widget.customGame();
+                    });
+                  }
+              ),
+              IconButton(
                   icon: const Icon(Icons.add),
                   iconSize: 30.0,
                   color: Colors.white,
-                  padding: const EdgeInsets.only(left: 16.0, right: 16.0),
+                  padding: const EdgeInsets.only(left: 8.0, right: 8.0),
                   onPressed: () {
                     setState(() {
                       widget.newGame();
@@ -139,7 +159,7 @@ abstract class GameScreenState<T extends GameScreen> extends State<T> {
                   icon: const Icon(Icons.restart_alt),
                   iconSize: 30.0,
                   color: Colors.white,
-                  padding: const EdgeInsets.only(left: 16.0, right: 16.0),
+                  padding: const EdgeInsets.only(left: 8.0, right: 8.0),
                   onPressed: () {
                     setState(() {
                       widget.restartGame();
@@ -151,7 +171,7 @@ abstract class GameScreenState<T extends GameScreen> extends State<T> {
                   icon: const Icon(Icons.arrow_back),
                   iconSize: 30.0,
                   color: Colors.white,
-                  padding: const EdgeInsets.only(left: 16.0, right: 16.0),
+                  padding: const EdgeInsets.only(left: 8.0, right: 24.0),
                   onPressed: () {
                     setState(() {
                       widget.autoMove = false;
@@ -164,7 +184,7 @@ abstract class GameScreenState<T extends GameScreen> extends State<T> {
               ) : IconButton(
                 icon: const Icon(null),
                 iconSize: 30.0,
-                padding: const EdgeInsets.only(left: 16.0, right: 16.0),
+                padding: const EdgeInsets.only(left: 8.0, right: 24.0),
                 onPressed: () {},
               )
             ],
@@ -201,16 +221,16 @@ abstract class GameScreenState<T extends GameScreen> extends State<T> {
                       child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
-                            const Text("You won!",
-                                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600)),
+                            Text("You won!",
+                                style: GoogleFonts.quicksand(fontSize: 22, fontWeight: FontWeight.w600)),
                             const SizedBox(height: 15),
                             Text("Points: ${widget.moves.totalPoints().toString()}",
-                                style: const TextStyle(fontSize: 14),
+                                style: GoogleFonts.quicksand(fontSize: 14),
                                 textAlign: TextAlign.center
                             ),
                             const SizedBox(height: 15),
                             Text('Time: ${widget.timer.time()}',
-                                style: const TextStyle(fontSize: 14),
+                                style: GoogleFonts.quicksand(fontSize: 14),
                                 textAlign: TextAlign.center
                             ),
                             const SizedBox(height: 22),
@@ -222,14 +242,14 @@ abstract class GameScreenState<T extends GameScreen> extends State<T> {
                                     Navigator.pop(context);
                                     initializeGame(widget.seed);
                                   },
-                                  child: const Text("Replay", style: TextStyle(fontSize: 18)),
+                                  child: Text("Replay", style: GoogleFonts.quicksand(fontSize: 18)),
                                 ),
                                 TextButton(
                                   onPressed: () {
                                     Navigator.pop(context);
                                     initializeRandomGame();
                                   },
-                                  child: const Text("New\nGame", style: TextStyle(fontSize: 18)),
+                                  child: Text("New\nGame", style: GoogleFonts.quicksand(fontSize: 18)),
                                 ),
                                 TextButton(
                                   onPressed: () {
@@ -242,7 +262,7 @@ abstract class GameScreenState<T extends GameScreen> extends State<T> {
                                     });
                                     Get.to(() => screen);
                                   },
-                                  child: const Text("Main\nMenu", style: TextStyle(fontSize: 18)),
+                                  child: Text("Main\nMenu", style: GoogleFonts.quicksand(fontSize: 18)),
                                 )
                               ],
                             )
@@ -258,7 +278,9 @@ abstract class GameScreenState<T extends GameScreen> extends State<T> {
 
   void initializeRandomGame() {
     Random random = Random();
-    widget.seed = (random.nextInt(GameScreen.maxSeed));
+    setState(() {
+      widget.seed = (random.nextInt(GameScreen.maxSeed));
+    });
     initializeGame(widget.seed);
   }
 

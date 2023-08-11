@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'game_screen.dart';
+import 'game.dart';
 
 class SpiderScreen extends GameScreen {
 
@@ -11,6 +11,9 @@ class SpiderScreen extends GameScreen {
         backgroundColor: const Color(0xFF0a9396),
         barColor: const Color(0xFF0b3f40)),
       );
+
+  @override
+  void customGame() {}
 
   @override
   SpiderScreenState createState() => SpiderScreenState();

@@ -26,11 +26,9 @@ class HomeState extends State<Home> {
           children: [
             Center(
               child: Text("Simply Solitaire", style: GoogleFonts.quicksand(
-                  textStyle: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 36,
-                      fontWeight: FontWeight.w400
-                  )
+                color: Colors.white,
+                fontSize: 36,
+                fontWeight: FontWeight.w400
               )),
             ),
             Positioned(
