@@ -34,7 +34,3 @@ flutter:
     - assets/gear.png
     - assets/cards/
     - assets/cards/backs/
-    - assets/cards/clubs/
-    - assets/cards/diamonds/
-    - assets/cards/hearts/
-    - assets/cards/spades/

@@ -135,10 +135,6 @@ class PlayingCard {
   bool get isKing => (rank == CardRank.king);
   bool get isAce => rank == CardRank.ace;
 
-  Image toAsset() {
-    return Image.asset('assets/cards/${suit.toShortString()}/${rank.short}.png');
-  }
-
   Widget display() {
     return Container(
       decoration: BoxDecoration(
