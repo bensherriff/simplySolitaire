@@ -1,11 +1,11 @@
 import 'dart:collection';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:logging/logging.dart';
 import 'package:solitaire/screens/game_screen.dart';
-import 'package:solitaire/screens/home.dart';
 import 'package:solitaire/card_column.dart';
 import 'package:solitaire/deck.dart';
 import 'package:solitaire/card_foundation.dart';
@@ -75,18 +75,20 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
             (checkAllCardsRevealed()) ? ElevatedButton(
               onPressed: () => handleAutoWin(),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Utilities.buttonBackgroundColor,
+                minimumSize: const Size(230, 60),
+                backgroundColor: const Color(0xFF55688a),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30.0)
+                    borderRadius: BorderRadius.circular(30.0)
                 ),
               ),
               child: Text("Auto Win",
-                style: TextStyle(
+                style: GoogleFonts.quicksand(
                   fontSize: 36.0,
-                  color: Utilities.buttonTextColor
+                  color: Colors.white
                 )
               )
-            ): Container(),
+            ): const SizedBox(),
+            const SizedBox(height: 8)
           ],
         ),
         bottomNavigationBar: bottomNavBar((move) => undoMove(move)),
@@ -562,6 +564,7 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
   }
 
   bool checkAllCardsRevealed() {
+    // return true;
     for (int i = 0; i < columns.length; i++) {
       for (int j = 0; j < columns[i].length; j++) {
         if (!columns[i][j].revealed) {
@@ -672,7 +675,7 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
     return moves;
   }
 
-  void handleAutoWin() {
+  void handleAutoWin() async {
     // Use DFS to search for all possible moves.
     // Scan the waste and stock decks for possible moves or combinations of moves
     // i.e., move card from stock to waste, play card, then circle around and
@@ -685,7 +688,8 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
       for (int i = 0; i < validMoves.size; i++) {
         Move? move = validMoves.pop();
         if (move != null) {
-          if (move.sourceIndex == 7 && move.destinationIndex == 8) {
+          if ((move.sourceIndex == 7 && move.destinationIndex == 8) ||
+            (move.sourceIndex == 8 && move.destinationIndex == 7)) {
             handleStockDeck();
           } else {
             moveCards(move.cards, move.sourceIndex, move.destinationIndex);
@@ -729,89 +733,6 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
       }
     });
     checkWin();
-  }
-
-  void handleWin() {
-    widget.timer.stopTimer(reset: false);
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) {
-        return Dialog(
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(20))
-          ),
-          elevation: 0,
-          backgroundColor: Colors.transparent,
-          child: Stack(
-            children: <Widget>[
-              Container(
-                padding: const EdgeInsets.only(left: 20, top: 35, right: 20, bottom: 20),
-                margin: const EdgeInsets.only(top: 15),
-                decoration: BoxDecoration(
-                  shape: BoxShape.rectangle,
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: const [
-                    BoxShadow(color: Colors.black, offset: Offset(0,5)),
-                  ]
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    const Text("You won!",
-                        style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600)),
-                    const SizedBox(height: 15),
-                    Text("Points: ${widget.moves.totalPoints().toString()}",
-                      style: const TextStyle(fontSize: 14),
-                      textAlign: TextAlign.center
-                    ),
-                    const SizedBox(height: 15),
-                    Text('Time: ${widget.timer.time()}',
-                      style: const TextStyle(fontSize: 14),
-                      textAlign: TextAlign.center
-                    ),
-                    const SizedBox(height: 22),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        TextButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                            initializeGame(widget.seed);
-                          },
-                          child: const Text("Replay", style: TextStyle(fontSize: 18)),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                            initializeRandomGame();
-                          },
-                          child: const Text("New\nGame", style: TextStyle(fontSize: 18)),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                            Home screen = Get.find();
-                            setState(() {
-                              widget.timer.resetTimer();
-                              widget.initialized = false;
-                              widget.seed = -1;
-                            });
-                            Get.to(() => screen);
-                          },
-                          child: const Text("Main\nMenu", style: TextStyle(fontSize: 18)),
-                        )
-                      ],
-                    )
-                  ]
-                )
-              ),
-            ]
-          )
-        );
-      },
-    );
   }
 
   List<PlayingCard> getListFromIndex(int index) {
