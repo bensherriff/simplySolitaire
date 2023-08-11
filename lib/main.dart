@@ -10,7 +10,7 @@ import 'dart:developer';
 final Home home = Get.put(const Home());
 
 void main() async {
-  Logger.root.level = Level.FINER;
+  Logger.root.level = Level.FINE;
   Logger.root.onRecord.listen((record) {
     log('${record.level.name} | ${record.time} | ${record.message}');
   });

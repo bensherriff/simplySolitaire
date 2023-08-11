@@ -29,6 +29,7 @@ abstract class GameScreen extends StatefulWidget {
   int seed = -1;
   Moves moves = Moves(gameMode: GameMode.klondike);
   GameTimer timer = Get.put(GameTimer());
+  bool autoMove = false;
 
   GameScreen({
     Key? key,
@@ -40,12 +41,14 @@ abstract class GameScreen extends StatefulWidget {
     timer.stopTimer(reset: true);
     initialized = false;
     seed = -1;
+    autoMove = false;
     Get.to(() => this);
   }
 
   void restartGame() {
     timer.stopTimer(reset: true);
     initialized = false;
+    autoMove = false;
     Get.to(() => this);
   }
 }
@@ -115,6 +118,7 @@ abstract class GameScreenState<T extends GameScreen> extends State<T> {
                   padding: const EdgeInsets.only(left: 16.0, right: 16.0),
                   onPressed: () {
                     widget.timer.stopTimer(reset: false);
+                    widget.autoMove = false;
                     Home menuScreen = Get.find();
                     Get.to(() => menuScreen);
                   }
@@ -150,6 +154,7 @@ abstract class GameScreenState<T extends GameScreen> extends State<T> {
                   padding: const EdgeInsets.only(left: 16.0, right: 16.0),
                   onPressed: () {
                     setState(() {
+                      widget.autoMove = false;
                       Move? lastMove = widget.moves.pop();
                       if (lastMove != null) {
                         undoMove(lastMove);
