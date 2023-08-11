@@ -152,9 +152,9 @@ class PlayingCard {
               Padding(
                 padding: const EdgeInsets.only(left: 6),
                 child: Text(rank.short.toUpperCase(), style: GoogleFonts.quicksand(
-                    textStyle: const TextStyle(
+                    textStyle: TextStyle(
                         fontSize: 18,
-                        color: Colors.black,
+                        color: cardColor == CardColor.red? Colors.red: Colors.black,
                         fontWeight: FontWeight.w500
                     )
                 )),
