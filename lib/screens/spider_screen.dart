@@ -9,7 +9,7 @@ class SpiderScreen extends GameScreen {
       gameMode: GameMode.spider,
       style: GameStyle(
         backgroundColor: const Color(0xFF0a9396),
-          barColor: const Color(0xFF0b3f40)),
+        barColor: const Color(0xFF0b3f40)),
       );
 
   @override
