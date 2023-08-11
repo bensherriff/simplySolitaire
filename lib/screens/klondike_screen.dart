@@ -28,7 +28,13 @@ class KlondikeScreen extends GameScreen {
   List<PlayingCard> clubsFoundation = [];
   List<PlayingCard> diamondsFoundation = [];
 
-  KlondikeScreen({Key? key}) : super(key: key, gameMode: GameMode.klondike, backgroundColor: const Color(0xFF357960));
+  KlondikeScreen({Key? key}) : super(
+    key: key,
+    gameMode: GameMode.klondike,
+    style: GameStyle(
+      backgroundColor: const Color(0xFF357960),
+      barColor: const Color(0xFF15382b))
+  );
 
   @override
   KlondikeScreenState createState() => KlondikeScreenState();
@@ -55,23 +61,19 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
     return WillPopScope(
       onWillPop: () async => false,
       child: Scaffold(
-        backgroundColor: widget.backgroundColor,
+        backgroundColor: widget.style.backgroundColor,
         body: Column(
           children: <Widget>[
             // const SizedBox(
             //   height: 60.0,
             // ),
-            topScoreBar(0xFF15382b),
+            topScoreBar(),
+            const SizedBox(height: 8),
             buildTopDecks(),
-            const SizedBox(
-              height: 16.0,
-            ),
+            const SizedBox(height: 16.0),
             buildColumns(),
             (checkAllCardsRevealed()) ? ElevatedButton(
-              onPressed: () => {
-                handleAutoWin()
-                // handleWin()
-              },
+              onPressed: () => handleAutoWin(),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Utilities.buttonBackgroundColor,
                 shape: RoundedRectangleBorder(
@@ -87,7 +89,7 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
             ): Container(),
           ],
         ),
-        bottomNavigationBar: bottomNavBar(0xFF15382b, (move) => undoMove(move)),
+        bottomNavigationBar: bottomNavBar((move) => undoMove(move)),
       )
     );
   }

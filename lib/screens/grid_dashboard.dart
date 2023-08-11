@@ -5,7 +5,6 @@ import 'package:solitaire/screens/game_screen.dart';
 import 'package:solitaire/screens/klondike_screen.dart';
 import 'package:solitaire/screens/settings_screen.dart';
 import 'package:solitaire/screens/spider_screen.dart';
-import 'package:solitaire/utilities.dart';
 
 class GridDashboard extends StatefulWidget {
   const GridDashboard({Key? key}): super(key: key);
@@ -27,14 +26,14 @@ class GridDashboardState extends State<GridDashboard> {
     menuItems.add(MenuItem(
       title: "Klondike",
       subtitle: gameSeedSubtitle(klondikeScreen),
-      backgroundColor: const Color(0xFF357960),
+      // backgroundColor: const Color(0xFF357960),
       image: "assets/cards/spades.png",
       screen: klondikeScreen
     ));
     menuItems.add(MenuItem(
       title: "Spider",
       subtitle: "Coming Soon!",
-      backgroundColor: const Color(0xFF0a9396),
+      // backgroundColor: const Color(0xFF0a9396),
       image: "assets/cards/diamonds.png",
         screen: spiderScreen,
       disabled: true
@@ -42,7 +41,7 @@ class GridDashboardState extends State<GridDashboard> {
     menuItems.add(MenuItem(
       title: "FreeCell",
       subtitle: "Coming Soon!",
-      backgroundColor: const Color(0xFF357960),
+      // backgroundColor: const Color(0xFF357960),
       image: "assets/cards/hearts.png",
       screen: spiderScreen,
       disabled: true
@@ -50,7 +49,7 @@ class GridDashboardState extends State<GridDashboard> {
     menuItems.add(MenuItem(
       title: "Pyramid",
       subtitle: "Coming Soon!",
-      backgroundColor: const Color(0xFF0a9396),
+      // backgroundColor: const Color(0xFF0a9396),
       image: "assets/cards/clubs.png",
       screen: spiderScreen,
       disabled: true
@@ -58,7 +57,7 @@ class GridDashboardState extends State<GridDashboard> {
     menuItems.add(MenuItem(
       title: "TriPeaks",
       subtitle: "Coming Soon!",
-      backgroundColor: const Color(0xFF357960),
+      // backgroundColor: const Color(0xFF357960),
       image: "assets/cards/spades.png",
       screen: spiderScreen,
       disabled: true
@@ -110,13 +109,13 @@ class GridDashboardState extends State<GridDashboard> {
                 showDialog(
                   context: context,
                   builder: (BuildContext context) {
-                    return alert(menuItem);
+                    return alert(menuItem.screen as GameScreen);
                   }
                 );
               }: () {
                 Get.to(() => menuItem.screen);
               },
-              child: Column(
+              child: menuItem.title.isNotEmpty || menuItem.subtitle.isNotEmpty? Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
                   Image.asset(
@@ -124,7 +123,7 @@ class GridDashboardState extends State<GridDashboard> {
                     width: 42,
                   ),
                   const SizedBox(height: 8),
-                  Text(menuItem.title, style: GoogleFonts.openSans(
+                  Text(menuItem.title, style: GoogleFonts.quicksand(
                       textStyle: const TextStyle(
                           color: Colors.white,
                           fontSize: 28,
@@ -132,7 +131,7 @@ class GridDashboardState extends State<GridDashboard> {
                       )
                   )),
                   const SizedBox(height: 8),
-                  Text(menuItem.subtitle, style: GoogleFonts.openSans(
+                  Text(menuItem.subtitle, style: GoogleFonts.quicksand(
                       textStyle: const TextStyle(
                           color: Colors.white38,
                           fontSize: 16,
@@ -140,6 +139,11 @@ class GridDashboardState extends State<GridDashboard> {
                       )
                   )),
                 ],
+              ): Center(
+                child: Image.asset(
+                  menuItem.image,
+                  width: 100,
+                ),
               ),
             ),
           );
@@ -149,22 +153,22 @@ class GridDashboardState extends State<GridDashboard> {
   }
 }
 
-Widget alert(MenuItem menuItem) {
+Widget alert(GameScreen gameScreen) {
   return AlertDialog(
     backgroundColor: Colors.transparent,
     content: Container(
-      constraints: const BoxConstraints(
+      constraints: BoxConstraints(
         minHeight: 5,
-        maxHeight: 220
+        maxHeight: gameScreen.initialized? 220 : 100
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          continueGameButton(menuItem.screen as GameScreen),
+          continueGameButton(gameScreen),
           const SizedBox(height: 20),
-          newGameButton(menuItem.screen as GameScreen),
+          newGameButton(gameScreen),
           const SizedBox(height: 20),
-          restartGameButton(menuItem.screen as GameScreen)
+          restartGameButton(gameScreen)
         ],
       )
     )
@@ -173,13 +177,7 @@ Widget alert(MenuItem menuItem) {
 
 Widget newGameButton(GameScreen gameScreen) {
   return ElevatedButton(
-    onPressed: () => {
-      gameScreen.newGame()
-      // gameScreen.timer.resetTimer(),
-      // gameScreen.initialized = false,
-      // gameScreen.seed = -1,
-      // Get.to(() => gameScreen)
-    },
+    onPressed: () => gameScreen.newGame(),
     style: buttonStyle(),
     child: Text("New Game", style: buttonTextStyle())
   );
@@ -188,9 +186,7 @@ Widget newGameButton(GameScreen gameScreen) {
 Widget continueGameButton(GameScreen gameScreen) {
   if (gameScreen.initialized) {
     return ElevatedButton(
-      onPressed: () => {
-        Get.to(() => gameScreen)
-      },
+      onPressed: () => Get.to(() => gameScreen),
       style: buttonStyle(),
       child: Text("Continue", style: buttonTextStyle()),
     );
@@ -202,12 +198,7 @@ Widget continueGameButton(GameScreen gameScreen) {
 Widget restartGameButton(GameScreen gameScreen) {
   if (gameScreen.initialized && gameScreen.seed != -1) {
     return ElevatedButton(
-        onPressed: () => {
-          gameScreen.restartGame()
-          // gameScreen.timer.resetTimer(),
-          // gameScreen.initialized = false,
-          // Get.to(() => gameScreen)
-        },
+        onPressed: () => gameScreen.restartGame(),
         style: buttonStyle(),
         child: Text('Restart', style: buttonTextStyle())
     );
@@ -217,18 +208,19 @@ Widget restartGameButton(GameScreen gameScreen) {
 }
 
 TextStyle buttonTextStyle() {
-  return GoogleFonts.openSans(
-    textStyle: TextStyle(
-      color: Utilities.buttonTextColor,
-      fontSize: 42,
-      fontWeight: FontWeight.bold
+  return GoogleFonts.quicksand(
+    textStyle: const TextStyle(
+      color: Colors.white,
+      fontSize: 38,
+      fontWeight: FontWeight.w400
     )
   );
 }
 
 ButtonStyle buttonStyle() {
   return ElevatedButton.styleFrom(
-    backgroundColor: Utilities.buttonBackgroundColor,
+    minimumSize: const Size(230, 60),
+    backgroundColor: const Color(0xFF55688a),
     shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(30.0)
     ),
@@ -244,9 +236,9 @@ class MenuItem {
   bool disabled;
 
   MenuItem({
-    required this.title,
+    this.title = '',
     this.subtitle = '',
-    required this.backgroundColor,
+    this.backgroundColor = const Color(0xFF55688a),
     required this.image,
     required this.screen,
     this.disabled = false,

@@ -4,7 +4,13 @@ import 'game_screen.dart';
 
 class SpiderScreen extends GameScreen {
 
-  SpiderScreen({Key? key}) : super(key: key, gameMode: GameMode.spider, backgroundColor: const Color(0xFF0a9396));
+  SpiderScreen({Key? key}) : super(
+      key: key,
+      gameMode: GameMode.spider,
+      style: GameStyle(
+        backgroundColor: const Color(0xFF0a9396),
+          barColor: const Color(0xFF0b3f40)),
+      );
 
   @override
   SpiderScreenState createState() => SpiderScreenState();
@@ -21,7 +27,7 @@ class SpiderScreenState extends GameScreenState<SpiderScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: widget.backgroundColor,
+      backgroundColor: widget.style.backgroundColor,
       body: const Column(
         children: <Widget>[
           SizedBox(
@@ -32,7 +38,7 @@ class SpiderScreenState extends GameScreenState<SpiderScreen> {
           )
         ]
       ),
-      bottomNavigationBar: bottomNavBar(0xFF0b3f40, (move) => {}),
+      bottomNavigationBar: bottomNavBar((move) => {}),
     );
   }
 

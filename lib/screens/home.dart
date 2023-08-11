@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 import 'package:solitaire/screens/grid_dashboard.dart';
 
 class Home extends StatefulWidget {
@@ -18,63 +17,53 @@ class HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xff392850),
-      body: Column(
-        children: <Widget>[
-          const SizedBox(
-            height: 90,
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 16, right: 16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text("Simply Solitaire", style: GoogleFonts.openSans(
-                        textStyle: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 36,
-                            fontWeight: FontWeight.bold
-                        )
-                    )),
-                    const SizedBox(height: 4),
-                    FutureBuilder<PackageInfo>(
-                      future: PackageInfo.fromPlatform(),
-                      builder: (context, snapshot) {
-                        switch (snapshot.connectionState) {
-                          case ConnectionState.done:
-                            return Align(
-                              alignment: Alignment.bottomLeft,
-                              child: Text(
-                                'v${snapshot.data!.version} build ${snapshot.data!.buildNumber}',
-                                style: const TextStyle(
-                                  color: Colors.grey,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600
-                              )),
-                            );
-                          default:
-                            return const SizedBox();
-                        }
-                      },
-                    )
-                  ]
-                ),
-                IconButton(
-                  alignment: Alignment.center,
-                  icon: const Icon(Icons.emoji_events, color: Colors.amberAccent, size: 46),
-                  onPressed: () {},
-                )
-              ],
-            )
-          ),
-          const SizedBox(
-            height: 40
-          ),
-          const GridDashboard()
-        ]
+      appBar: AppBar(
+        backgroundColor: const Color(0xff2a114d),
+        bottomOpacity: 0,
+        elevation: 0,
+        automaticallyImplyLeading: false,
+        title: Stack(
+          children: [
+            Center(
+              child: Text("Simply Solitaire", style: GoogleFonts.quicksand(
+                  textStyle: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 36,
+                      fontWeight: FontWeight.w400
+                  )
+              )),
+            ),
+            Positioned(
+              top: 0,
+              right: -10,
+              child: IconButton(
+                padding: const EdgeInsets.only(),
+                alignment: Alignment.center,
+                icon: const Icon(Icons.emoji_events, color: Colors.amberAccent, size: 38),
+                onPressed: () {},
+              )
+            ),
+          ],
+        ),
+      ),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color(0xff2a114d),
+              Color(0xff392850),
+              Color(0xff2a114d),
+            ]
+          )
+        ),
+        child: const Column(
+            children: <Widget>[
+              SizedBox(height: 40),
+              GridDashboard()
+            ]
+        ),
       )
     );
   }

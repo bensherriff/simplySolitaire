@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:solitaire/game_timer.dart';
 import 'package:solitaire/screens/settings_screen.dart';
 import 'package:solitaire/move.dart';
@@ -21,15 +22,19 @@ extension GameModeString on GameMode {
 
 abstract class GameScreen extends StatefulWidget {
   static const int maxSeed = 4294967296;
-  final Color backgroundColor;
   final GameMode gameMode;
+  final GameStyle style;
 
   bool initialized = false;
   int seed = -1;
   Moves moves = Moves(gameMode: GameMode.klondike);
   GameTimer timer = Get.put(GameTimer());
 
-  GameScreen({Key? key, required this.backgroundColor, required this.gameMode}) : super(key: key);
+  GameScreen({
+    Key? key,
+    required this.gameMode,
+    required this.style
+  }) : super(key: key);
 
   void newGame() {
     timer.stopTimer(reset: true);
@@ -59,9 +64,9 @@ abstract class GameScreenState<T extends GameScreen> extends State<T> {
     return const SizedBox.shrink();
   }
 
-  Widget topScoreBar(int colorValue) {
+  Widget topScoreBar() {
     return AppBar(
-      backgroundColor: Color(colorValue),
+      backgroundColor: widget.style.barColor,
       automaticallyImplyLeading: false,
       title: Row(
         mainAxisSize: MainAxisSize.max,
@@ -71,19 +76,19 @@ abstract class GameScreenState<T extends GameScreen> extends State<T> {
           Padding(
             padding: const EdgeInsets.only(left: 16.0, right: 16.0),
             child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Text(widget.moves.totalPoints().toString(),
-                    style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white
-                    ),
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Text(widget.moves.totalPoints().toString(),
+                  style: GoogleFonts.quicksand(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white
                   ),
-                  const Text("Points", style: TextStyle(color: Colors.white))
-                ]
+                ),
+                const Text("Points", style: TextStyle(color: Colors.white))
+              ]
             ),
           ),
-          Text(widget.seed.toRadixString(16), style: const TextStyle(
+          Text(widget.seed.toRadixString(16).toUpperCase(), style: GoogleFonts.quicksand(
             fontSize: 16,
             fontWeight: FontWeight.w600,
             color: Colors.white54
@@ -93,9 +98,9 @@ abstract class GameScreenState<T extends GameScreen> extends State<T> {
     );
   }
 
-  Widget bottomNavBar(int colorValue, Function(Move move) undoMove) {
+  Widget bottomNavBar(Function(Move move) undoMove) {
     return BottomAppBar(
-      color: Color(colorValue),
+      color: widget.style.barColor,
       shape: const CircularNotchedRectangle(),
       child: SizedBox(
           height: 75.0,
@@ -172,4 +177,16 @@ abstract class GameScreenState<T extends GameScreen> extends State<T> {
   Map toJson();
   void fromJson(Map<String, dynamic> json);
   void initializeGame(int seed, {bool debug = false});
+}
+
+class GameStyle {
+  final Color backgroundColor;
+  final Color barColor;
+  final Color textColor;
+
+  GameStyle({
+    required this.backgroundColor,
+    required this.barColor,
+    this.textColor = Colors.white
+  });
 }

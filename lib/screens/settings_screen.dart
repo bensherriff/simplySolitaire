@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:logging/logging.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:settings_ui/settings_ui.dart';
@@ -45,7 +46,7 @@ class SettingsScreenState extends State<SettingsScreen> {
       appBar: AppBar(
        backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text("Settings"),
+        title: Text("Settings", style: GoogleFonts.quicksand()),
         actions: <Widget>[
           IconButton(
             icon: const Icon(
@@ -64,10 +65,10 @@ class SettingsScreenState extends State<SettingsScreen> {
           SettingsList(
             sections: [
               SettingsSection(
-                title: const Text('Play Modes'),
+                title: Text('Play Modes', style: GoogleFonts.quicksand()),
                 tiles: [
                   SettingsTile.switchTile(
-                    title: const Text('Left-Handed Mode'),
+                    title: Text('Left-Handed Mode', style: GoogleFonts.quicksand()),
                     initialValue: leftHandMode,
                     onToggle: (value) {
                       Utilities.writeData('leftHandMode', value).then((value) => setState(() {
@@ -77,7 +78,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                     }
                   ),
                   SettingsTile.switchTile(
-                    title: const Text('Deal Three Cards'),
+                    title: Text('Deal Three Cards', style: GoogleFonts.quicksand()),
                     initialValue: dealThree,
                     onToggle: (value) {
                       Utilities.writeData('dealThree', value).then((value) => setState(() {
@@ -86,7 +87,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                     }
                   ),
                   SettingsTile.switchTile(
-                    title: const Text('Hints'),
+                    title: Text('Hints', style: GoogleFonts.quicksand()),
                     initialValue: hints,
                     onToggle: (value) {
                       Utilities.writeData('hints', value).then((value) => setState(() {
@@ -98,6 +99,27 @@ class SettingsScreenState extends State<SettingsScreen> {
               )
             ],
           ),
+          FutureBuilder<PackageInfo>(
+            future: PackageInfo.fromPlatform(),
+            builder: (context, snapshot) {
+              switch (snapshot.connectionState) {
+                case ConnectionState.done:
+                  return Align(
+                    alignment: Alignment.bottomLeft,
+                    child: Text(
+                      'v${snapshot.data!.version} build ${snapshot.data!.buildNumber}',
+                      style: GoogleFonts.quicksand(
+                        color: Colors.grey,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600
+                      )
+                    ),
+                  );
+                default:
+                  return const SizedBox();
+              }
+            },
+          )
         ],
       )
     );

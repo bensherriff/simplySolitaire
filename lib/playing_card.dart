@@ -155,7 +155,7 @@ class PlayingCard {
             children: [
               Padding(
                 padding: const EdgeInsets.only(left: 6),
-                child: Text(rank.short.toUpperCase(), style: GoogleFonts.openSans(
+                child: Text(rank.short.toUpperCase(), style: GoogleFonts.quicksand(
                     textStyle: const TextStyle(
                         fontSize: 18,
                         color: Colors.black,
@@ -164,7 +164,7 @@ class PlayingCard {
                 )),
               ),
               Padding(
-                padding: const EdgeInsets.only(right: 4),
+                padding: const EdgeInsets.only(top: 4, right: 4),
                 child: SizedBox(
                   height: 20,
                   child: suit.toImage(),
@@ -173,10 +173,13 @@ class PlayingCard {
             ],
           ),
           Center(
-            child: SizedBox(
-              height: 40,
-              child: suit.toImage(),
-            )
+            child: Padding(
+              padding: const EdgeInsets.only(top: 2),
+              child: SizedBox(
+                height: 40,
+                child: suit.toImage(),
+              )
+            ),
           )
         ],
       ),

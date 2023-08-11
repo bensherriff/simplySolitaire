@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class GameTimer {
   final _duration = const Duration().obs;
@@ -45,7 +46,7 @@ class GameTimer {
   Widget buildTime() {
     return Text(
       time(),
-      style: const TextStyle(
+      style: GoogleFonts.quicksand(
           fontWeight: FontWeight.bold,
           color: Colors.white
       ),
