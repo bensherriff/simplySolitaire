@@ -37,6 +37,11 @@ class SpiderScreenState extends GameScreenState<SpiderScreen> {
   }
 
   @override
+  void initializeGame(int seed, {bool debug = false}) {
+
+  }
+
+  @override
   Map toJson() => {};
 
   @override

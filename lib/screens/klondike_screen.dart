@@ -58,9 +58,10 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
         backgroundColor: widget.backgroundColor,
         body: Column(
           children: <Widget>[
-            const SizedBox(
-              height: 80.0,
-            ),
+            // const SizedBox(
+            //   height: 60.0,
+            // ),
+            topScoreBar(0xFF15382b),
             buildTopDecks(),
             const SizedBox(
               height: 16.0,
@@ -187,7 +188,7 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
                 child: SizedBox(
                   height: Utilities.cardHeight,
                   width: Utilities.cardWidth,
-                  child: widget.wasteDeck.elementAt(widget.wasteDeck.length - 3).toAsset(),
+                  child: widget.wasteDeck.elementAt(widget.wasteDeck.length - 3).display(),
                 ),
               ) : Utilities.emptyCard(),
               widget.wasteDeck.length >= 2 ? Positioned(
@@ -195,7 +196,7 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
                 child: SizedBox(
                   height: Utilities.cardHeight,
                   width: Utilities.cardWidth,
-                  child: widget.wasteDeck.elementAt(widget.wasteDeck.length - 2).toAsset(),
+                  child: widget.wasteDeck.elementAt(widget.wasteDeck.length - 2).display(),
                 ),
               ) : Utilities.emptyCard(),
               widget.wasteDeck.isNotEmpty ? Positioned(
@@ -233,7 +234,7 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
                   child: SizedBox(
                     height: Utilities.cardHeight,
                     width: Utilities.cardWidth,
-                    child: widget.wasteDeck.elementAt(widget.wasteDeck.length - 3).toAsset(),
+                    child: widget.wasteDeck.elementAt(widget.wasteDeck.length - 3).display(),
                   ),
                 ) : Utilities.emptyCard(),
                 widget.wasteDeck.length >= 2 ? Positioned(
@@ -241,7 +242,7 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
                   child: SizedBox(
                     height: Utilities.cardHeight,
                     width: Utilities.cardWidth,
-                    child: widget.wasteDeck.elementAt(widget.wasteDeck.length - 2).toAsset(),
+                    child: widget.wasteDeck.elementAt(widget.wasteDeck.length - 2).display(),
                   ),
                 ) : Utilities.emptyCard(),
                 widget.wasteDeck.isNotEmpty ? Positioned(
@@ -320,14 +321,9 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
     );
   }
 
-  void initializeRandomGame() {
-    Random random = Random();
-    widget.seed = (random.nextInt(GameScreen.maxSeed));
-    initializeGame(widget.seed);
-  }
-
   /// Initialize a new game using a seed. The seed is used to generate the
   /// random order of cards, and to allow for re-playability.
+  @override
   void initializeGame(int seed, {bool debug = false}) {
     Deck allCards = Deck();
     // seed = 1393796464;

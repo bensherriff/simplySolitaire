@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:solitaire/utilities.dart';
 
 enum CardSuit {
   spades(name: "Spades"),
@@ -24,27 +26,31 @@ extension CardSuitExt on CardSuit {
     }
     return null;
   }
+
+  Image toImage() {
+    return Image.asset('assets/cards/${name.toLowerCase()}.png');
+  }
 }
 
 enum CardRank {
-  ace(name: 'Ace', image: 'a.png'),
-  two(name: '2', image: '2.png'),
-  three(name: '3', image: '3.png'),
-  four(name: '4', image: '4.png'),
-  five(name: '5', image: '5.png'),
-  six(name: '6', image: '6.png'),
-  seven(name: '7', image: '7.png'),
-  eight(name: '8', image: '8.png'),
-  nine(name: '9', image: '9.png'),
-  ten(name: '10', image: '10.png'),
-  jack(name: 'Jack', image: 'j.png'),
-  queen(name: 'Queen', image: 'q.png'),
-  king(name: 'King', image: 'k.png');
+  ace(name: 'Ace', short: 'a'),
+  two(name: '2', short: '2'),
+  three(name: '3', short: '3'),
+  four(name: '4', short: '4'),
+  five(name: '5', short: '5'),
+  six(name: '6', short: '6'),
+  seven(name: '7', short: '7'),
+  eight(name: '8', short: '8'),
+  nine(name: '9', short: '9'),
+  ten(name: '10', short: '10'),
+  jack(name: 'Jack', short: 'j'),
+  queen(name: 'Queen', short: 'q'),
+  king(name: 'King', short: 'k');
 
-  const CardRank({ required this.name, required this.image });
+  const CardRank({ required this.name, required this.short });
 
   final String name;
-  final String image;
+  final String short;
 }
 
 extension CardRankExt on CardRank {
@@ -130,7 +136,51 @@ class PlayingCard {
   bool get isAce => rank == CardRank.ace;
 
   Image toAsset() {
-    return Image.asset('assets/cards/${suit.toShortString()}/${rank.image}');
+    return Image.asset('assets/cards/${suit.toShortString()}/${rank.short}.png');
+  }
+
+  Widget display() {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+        color: Colors.white
+      ),
+      height: Utilities.cardHeight,
+      width: Utilities.cardWidth,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: <Widget>[
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(left: 6),
+                child: Text(rank.short.toUpperCase(), style: GoogleFonts.openSans(
+                    textStyle: const TextStyle(
+                        fontSize: 18,
+                        color: Colors.black,
+                        fontWeight: FontWeight.w500
+                    )
+                )),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(right: 4),
+                child: SizedBox(
+                  height: 20,
+                  child: suit.toImage(),
+                )
+              )
+            ],
+          ),
+          Center(
+            child: SizedBox(
+              height: 40,
+              child: suit.toImage(),
+            )
+          )
+        ],
+      ),
+    );
   }
 
   Image toBackAsset() {

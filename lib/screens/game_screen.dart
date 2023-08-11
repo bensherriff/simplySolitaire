@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:solitaire/game_timer.dart';
@@ -28,6 +30,19 @@ abstract class GameScreen extends StatefulWidget {
   GameTimer timer = Get.put(GameTimer());
 
   GameScreen({Key? key, required this.backgroundColor, required this.gameMode}) : super(key: key);
+
+  void newGame() {
+    timer.stopTimer(reset: true);
+    initialized = false;
+    seed = -1;
+    Get.to(() => this);
+  }
+
+  void restartGame() {
+    timer.stopTimer(reset: true);
+    initialized = false;
+    Get.to(() => this);
+  }
 }
 
 abstract class GameScreenState<T extends GameScreen> extends State<T> {
@@ -44,6 +59,40 @@ abstract class GameScreenState<T extends GameScreen> extends State<T> {
     return const SizedBox.shrink();
   }
 
+  Widget topScoreBar(int colorValue) {
+    return AppBar(
+      backgroundColor: Color(colorValue),
+      automaticallyImplyLeading: false,
+      title: Row(
+        mainAxisSize: MainAxisSize.max,
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: <Widget>[
+          Obx(() => widget.timer.buildTime()),
+          Padding(
+            padding: const EdgeInsets.only(left: 16.0, right: 16.0),
+            child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Text(widget.moves.totalPoints().toString(),
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white
+                    ),
+                  ),
+                  const Text("Points", style: TextStyle(color: Colors.white))
+                ]
+            ),
+          ),
+          Text(widget.seed.toRadixString(16), style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: Colors.white54
+          )),
+        ],
+      ),
+    );
+  }
+
   Widget bottomNavBar(int colorValue, Function(Move move) undoMove) {
     return BottomAppBar(
       color: Color(colorValue),
@@ -58,34 +107,42 @@ abstract class GameScreenState<T extends GameScreen> extends State<T> {
                   icon: const Icon(Icons.home),
                   iconSize: 30.0,
                   color: Colors.white,
-                  padding: const EdgeInsets.only(left: 28.0, right: 28.0),
+                  padding: const EdgeInsets.only(left: 16.0, right: 16.0),
                   onPressed: () {
                     widget.timer.stopTimer(reset: false);
                     Home menuScreen = Get.find();
                     Get.to(() => menuScreen);
                   }
               ),
-              Obx(() => widget.timer.buildTime()),
-              Padding(
-                padding: const EdgeInsets.only(left: 28.0, right: 28.0),
-                child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(widget.moves.totalPoints().toString(),
-                        style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white
-                        ),
-                      ),
-                      const Text("Points", style: TextStyle(color: Colors.white) )
-                    ]
-                ),
+              IconButton(
+                  icon: const Icon(Icons.add),
+                  iconSize: 30.0,
+                  color: Colors.white,
+                  padding: const EdgeInsets.only(left: 16.0, right: 16.0),
+                  onPressed: () {
+                    setState(() {
+                      widget.newGame();
+                      initializeRandomGame();
+                    });
+                  }
+              ),
+              IconButton(
+                  icon: const Icon(Icons.restart_alt),
+                  iconSize: 30.0,
+                  color: Colors.white,
+                  padding: const EdgeInsets.only(left: 16.0, right: 16.0),
+                  onPressed: () {
+                    setState(() {
+                      widget.restartGame();
+                      initializeGame(widget.seed);
+                    });
+                  }
               ),
               (widget.moves.isNotEmpty)? IconButton(
                   icon: const Icon(Icons.arrow_back),
                   iconSize: 30.0,
                   color: Colors.white,
-                  padding: const EdgeInsets.only(left: 28.0, right: 28.0),
+                  padding: const EdgeInsets.only(left: 16.0, right: 16.0),
                   onPressed: () {
                     setState(() {
                       Move? lastMove = widget.moves.pop();
@@ -97,7 +154,7 @@ abstract class GameScreenState<T extends GameScreen> extends State<T> {
               ) : IconButton(
                 icon: const Icon(null),
                 iconSize: 30.0,
-                padding: const EdgeInsets.only(left: 28.0, right: 28.0),
+                padding: const EdgeInsets.only(left: 16.0, right: 16.0),
                 onPressed: () {},
               )
             ],
@@ -106,6 +163,13 @@ abstract class GameScreenState<T extends GameScreen> extends State<T> {
     );
   }
 
+  void initializeRandomGame() {
+    Random random = Random();
+    widget.seed = (random.nextInt(GameScreen.maxSeed));
+    initializeGame(widget.seed);
+  }
+
   Map toJson();
   void fromJson(Map<String, dynamic> json);
+  void initializeGame(int seed, {bool debug = false});
 }

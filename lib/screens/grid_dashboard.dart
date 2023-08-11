@@ -42,7 +42,7 @@ class GridDashboardState extends State<GridDashboard> {
     menuItems.add(MenuItem(
       title: "FreeCell",
       subtitle: "Coming Soon!",
-      backgroundColor: const Color(0xFFc42323),
+      backgroundColor: const Color(0xFF357960),
       image: "assets/cards/hearts.png",
       screen: spiderScreen,
       disabled: true
@@ -50,7 +50,7 @@ class GridDashboardState extends State<GridDashboard> {
     menuItems.add(MenuItem(
       title: "Pyramid",
       subtitle: "Coming Soon!",
-      backgroundColor: const Color(0xFFd6701e),
+      backgroundColor: const Color(0xFF0a9396),
       image: "assets/cards/clubs.png",
       screen: spiderScreen,
       disabled: true
@@ -58,7 +58,7 @@ class GridDashboardState extends State<GridDashboard> {
     menuItems.add(MenuItem(
       title: "TriPeaks",
       subtitle: "Coming Soon!",
-      backgroundColor: const Color(0xFFc4b41d),
+      backgroundColor: const Color(0xFF357960),
       image: "assets/cards/spades.png",
       screen: spiderScreen,
       disabled: true
@@ -174,10 +174,11 @@ Widget alert(MenuItem menuItem) {
 Widget newGameButton(GameScreen gameScreen) {
   return ElevatedButton(
     onPressed: () => {
-      gameScreen.timer.resetTimer(),
-      gameScreen.initialized = false,
-      gameScreen.seed = -1,
-      Get.to(() => gameScreen)
+      gameScreen.newGame()
+      // gameScreen.timer.resetTimer(),
+      // gameScreen.initialized = false,
+      // gameScreen.seed = -1,
+      // Get.to(() => gameScreen)
     },
     style: buttonStyle(),
     child: Text("New Game", style: buttonTextStyle())
@@ -202,9 +203,10 @@ Widget restartGameButton(GameScreen gameScreen) {
   if (gameScreen.initialized && gameScreen.seed != -1) {
     return ElevatedButton(
         onPressed: () => {
-          gameScreen.timer.resetTimer(),
-          gameScreen.initialized = false,
-          Get.to(() => gameScreen)
+          gameScreen.restartGame()
+          // gameScreen.timer.resetTimer(),
+          // gameScreen.initialized = false,
+          // Get.to(() => gameScreen)
         },
         style: buttonStyle(),
         child: Text('Restart', style: buttonTextStyle())

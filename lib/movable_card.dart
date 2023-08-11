@@ -113,7 +113,7 @@ class MovableCardState extends State<MovableCard> {
       child: SizedBox(
         height: Utilities.cardHeight,
         width: Utilities.cardWidth,
-        child: visible? widget.playingCard.toAsset() : null,
+        child: visible? widget.playingCard.display() : null,
       ),
     );
   }
