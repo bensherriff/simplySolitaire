@@ -140,7 +140,8 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
   }
 
   Widget buildTopDecks() {
-    if (Utilities.readData('leftHandMode')) {
+    bool? lhm = Utilities.readData('leftHandMode');
+    if (lhm != null && lhm) {
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: <Widget>[
@@ -194,7 +195,8 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
   }
 
   Widget buildWasteDeck() {
-    if (Utilities.readData('leftHandMode')) {
+    bool? lhm = Utilities.readData('leftHandMode');
+    if (lhm != null && lhm) {
       return Container(
           constraints: const BoxConstraints(
             maxWidth: 100,

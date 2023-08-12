@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:logging/logging.dart';
 import 'package:solitaire/playing_card.dart';
 
 import 'screens/home.dart';
 
 class Utilities {
+  static final logger = Logger('Utilities');
 
   static const String applicationName = "Simple Solitaire";
   static Color textColor = Colors.white;
@@ -28,8 +30,13 @@ class Utilities {
     return storage.hasData(key);
   }
 
-  static T readData<T>(String key) {
-    return storage.read(key);
+  static T? readData<T>(String key) {
+    try {
+      return storage.read<T>(key);
+    } catch (e) {
+      e.printError();
+    }
+    return null;
   }
 
   static SizedBox emptyCard() {
