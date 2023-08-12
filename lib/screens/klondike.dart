@@ -56,7 +56,9 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
   @override
   void initState() {
     super.initState();
-    if (!widget.initialized) {
+    if (widget.initialized) {
+
+    } else {
       super.initState();
       if (widget.seed == -1) {
         initializeRandomGame();
