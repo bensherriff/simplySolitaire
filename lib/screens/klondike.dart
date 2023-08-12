@@ -409,12 +409,14 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
       widget.timer.startTimer(reset: false);
     }
 
-    // Set the destinationIndex if not set
+    // Set the destinationIndex to the next best column index if not already set
     if (destinationIndex == -1) {
       (int, double) record = await determineBestColumn(sourceIndex, cards);
       if (record.$1 == -1) {
         await checkWin();
         return;
+      } else {
+        destinationIndex = record.$1;
       }
     }
 
@@ -771,7 +773,7 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
         } else {
           await moveCards(move.cards, move.sourceIndex, destinationIndex: move.destinationIndex, startTimer: false);
         }
-        await Future.delayed(const Duration(milliseconds: 300));
+        await Future.delayed(const Duration(milliseconds: 50));
       }
       validMoves = await findValidMoves();
     } while (validMoves.isNotEmpty);
