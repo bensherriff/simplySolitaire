@@ -3,13 +3,13 @@ import 'card_column.dart';
 import 'playing_card.dart';
 import 'utilities.dart';
 
-typedef CardTapCallback = Null Function(List<PlayingCard> cards, int currentColumnIndex);
-typedef CardDragStartCallback = Null Function();
-typedef CardDragEndCallback = Null Function();
+typedef CardTapCallback = Future<Null> Function(List<PlayingCard> cards, int currentColumnIndex);
+typedef CardDragStartCallback = Future<Null> Function();
+typedef CardDragEndCallback = Future<Null> Function();
 
-Null emptyTapCallback(List<PlayingCard> cards, int currentColumnIndex) {}
-Null emptyDragStartedCallback() {}
-Null emptyDragEndCallback() {}
+Future<Null> emptyTapCallback(List<PlayingCard> cards, int currentColumnIndex) async {}
+Future<Null> emptyDragStartedCallback() async {}
+Future<Null> emptyDragEndCallback() async {}
 
 /// Transformed card that can be moved and translated according to the position
 /// in the card stack.
@@ -74,8 +74,8 @@ class MovableCardState extends State<MovableCard> {
         // cards: [PlayingCard(suit: CardSuit.clubs, rank: CardRank.ace)],
         cards: draggedCards,
         columnIndex: 1,
-        onCardsAdded: (card, position) {},
-        onTap: (cards, currentColumnIndex) {}
+        onCardsAdded: (card, position) async {},
+        onTap: (cards, currentColumnIndex) async {}
       ),
       childWhenDragging: buildFaceUpCard(false),
       data: {
@@ -113,7 +113,7 @@ class MovableCardState extends State<MovableCard> {
       child: SizedBox(
         height: Utilities.cardHeight,
         width: Utilities.cardWidth,
-        child: visible? widget.playingCard.toAsset() : null,
+        child: visible? widget.playingCard.display() : null,
       ),
     );
   }

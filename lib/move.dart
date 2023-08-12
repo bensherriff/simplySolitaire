@@ -3,7 +3,7 @@ import 'dart:math';
 
 import 'package:solitaire/playing_card.dart';
 
-import 'screens/game_screen.dart';
+import 'screens/game.dart';
 
 class Move {
   /// List of cards in the move
@@ -63,7 +63,7 @@ class Move {
 
   @override
   String toString() {
-    return "{cards: $cards, newIndex: $destinationIndex, previousIndex: $sourceIndex, revealedCard: $revealedCard}";
+    return "{cards: $cards, source: $sourceIndex, destination: $destinationIndex, revealedCard: $revealedCard, resetStockDeck: $resetStockDeck}";
   }
 
   Map toJson() => {
@@ -103,17 +103,6 @@ class Moves {
   int get size => _list.length;
   bool get isEmpty => _list.isEmpty;
   bool get isNotEmpty => _list.isNotEmpty;
-
-  List<Move> prioritize() {
-    HashMap<Move, double> moveScores = HashMap();
-    for (var move in _list) {
-      moveScores[move] = 0;
-    }
-
-    var sortedMap = SplayTreeMap<Move, double>.from(
-      moveScores, (key1, key2) => moveScores[key1]!.compareTo(moveScores[key2] as num));
-    return sortedMap.keys.toList();
-  }
 
   @override
   String toString() => _list.toString();

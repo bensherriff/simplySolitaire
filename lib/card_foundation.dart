@@ -27,30 +27,7 @@ class CardFoundationState extends State<CardFoundation> {
   Widget build(BuildContext context) {
     return Stack(
       children: <Widget>[
-        Opacity(
-          opacity: 0.5,
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8.0),
-              color: Colors.white,
-            ),
-            height: Utilities.cardHeight,
-            width: Utilities.cardWidth,
-            child: Center(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: <Widget>[
-                  Center(
-                    child: SizedBox(
-                      height: 20.0,
-                      child: suitToImage(),
-                    ),
-                  )
-                ],
-              ),
-            ),
-          ),
-        ),
+        foundationBase(),
         DragTarget<Map>(
           builder: (context, listOne, listTwo) {
             return widget.cards.isEmpty ? Utilities.emptyCard() : MovableCard(
@@ -83,18 +60,30 @@ class CardFoundationState extends State<CardFoundation> {
     );
   }
 
-  Image? suitToImage() {
-    switch (widget.suit) {
-      case CardSuit.hearts:
-        return Image.asset('images/hearts.png');
-      case CardSuit.diamonds:
-        return Image.asset('images/diamonds.png');
-      case CardSuit.clubs:
-        return Image.asset('images/clubs.png');
-      case CardSuit.spades:
-        return Image.asset('images/spades.png');
-      default:
-        return null;
-    }
+  Widget foundationBase() {
+    return Opacity(
+      opacity: 0.5,
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8.0),
+          color: Colors.white,
+        ),
+        height: Utilities.cardHeight,
+        width: Utilities.cardWidth,
+        child: Center(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: <Widget>[
+              Center(
+                child: SizedBox(
+                  height: 20.0,
+                  child: widget.suit.toImage(),
+                ),
+              )
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

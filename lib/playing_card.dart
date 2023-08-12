@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:solitaire/utilities.dart';
 
 enum CardSuit {
-  spades,
-  hearts,
-  diamonds,
-  clubs,
+  spades(name: "Spades"),
+  hearts(name: "Hearts"),
+  diamonds(name: "Diamonds"),
+  clubs(name: "Clubs");
+
+  const CardSuit({ required this.name });
+
+  final String name;
 }
 
 extension CardSuitExt on CardSuit {
@@ -20,26 +26,31 @@ extension CardSuitExt on CardSuit {
     }
     return null;
   }
+
+  Image toImage() {
+    return Image.asset('assets/cards/${name.toLowerCase()}.png');
+  }
 }
 
 enum CardRank {
-  ace(image: 'a.png'),
-  two(image: '2.png'),
-  three(image: '3.png'),
-  four(image: '4.png'),
-  five(image: '5.png'),
-  six(image: '6.png'),
-  seven(image: '7.png'),
-  eight(image: '8.png'),
-  nine(image: '9.png'),
-  ten(image: '10.png'),
-  jack(image: 'j.png'),
-  queen(image: 'q.png'),
-  king(image: 'k.png');
+  ace(name: 'Ace', short: 'a'),
+  two(name: '2', short: '2'),
+  three(name: '3', short: '3'),
+  four(name: '4', short: '4'),
+  five(name: '5', short: '5'),
+  six(name: '6', short: '6'),
+  seven(name: '7', short: '7'),
+  eight(name: '8', short: '8'),
+  nine(name: '9', short: '9'),
+  ten(name: '10', short: '10'),
+  jack(name: 'Jack', short: 'j'),
+  queen(name: 'Queen', short: 'q'),
+  king(name: 'King', short: 'k');
 
-  const CardRank({ required this.image });
+  const CardRank({ required this.name, required this.short });
 
-  final String image;
+  final String name;
+  final String short;
 }
 
 extension CardRankExt on CardRank {
@@ -124,46 +135,56 @@ class PlayingCard {
   bool get isKing => (rank == CardRank.king);
   bool get isAce => rank == CardRank.ace;
 
-  String cardTypeToString() {
-    switch (rank) {
-      case CardRank.ace:
-        return "A";
-      case CardRank.two:
-        return "2";
-      case CardRank.three:
-        return "3";
-      case CardRank.four:
-        return "4";
-      case CardRank.five:
-        return "5";
-      case CardRank.six:
-        return "6";
-      case CardRank.seven:
-        return "7";
-      case CardRank.eight:
-        return "8";
-      case CardRank.nine:
-        return "9";
-      case CardRank.ten:
-        return "10";
-      case CardRank.jack:
-        return "J";
-      case CardRank.queen:
-        return "Q";
-      case CardRank.king:
-        return "K";
-      default:
-        return "";
-    }
-  }
-
-  Image toAsset() {
-    return Image.asset('images/${suit.toShortString()}/${rank.image}');
+  Widget display() {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+        color: Colors.white
+      ),
+      height: Utilities.cardHeight,
+      width: Utilities.cardWidth,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: <Widget>[
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(left: 6),
+                child: Text(rank.short.toUpperCase(), style: GoogleFonts.quicksand(
+                  fontSize: 18,
+                  color: cardColor == CardColor.red? Colors.red: Colors.black,
+                  fontWeight: FontWeight.w500
+                )),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 4, right: 4),
+                child: SizedBox(
+                  height: 20,
+                  child: suit.toImage(),
+                )
+              )
+            ],
+          ),
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.only(top: 2),
+              child: SizedBox(
+                height: 40,
+                child: suit.toImage(),
+              )
+            ),
+          )
+        ],
+      ),
+    );
   }
 
   Image toBackAsset() {
-    return Image.asset('images/backs/1.png');
+    return Image.asset('assets/cards/backs/1.png');
   }
+
+  String get name => '${rank.name} of ${suit.name}';
 
   @override
   String toString() {

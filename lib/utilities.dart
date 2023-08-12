@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:logging/logging.dart';
 import 'package:solitaire/playing_card.dart';
 
-import 'screens/menu_screen.dart';
+import 'screens/home.dart';
 
 class Utilities {
+  static final logger = Logger('Utilities');
 
   static const String applicationName = "Simple Solitaire";
   static Color textColor = Colors.white;
@@ -27,8 +30,13 @@ class Utilities {
     return storage.hasData(key);
   }
 
-  static T readData<T>(String key) {
-    return storage.read(key);
+  static T? readData<T>(String key) {
+    try {
+      return storage.read<T>(key);
+    } catch (e) {
+      e.printError();
+    }
+    return null;
   }
 
   static SizedBox emptyCard() {
@@ -55,8 +63,8 @@ class Utilities {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
           menuIcon(),
-          const Text(applicationName,
-            style: TextStyle(
+          Text(applicationName,
+            style: GoogleFonts.quicksand(
               fontSize: 30
             ),
           )
@@ -72,7 +80,7 @@ class Utilities {
   static menuIcon() {
     return IconButton(
       onPressed: () {
-        MenuScreen screen = Get.find();
+        Home screen = Get.find();
         Get.to(() => screen);
       }, icon: Icon(
         Icons.menu,
@@ -80,5 +88,35 @@ class Utilities {
         size: 36.0,
       ),
     );
+  }
+
+  static TextStyle buttonTextStyle() {
+    return GoogleFonts.quicksand(
+      color: Colors.white,
+      fontSize: 38,
+      fontWeight: FontWeight.w400
+    );
+  }
+
+  static ButtonStyle buttonStyle() {
+    return ElevatedButton.styleFrom(
+      minimumSize: const Size(230, 60),
+      backgroundColor: const Color(0xFF55688a),
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(30.0)
+      ),
+    );
+  }
+
+  static int stringToSeed(String value) {
+    try {
+      return int.parse(value, radix: 16);
+    } catch (e) {
+      return -1;
+    }
+  }
+
+  static String seedToString(int value) {
+    return value.toRadixString(16).padLeft(8, '0').toUpperCase();
   }
 }
