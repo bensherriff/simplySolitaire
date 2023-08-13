@@ -12,16 +12,22 @@ import 'package:solitaire/card_foundation.dart';
 import 'package:solitaire/move.dart';
 import 'package:solitaire/playing_card.dart';
 import 'package:solitaire/movable_card.dart';
+import 'package:solitaire/screens/settings.dart';
 import 'package:solitaire/utilities.dart';
 import 'package:solitaire/screens/klondike_custom.dart';
 
 class KlondikeScreen extends GameScreen {
+  static const String _drawThree = "Draw Three";
+
   KlondikeScreen({Key? key}) : super(
     key: key,
     gameMode: GameMode.klondike,
     style: GameStyle(
       backgroundColor: const Color(0xFF357960),
-      barColor: const Color(0xFF15382b))
+      barColor: const Color(0xFF15382b)),
+    settings: {
+      _drawThree: false
+    }
   );
 
   @override
@@ -108,7 +114,7 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
             const SizedBox(height: 8)
           ],
         ),
-        bottomNavigationBar: bottomNavBar((move) async => await undoMove(move)),
+        bottomNavigationBar: bottomNavBar(),
       )
     );
   }
@@ -142,7 +148,7 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
   }
 
   Widget buildTopDecks() {
-    bool? lhm = Utilities.readData('leftHandMode');
+    bool? lhm = Utilities.readData(Settings.leftHandMode);
     if (lhm != null && lhm) {
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -197,7 +203,7 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
   }
 
   Widget buildWasteDeck() {
-    bool? lhm = Utilities.readData('leftHandMode');
+    bool? lhm = Utilities.readData(Settings.leftHandMode);
     if (lhm != null && lhm) {
       return Container(
           constraints: const BoxConstraints(
@@ -349,7 +355,6 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
   @override
   void initializeGame(int seed, {bool debug = false}) {
     Deck allCards = Deck();
-    // seed = 1393796464;
 
     // Add all cards to deck
     allCards.initialize(debug: debug);
@@ -455,6 +460,7 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
     await checkWin();
   }
 
+  @override
   Future<void> undoMove(Move move) async {
     List<PlayingCard> previousColumn = await column(move.sourceIndex);
     List<PlayingCard> newColumn = await column(move.destinationIndex);
@@ -805,14 +811,20 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
         );
         widget.moves.push(move);
       } else if (stockDeck.isNotEmpty) {
-        PlayingCard card = stockDeck.removeAt(0)
-          ..revealed = true;
-        wasteDeck.add(card);
+        List<PlayingCard> cards = [];
+        if (Utilities.readData(KlondikeScreen._drawThree)) {
+          for (int i = 0; i < min(3, stockDeck.length); i++) {
+            cards.add(stockDeck.removeAt(0)..revealed = true);
+          }
+        } else {
+          cards.add(stockDeck.removeAt(0)..revealed = true);
+        }
+        wasteDeck.addAll(cards);
         Move move = Move(
-            cards: [card],
-            sourceIndex: 8,
-            destinationIndex: 7,
-            revealedCard: false
+          cards: cards,
+          sourceIndex: 8,
+          destinationIndex: 7,
+          revealedCard: false
         );
         widget.moves.push(move);
       }
@@ -851,6 +863,11 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
       default:
         return [];
     }
+  }
+
+  @override
+  void saveState() {
+
   }
 
   @override

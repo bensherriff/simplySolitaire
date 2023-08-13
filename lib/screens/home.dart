@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:solitaire/screens/grid_dashboard.dart';
+import 'package:solitaire/screens/settings.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -22,25 +23,28 @@ class HomeState extends State<Home> {
         bottomOpacity: 0,
         elevation: 0,
         automaticallyImplyLeading: false,
-        title: Stack(
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Center(
-              child: Text("Simply Solitaire", style: GoogleFonts.quicksand(
-                color: Colors.white,
-                fontSize: 36,
-                fontWeight: FontWeight.w400
-              )),
-            ),
-            Positioned(
-              top: 0,
-              right: -10,
-              child: IconButton(
-                padding: const EdgeInsets.only(),
-                alignment: Alignment.center,
-                icon: const Icon(Icons.emoji_events, color: Colors.amberAccent, size: 38),
-                onPressed: () {},
-              )
-            ),
+            // IconButton(
+            //   onPressed: () {
+            //     showDialog(context: context, builder: (BuildContext context) {
+            //       return const Settings();
+            //     });
+            //   },
+            //   icon: const Icon(Icons.settings)
+            // ),
+            Text("Simply Solitaire", style: GoogleFonts.quicksand(
+              color: Colors.white,
+              fontSize: 36,
+              fontWeight: FontWeight.w400
+            )),
+            IconButton(
+              padding: const EdgeInsets.only(),
+              alignment: Alignment.center,
+              icon: const Icon(Icons.emoji_events, color: Colors.amberAccent, size: 38),
+              onPressed: () {},
+            )
           ],
         ),
       ),

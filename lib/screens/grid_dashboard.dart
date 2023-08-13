@@ -22,19 +22,16 @@ class GridDashboardState extends State<GridDashboard> {
     super.initState();
     KlondikeScreen klondikeScreen = Get.put(KlondikeScreen());
     SpiderScreen spiderScreen = Get.put(SpiderScreen());
-    SettingsScreen optionsScreen = Get.put(const SettingsScreen());
 
     menuItems.add(MenuItem(
       title: "Klondike",
       subtitle: gameSeedSubtitle(klondikeScreen),
-      // backgroundColor: const Color(0xFF357960),
       image: "assets/cards/spades.png",
       screen: klondikeScreen
     ));
     menuItems.add(MenuItem(
       title: "Spider",
       subtitle: "Coming Soon!",
-      // backgroundColor: const Color(0xFF0a9396),
       image: "assets/cards/diamonds.png",
         screen: spiderScreen,
       disabled: true
@@ -42,32 +39,16 @@ class GridDashboardState extends State<GridDashboard> {
     menuItems.add(MenuItem(
       title: "FreeCell",
       subtitle: "Coming Soon!",
-      // backgroundColor: const Color(0xFF357960),
       image: "assets/cards/hearts.png",
       screen: spiderScreen,
       disabled: true
     ));
     menuItems.add(MenuItem(
-      title: "Pyramid",
+      title: "Spiderette",
       subtitle: "Coming Soon!",
-      // backgroundColor: const Color(0xFF0a9396),
       image: "assets/cards/clubs.png",
       screen: spiderScreen,
       disabled: true
-    ));
-    menuItems.add(MenuItem(
-      title: "TriPeaks",
-      subtitle: "Coming Soon!",
-      // backgroundColor: const Color(0xFF357960),
-      image: "assets/cards/spades.png",
-      screen: spiderScreen,
-      disabled: true
-    ));
-    menuItems.add(MenuItem(
-      title: "Settings",
-      backgroundColor: const Color(0xFF6e6e6e),
-      image: "assets/gear.png",
-      screen: optionsScreen
     ));
   }
 
@@ -126,7 +107,7 @@ class GridDashboardState extends State<GridDashboard> {
                   const SizedBox(height: 8),
                   Text(menuItem.title, style: GoogleFonts.quicksand(
                     color: Colors.white,
-                    fontSize: 28,
+                    fontSize: 27,
                     fontWeight: FontWeight.w600
                   )),
                   const SizedBox(height: 8),
@@ -153,23 +134,18 @@ class GridDashboardState extends State<GridDashboard> {
 Widget alert(GameScreen gameScreen) {
   return AlertDialog(
     backgroundColor: Colors.transparent,
-    content: Container(
-      constraints: BoxConstraints(
-        minHeight: 5,
-        maxHeight: gameScreen.initialized? 300 : 180
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          continueGameButton(gameScreen),
-          const SizedBox(height: 20),
-          restartGameButton(gameScreen),
-          const SizedBox(height: 20),
-          newGameButton(gameScreen),
-          const SizedBox(height: 20),
-          customGameButton(gameScreen),
-        ],
-      )
+    content: Column(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        continueGameButton(gameScreen),
+        const SizedBox(height: 20),
+        restartGameButton(gameScreen),
+        const SizedBox(height: 20),
+        newGameButton(gameScreen),
+        const SizedBox(height: 20),
+        customGameButton(gameScreen),
+      ],
     )
   );
 }

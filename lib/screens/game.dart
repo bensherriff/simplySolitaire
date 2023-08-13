@@ -25,6 +25,7 @@ abstract class GameScreen extends StatefulWidget {
   static const int maxSeed = 4294967296;
   final GameMode gameMode;
   final GameStyle style;
+  final Map<String, bool> settings;
 
   bool initialized = false;
   int seed = -1;
@@ -35,7 +36,8 @@ abstract class GameScreen extends StatefulWidget {
   GameScreen({
     Key? key,
     required this.gameMode,
-    required this.style
+    required this.style,
+    this.settings = const <String, bool>{}
   }) : super(key: key);
 
   void newGame({seed = -1}) {
@@ -57,12 +59,16 @@ abstract class GameScreen extends StatefulWidget {
 }
 
 abstract class GameScreenState<T extends GameScreen> extends State<T> {
-  final SettingsScreen optionsScreen = Get.find();
+  final Settings optionsScreen = Get.find();
+  Settings? gameSettings;
 
   @override
   void initState() {
     super.initState();
     Utilities.writeData('gameMode', widget.gameMode.toString());
+    widget.settings[Settings.leftHandMode] = false;
+    widget.settings[Settings.hints] = false;
+    gameSettings = Get.put(Settings(settingsKey: widget.gameMode.toString(), settings: widget.settings, seed: widget.seed));
   }
 
   @override
@@ -76,8 +82,16 @@ abstract class GameScreenState<T extends GameScreen> extends State<T> {
       automaticallyImplyLeading: false,
       title: Row(
         mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
+          IconButton(
+              onPressed: () {
+                showDialog(context: context, builder: (BuildContext context) {
+                  return gameSettings!;
+                });
+              },
+              icon: const Icon(Icons.settings)
+          ),
           Obx(() => widget.timer.buildTime()),
           Padding(
             padding: const EdgeInsets.only(left: 16.0, right: 16.0),
@@ -94,23 +108,29 @@ abstract class GameScreenState<T extends GameScreen> extends State<T> {
               ]
             ),
           ),
-          TextButton(
-            onPressed: () async => await Clipboard.setData(ClipboardData(text: Utilities.seedToString(widget.seed))),
-            child: Text(
-              Utilities.seedToString(widget.seed),
-              style: GoogleFonts.quicksand(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: Colors.white54
-              )
-            )
-          ),
+          (widget.moves.isNotEmpty)? IconButton(
+              icon: const Icon(Icons.undo),
+              iconSize: 30.0,
+              color: Colors.white,
+              onPressed: () async {
+                widget.autoMove = false;
+                Move? lastMove = widget.moves.pop();
+                if (lastMove != null) {
+                  await undoMove(lastMove);
+                }
+                setState(() {});
+              }
+          ) : IconButton(
+            icon: const Icon(null),
+            iconSize: 30.0,
+            onPressed: () {},
+          )
         ],
       ),
     );
   }
 
-  Widget bottomNavBar(Function(Move move) undoMove) {
+  Widget bottomNavBar() {
     return BottomAppBar(
       color: widget.style.barColor,
       shape: const CircularNotchedRectangle(),
@@ -120,73 +140,65 @@ abstract class GameScreenState<T extends GameScreen> extends State<T> {
             mainAxisSize: MainAxisSize.max,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
-              IconButton(
-                  icon: const Icon(Icons.home),
-                  iconSize: 30.0,
-                  color: Colors.white,
-                  padding: const EdgeInsets.only(left: 24.0, right: 8.0),
-                  onPressed: () {
-                    widget.timer.stopTimer(reset: false);
-                    widget.autoMove = false;
-                    Home menuScreen = Get.find();
-                    Get.to(() => menuScreen);
-                  }
+              Expanded(
+                child: IconButton(
+                    icon: const Icon(Icons.home),
+                    iconSize: 30.0,
+                    color: Colors.white,
+                    onPressed: () {
+                      widget.timer.stopTimer(reset: false);
+                      widget.autoMove = false;
+                      Home menuScreen = Get.find();
+                      Get.to(() => menuScreen);
+                    }
+                ),
               ),
-              IconButton(
-                  icon: const Icon(Icons.more_horiz),
-                  iconSize: 30.0,
-                  color: Colors.white,
-                  padding: const EdgeInsets.only(left: 8.0, right: 8.0),
-                  onPressed: () {
-                    setState(() {
-                      widget.customGame();
-                    });
-                  }
-              ),
-              IconButton(
+              const VerticalDivider(),
+              Expanded(child: IconButton(
                   icon: const Icon(Icons.add),
                   iconSize: 30.0,
                   color: Colors.white,
-                  padding: const EdgeInsets.only(left: 8.0, right: 8.0),
                   onPressed: () {
-                    setState(() {
-                      widget.newGame();
-                      initializeRandomGame();
+                    showDialog(context: context, builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: Text("Start New Game?", style: GoogleFonts.quicksand()),
+                        actions: [
+                          TextButton(child: Text("Yes", style: GoogleFonts.quicksand()), onPressed: () {
+                            Navigator.pop(context);
+                            widget.newGame();
+                            initializeRandomGame();
+                          }),
+                          TextButton(child: Text("No", style: GoogleFonts.quicksand()), onPressed: () {
+                            Navigator.pop(context);
+                          }),
+                        ],
+                      );
                     });
                   }
-              ),
-              IconButton(
+              )),
+              const VerticalDivider(),
+              Expanded(child: IconButton(
                   icon: const Icon(Icons.restart_alt),
                   iconSize: 30.0,
                   color: Colors.white,
-                  padding: const EdgeInsets.only(left: 8.0, right: 8.0),
                   onPressed: () {
-                    setState(() {
-                      widget.restartGame();
-                      initializeGame(widget.seed);
+                    showDialog(context: context, builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: Text("Restart Game?", style: GoogleFonts.quicksand()),
+                        actions: [
+                          TextButton(child: Text("Yes", style: GoogleFonts.quicksand()), onPressed: () {
+                            Navigator.pop(context);
+                            widget.restartGame();
+                            initializeGame(widget.seed);
+                          }),
+                          TextButton(child: Text("No", style: GoogleFonts.quicksand()), onPressed: () {
+                            Navigator.pop(context);
+                          }),
+                        ],
+                      );
                     });
                   }
-              ),
-              (widget.moves.isNotEmpty)? IconButton(
-                  icon: const Icon(Icons.arrow_back),
-                  iconSize: 30.0,
-                  color: Colors.white,
-                  padding: const EdgeInsets.only(left: 8.0, right: 24.0),
-                  onPressed: () {
-                    setState(() {
-                      widget.autoMove = false;
-                      Move? lastMove = widget.moves.pop();
-                      if (lastMove != null) {
-                        undoMove(lastMove);
-                      }
-                    });
-                  }
-              ) : IconButton(
-                icon: const Icon(null),
-                iconSize: 30.0,
-                padding: const EdgeInsets.only(left: 8.0, right: 24.0),
-                onPressed: () {},
-              )
+              )),
             ],
           )
       ),
@@ -222,15 +234,15 @@ abstract class GameScreenState<T extends GameScreen> extends State<T> {
                           mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
                             Text("You won!",
-                                style: GoogleFonts.quicksand(fontSize: 22, fontWeight: FontWeight.w600)),
+                                style: GoogleFonts.quicksand(fontSize: 22, fontWeight: FontWeight.w600, color: Colors.black)),
                             const SizedBox(height: 15),
                             Text("Points: ${widget.moves.totalPoints().toString()}",
-                                style: GoogleFonts.quicksand(fontSize: 14),
+                                style: GoogleFonts.quicksand(fontSize: 14, color: Colors.black),
                                 textAlign: TextAlign.center
                             ),
                             const SizedBox(height: 15),
                             Text('Time: ${widget.timer.time()}',
-                                style: GoogleFonts.quicksand(fontSize: 14),
+                                style: GoogleFonts.quicksand(fontSize: 14, color: Colors.black),
                                 textAlign: TextAlign.center
                             ),
                             const SizedBox(height: 22),
@@ -287,6 +299,8 @@ abstract class GameScreenState<T extends GameScreen> extends State<T> {
   Map toJson();
   void fromJson(Map<String, dynamic> json);
   void initializeGame(int seed, {bool debug = false});
+  Future<void> undoMove(Move move);
+  void saveState();
 }
 
 class GameStyle {

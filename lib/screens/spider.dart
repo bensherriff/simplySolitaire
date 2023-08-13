@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:solitaire/move.dart';
 
 import 'game.dart';
 
@@ -41,12 +42,22 @@ class SpiderScreenState extends GameScreenState<SpiderScreen> {
           )
         ]
       ),
-      bottomNavigationBar: bottomNavBar((move) => {}),
+      bottomNavigationBar: bottomNavBar(),
     );
   }
 
   @override
   void initializeGame(int seed, {bool debug = false}) {
+
+  }
+
+  @override
+  Future<void> undoMove(Move move) async {
+
+  }
+
+  @override
+  void saveState() {
 
   }
 
