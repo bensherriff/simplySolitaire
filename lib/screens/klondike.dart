@@ -4,7 +4,6 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:logging/logging.dart';
 import 'package:solitaire/screens/game.dart';
 import 'package:solitaire/card_column.dart';
 import 'package:solitaire/deck.dart';
@@ -39,7 +38,6 @@ class KlondikeScreen extends GameScreen {
 }
 
 class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
-  final logger = Logger('KlondikeScreenState');
   // Stores the cards on the seven columns
   List<List<PlayingCard>> _columns = List.generate(7, (index) => []);
 
@@ -55,21 +53,6 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
 
   Future<List<List<PlayingCard>>> getColumns() async {
     return _columns;
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    if (widget.initialized) {
-
-    } else {
-      super.initState();
-      if (widget.seed == -1) {
-        initializeRandomGame();
-      } else {
-        initializeGame(widget.seed);
-      }
-    }
   }
 
   @override
@@ -404,10 +387,7 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
 
       widget.initialized = true;
     });
-    Utilities.writeData('seed', seed);
-    Utilities.writeData('initialized', widget.initialized);
-    // widget.box.write('moves', widget.moves);
-    // widget.box.write('timer', widget.timer);
+    saveState();
   }
 
   /// Move (card(s) to the destinationIndex column, or find the next best column if otherwise not specified.
@@ -765,6 +745,7 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
         52) {
       handleWin();
     }
+    saveState();
   }
 
   Future<void> handleAutoWin() async {
@@ -880,5 +861,22 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
 
   @override
   void fromJson(Map<String, dynamic> json) {
+    setState(() {
+      _columns = List<List<PlayingCard>>.from((json['columns'] as Iterable).map(
+        (e1) => List<PlayingCard>.from((e1 as Iterable).map(
+          (e2) => PlayingCard.fromJson(e2))
+        ))
+      );
+      _wasteDeck = List<PlayingCard>.from((json['waste'] as Iterable).map((e) => PlayingCard.fromJson(e)));
+      _stockDeck = List<PlayingCard>.from((json['stock'] as Iterable).map((e) => PlayingCard.fromJson(e)));
+      _spadesFoundation = List<PlayingCard>.from((json['spades'] as Iterable).map((e) => PlayingCard.fromJson(e)));
+      _heartsFoundation = List<PlayingCard>.from((json['hearts'] as Iterable).map((e) => PlayingCard.fromJson(e)));
+      _clubsFoundation = List<PlayingCard>.from((json['clubs'] as Iterable).map((e) => PlayingCard.fromJson(e)));
+      _diamondsFoundation = List<PlayingCard>.from((json['diamonds'] as Iterable).map((e) => PlayingCard.fromJson(e)));
+      widget.initialized = json['initialized'];
+      widget.seed = json['seed'];
+      widget.moves = Moves.fromJson(json['moves']);
+      widget.timer.fromJson(json['timer']);
+    });
   }
 }

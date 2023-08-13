@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:logging/logging.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:solitaire/game_timer.dart';
 import 'package:solitaire/move.dart';
@@ -17,7 +18,7 @@ enum GameMode {
   spider
 }
 
-extension GameModeString on GameMode {
+extension GameModeExt on GameMode {
   String toShortString() {
     return toString().split('.').last.capitalizeFirst!;
   }
@@ -61,10 +62,19 @@ abstract class GameScreen extends StatefulWidget {
 }
 
 abstract class GameScreenState<T extends GameScreen> extends State<T> {
+  final logger = Logger("GameScreenState");
   @override
   void initState() {
     super.initState();
-    Utilities.writeData('gameMode', widget.gameMode.toString());
+    if (widget.initialized || Utilities.hasData(widget.gameMode.toShortString())) {
+      loadState();
+    } else {
+      if (widget.seed == -1) {
+        initializeRandomGame();
+      } else {
+        initializeGame(widget.seed);
+      }
+    }
   }
 
   @override
@@ -144,6 +154,7 @@ abstract class GameScreenState<T extends GameScreen> extends State<T> {
                     onPressed: () {
                       widget.timer.stopTimer(reset: false);
                       widget.autoMove = false;
+                      saveState();
                       Home menuScreen = Get.find();
                       Get.to(() => menuScreen);
                     }
@@ -372,11 +383,14 @@ abstract class GameScreenState<T extends GameScreen> extends State<T> {
   void saveState() {
     Map<String, dynamic> dataMap = toJson();
     String dataString = jsonEncode(dataMap);
-    Utilities.writeData(widget.gameMode.toString(), dataString);
+    Utilities.writeData(widget.gameMode.toShortString(), dataString).then((value) => {
+      logger.fine("${widget.gameMode.toShortString()} state saved")
+    });
   }
 
   void loadState() {
-    String dataString = Utilities.readData(widget.gameMode.toString());
+    String dataString = Utilities.readData(widget.gameMode.toShortString());
+    logger.fine("${widget.gameMode.toShortString()} state loaded");
     Map<String, dynamic> dataMap = jsonDecode(dataString);
     fromJson(dataMap);
   }

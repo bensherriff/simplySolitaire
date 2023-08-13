@@ -24,7 +24,7 @@ class GridDashboardState extends State<GridDashboard> {
 
     menuItems.add(MenuItem(
       title: "Klondike",
-      subtitle: gameSeedSubtitle(klondikeScreen),
+      // subtitle: gameSeedSubtitle(klondikeScreen),
       image: "assets/cards/spades.png",
       screen: klondikeScreen
     ));
@@ -166,7 +166,7 @@ Widget customGameButton(GameScreen gameScreen) {
 }
 
 Widget continueGameButton(GameScreen gameScreen) {
-  if (gameScreen.initialized) {
+  if (gameScreen.initialized || Utilities.hasData(gameScreen.gameMode.toShortString())) {
     return ElevatedButton(
       onPressed: () => Get.to(() => gameScreen),
       style: Utilities.buttonStyle(),
@@ -178,7 +178,7 @@ Widget continueGameButton(GameScreen gameScreen) {
 }
 
 Widget restartGameButton(GameScreen gameScreen) {
-  if (gameScreen.initialized && gameScreen.seed != -1) {
+  if ((gameScreen.initialized && gameScreen.seed != -1) || Utilities.hasData(gameScreen.gameMode.toShortString())) {
     return ElevatedButton(
         onPressed: () => gameScreen.restartGame(),
         style: Utilities.buttonStyle(),

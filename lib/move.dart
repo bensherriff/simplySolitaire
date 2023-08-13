@@ -1,4 +1,3 @@
-import 'dart:collection';
 import 'dart:math';
 
 import 'package:solitaire/playing_card.dart';
@@ -73,6 +72,13 @@ class Move {
     'revealedCard': revealedCard,
     'resetStockDeck': resetStockDeck
   };
+
+  Move.fromJson(Map<String, dynamic> json)
+    : cards = List<PlayingCard>.from((json['cards'] as Iterable).map((e) => PlayingCard.fromJson(e))),
+      sourceIndex = json['sourceIndex'],
+      destinationIndex = json['destinationIndex'],
+      revealedCard = json['revealedCard'],
+      resetStockDeck = json['resetStockDeck'];
 }
 
 class Moves {
@@ -108,11 +114,11 @@ class Moves {
   String toString() => _list.toString();
 
   Map toJson() => {
-    'gameMode': gameMode.toString(),
+    'gameMode': gameMode.toShortString(),
     'list': _list
   };
 
   Moves.fromJson(Map<String, dynamic> json)
-    : gameMode = json['gameMode'],
-      _list = json['list'];
+    : gameMode = GameMode.values.firstWhere((e) => e.toShortString() == json['gameMode']),
+      _list = List<Move>.from((json['list'] as Iterable).map((e) => Move.fromJson(e)));
 }

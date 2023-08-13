@@ -192,15 +192,15 @@ class PlayingCard {
   }
 
   Map toJson() => {
-    'suit': suit.toString(),
-    'rank': rank.toString(),
+    'suit': suit.toShortString(),
+    'rank': rank.toShortString(),
     'revealed': revealed,
     'visible': visible
   };
 
   PlayingCard.fromJson(Map<String, dynamic> json)
-    : suit = json['suit'],
-      rank = json['rank'],
+    : suit = CardSuit.values.firstWhere((e) => e.toShortString() == json['suit']),
+      rank = CardRank.values.firstWhere((e) => e.toShortString() == json['rank']),
       revealed = json['revealed'],
       visible = json['visible'];
 }
