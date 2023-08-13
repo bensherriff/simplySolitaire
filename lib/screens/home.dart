@@ -25,14 +25,6 @@ class HomeState extends State<Home> {
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            // IconButton(
-            //   onPressed: () {
-            //     showDialog(context: context, builder: (BuildContext context) {
-            //       return const Settings();
-            //     });
-            //   },
-            //   icon: const Icon(Icons.settings)
-            // ),
             Text("Simply Solitaire", style: GoogleFonts.quicksand(
               color: Colors.white,
               fontSize: 36,

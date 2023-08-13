@@ -9,10 +9,7 @@ class SpiderScreen extends GameScreen {
   SpiderScreen({Key? key}) : super(
       key: key,
       gameMode: GameMode.spider,
-      style: GameStyle(
-        backgroundColor: const Color(0xFF0a9396),
-        barColor: const Color(0xFF0b3f40)),
-      settings: Settings({})
+      settings: Settings({}, backgroundColor: const Color(0xFF0a9396), barColor: const Color(0xFF0b3f40))
       );
 
   @override
@@ -33,7 +30,7 @@ class SpiderScreenState extends GameScreenState<SpiderScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: widget.style.backgroundColor,
+      backgroundColor: widget.settings.backgroundColor,
       body: const Column(
         children: <Widget>[
           SizedBox(

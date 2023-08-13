@@ -57,7 +57,7 @@ class GameTimer {
     'seconds': _duration.value.inSeconds
   };
 
-  void fromJson(Map<String, dynamic> json) => {
-    _duration.value = Duration(seconds: json['seconds'])
-  };
+  void fromJson(Map<String, dynamic> json) {
+    _duration.value = Duration(seconds: json['seconds']);
+  }
 }

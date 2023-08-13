@@ -1,31 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_connect/http/src/utils/utils.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:settings_ui/settings_ui.dart';
-import 'package:solitaire/screens/game.dart';
 import 'package:solitaire/screens/klondike.dart';
+import 'package:solitaire/settings.dart';
 import 'package:solitaire/utilities.dart';
 
 class CustomSettings extends StatefulWidget {
-  final GameStyle style;
+  final Settings settings;
   final int seed;
 
-  const CustomSettings({super.key, required this.style, this.seed = 0 });
+  const CustomSettings({super.key, required this.settings, this.seed = 0 });
 
   @override
   CustomSettingsState createState() => CustomSettingsState();
 }
 
 class CustomSettingsState extends State<CustomSettings> {
-  late GameStyle style;
+  late Settings settings;
   int seed = -1;
   bool validSeed = true;
 
   @override
   void initState() {
     super.initState();
-    style = widget.style;
+    settings = widget.settings;
     seed = widget.seed;
   }
 
@@ -33,9 +32,9 @@ class CustomSettingsState extends State<CustomSettings> {
   Widget build(BuildContext context) {
     KlondikeScreen klondikeScreen = Get.find();
     return Scaffold(
-        backgroundColor: style.backgroundColor,
+        backgroundColor: settings.backgroundColor,
         appBar: AppBar(
-          backgroundColor: style.barColor,
+          backgroundColor: settings.barColor,
           title: Text("Custom Game", style: GoogleFonts.quicksand()),
         ),
         body: SettingsList(

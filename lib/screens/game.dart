@@ -26,9 +26,8 @@ extension GameModeExt on GameMode {
 
 abstract class GameScreen extends StatefulWidget {
   static const int maxSeed = 4294967296;
-  final GameMode gameMode;
-  final GameStyle style;
-  final Settings settings;
+  GameMode gameMode;
+  Settings settings;
 
   bool initialized = false;
   int seed = -1;
@@ -39,7 +38,6 @@ abstract class GameScreen extends StatefulWidget {
   GameScreen({
     Key? key,
     required this.gameMode,
-    required this.style,
     required this.settings
   }) : super(key: key);
 
@@ -48,6 +46,7 @@ abstract class GameScreen extends StatefulWidget {
     initialized = false;
     this.seed = seed;
     autoMove = false;
+    clearState();
     Get.to(() => this);
   }
 
@@ -59,14 +58,19 @@ abstract class GameScreen extends StatefulWidget {
     autoMove = false;
     Get.to(() => this);
   }
+
+  void clearState() {
+    Utilities.writeData(gameMode.toShortString(), null).then((value) => {});
+  }
 }
 
 abstract class GameScreenState<T extends GameScreen> extends State<T> {
   final logger = Logger("GameScreenState");
+
   @override
   void initState() {
     super.initState();
-    if (widget.initialized || Utilities.hasData(widget.gameMode.toShortString())) {
+    if (Utilities.hasData(widget.gameMode.toShortString())) {
       loadState();
     } else {
       if (widget.seed == -1) {
@@ -84,7 +88,7 @@ abstract class GameScreenState<T extends GameScreen> extends State<T> {
 
   Widget topScoreBar() {
     return AppBar(
-      backgroundColor: widget.style.barColor,
+      backgroundColor: widget.settings.barColor,
       automaticallyImplyLeading: false,
       title: Row(
         mainAxisSize: MainAxisSize.max,
@@ -138,7 +142,7 @@ abstract class GameScreenState<T extends GameScreen> extends State<T> {
 
   Widget bottomNavBar() {
     return BottomAppBar(
-      color: widget.style.barColor,
+      color: widget.settings.barColor,
       shape: const CircularNotchedRectangle(),
       child: SizedBox(
           height: 75.0,
@@ -206,8 +210,8 @@ abstract class GameScreenState<T extends GameScreen> extends State<T> {
                     });
                   }
               )),
-              Utilities.readData(Settings.hints)? const VerticalDivider(): const SizedBox(),
-              Utilities.readData(Settings.hints)? Expanded(child: IconButton(
+              Utilities.hasData(Settings.hints) && Utilities.readData(Settings.hints)? const VerticalDivider(): const SizedBox(),
+              Utilities.hasData(Settings.hints) && Utilities.readData(Settings.hints)? Expanded(child: IconButton(
                 icon: const Icon(Icons.help),
                 iconSize: 30.0,
                 color: Colors.white,
@@ -356,6 +360,7 @@ abstract class GameScreenState<T extends GameScreen> extends State<T> {
                                       widget.initialized = false;
                                       widget.seed = -1;
                                     });
+                                    clearState();
                                     Get.to(() => screen);
                                   },
                                   child: Text("Main\nMenu", style: GoogleFonts.quicksand(fontSize: 18)),
@@ -395,20 +400,12 @@ abstract class GameScreenState<T extends GameScreen> extends State<T> {
     fromJson(dataMap);
   }
 
+  void clearState() {
+    widget.clearState();
+  }
+
   Map<String, dynamic> toJson();
   void fromJson(Map<String, dynamic> json);
   void initializeGame(int seed, {bool debug = false});
   Future<void> undoMove(Move move);
-}
-
-class GameStyle {
-  final Color backgroundColor;
-  final Color barColor;
-  final Color textColor;
-
-  GameStyle({
-    required this.backgroundColor,
-    required this.barColor,
-    this.textColor = Colors.white
-  });
 }

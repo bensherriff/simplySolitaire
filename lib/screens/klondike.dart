@@ -21,15 +21,12 @@ class KlondikeScreen extends GameScreen {
   KlondikeScreen({Key? key}) : super(
     key: key,
     gameMode: GameMode.klondike,
-    style: GameStyle(
-      backgroundColor: const Color(0xFF357960),
-      barColor: const Color(0xFF15382b)),
-    settings: Settings({_drawThree: false})
+    settings: Settings({_drawThree: false}, backgroundColor: const Color(0xFF357960), barColor: const Color(0xFF15382b))
   );
 
   @override
   void customGame() {
-    CustomSettings customSettings = Get.put(CustomSettings(style: style, seed: seed));
+    CustomSettings customSettings = Get.put(CustomSettings(settings: settings, seed: seed));
     Get.to(() => customSettings);
   }
 
@@ -60,7 +57,7 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
     return WillPopScope(
       onWillPop: () async => false,
       child: Scaffold(
-        backgroundColor: widget.style.backgroundColor,
+        backgroundColor: widget.settings.backgroundColor,
         body: Column(
           children: <Widget>[
             topScoreBar(),
@@ -853,10 +850,13 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
     'hearts': _heartsFoundation,
     'clubs': _clubsFoundation,
     'diamonds': _diamondsFoundation,
+    'gameMode': widget.gameMode.toShortString(),
+    'settings': widget.settings.toJson(),
     'initialized': widget.initialized,
     'seed': widget.seed,
-    'moves': widget.moves,
-    'timer': widget.timer.toJson()
+    'moves': widget.moves.toJson(),
+    'timer': widget.timer.toJson(),
+    'autoMove': widget.autoMove,
   };
 
   @override
@@ -873,10 +873,13 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
       _heartsFoundation = List<PlayingCard>.from((json['hearts'] as Iterable).map((e) => PlayingCard.fromJson(e)));
       _clubsFoundation = List<PlayingCard>.from((json['clubs'] as Iterable).map((e) => PlayingCard.fromJson(e)));
       _diamondsFoundation = List<PlayingCard>.from((json['diamonds'] as Iterable).map((e) => PlayingCard.fromJson(e)));
+      widget.gameMode = GameMode.values.firstWhere((e) => e.toShortString() == json['gameMode']);
+      widget.settings.fromJson(json['settings']);
       widget.initialized = json['initialized'];
       widget.seed = json['seed'];
       widget.moves = Moves.fromJson(json['moves']);
       widget.timer.fromJson(json['timer']);
+      widget.autoMove = json['autoMove'];
     });
   }
 }
