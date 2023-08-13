@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:solitaire/move.dart';
+import 'package:solitaire/settings.dart';
 
 import 'game.dart';
 
@@ -11,6 +12,7 @@ class SpiderScreen extends GameScreen {
       style: GameStyle(
         backgroundColor: const Color(0xFF0a9396),
         barColor: const Color(0xFF0b3f40)),
+      settings: Settings({})
       );
 
   @override
@@ -62,7 +64,7 @@ class SpiderScreenState extends GameScreenState<SpiderScreen> {
   }
 
   @override
-  Map toJson() => {};
+  Map<String, dynamic> toJson() => {};
 
   @override
   void fromJson(Map<String, dynamic> json) {

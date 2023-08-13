@@ -7,8 +7,6 @@ import 'package:solitaire/screens/home.dart';
 import 'package:get/get.dart';
 import 'dart:developer';
 
-import 'package:solitaire/screens/settings.dart';
-
 final Home home = Get.put(const Home());
 
 void main() async {
@@ -17,7 +15,6 @@ void main() async {
     log('${record.level.name} | ${record.time} | ${record.message}');
   });
   await Get.putAsync(() => GetStorage.init('storage'));
-  Get.put(const Settings(settingsKey: ''));
 
   LicenseRegistry.addLicense(() async* {
     final license = await rootBundle.loadString('google_fonts/OFL.txt');

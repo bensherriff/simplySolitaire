@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:solitaire/screens/game.dart';
 import 'package:solitaire/screens/klondike.dart';
-import 'package:solitaire/screens/settings.dart';
 import 'package:solitaire/screens/spider.dart';
 import 'package:solitaire/utilities.dart';
 

@@ -1,13 +1,15 @@
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:solitaire/game_timer.dart';
-import 'package:solitaire/screens/settings.dart';
 import 'package:solitaire/move.dart';
 import 'package:solitaire/screens/home.dart';
+import 'package:solitaire/settings.dart';
 import 'package:solitaire/utilities.dart';
 
 enum GameMode {
@@ -25,7 +27,7 @@ abstract class GameScreen extends StatefulWidget {
   static const int maxSeed = 4294967296;
   final GameMode gameMode;
   final GameStyle style;
-  final Map<String, bool> settings;
+  final Settings settings;
 
   bool initialized = false;
   int seed = -1;
@@ -37,7 +39,7 @@ abstract class GameScreen extends StatefulWidget {
     Key? key,
     required this.gameMode,
     required this.style,
-    this.settings = const <String, bool>{}
+    required this.settings
   }) : super(key: key);
 
   void newGame({seed = -1}) {
@@ -59,16 +61,10 @@ abstract class GameScreen extends StatefulWidget {
 }
 
 abstract class GameScreenState<T extends GameScreen> extends State<T> {
-  final Settings optionsScreen = Get.find();
-  Settings? gameSettings;
-
   @override
   void initState() {
     super.initState();
     Utilities.writeData('gameMode', widget.gameMode.toString());
-    widget.settings[Settings.leftHandMode] = false;
-    widget.settings[Settings.hints] = false;
-    gameSettings = Get.put(Settings(settingsKey: widget.gameMode.toString(), settings: widget.settings, seed: widget.seed));
   }
 
   @override
@@ -87,7 +83,7 @@ abstract class GameScreenState<T extends GameScreen> extends State<T> {
           IconButton(
               onPressed: () {
                 showDialog(context: context, builder: (BuildContext context) {
-                  return gameSettings!;
+                  return gameSettings();
                 });
               },
               icon: const Icon(Icons.settings)
@@ -199,9 +195,86 @@ abstract class GameScreenState<T extends GameScreen> extends State<T> {
                     });
                   }
               )),
+              Utilities.readData(Settings.hints)? const VerticalDivider(): const SizedBox(),
+              Utilities.readData(Settings.hints)? Expanded(child: IconButton(
+                icon: const Icon(Icons.help),
+                iconSize: 30.0,
+                color: Colors.white,
+                onPressed: () {
+
+                }
+              )): const SizedBox()
             ],
           )
       ),
+    );
+  }
+
+  Widget gameSettings() {
+    return AlertDialog(
+        content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text("Settings",
+                  style: GoogleFonts.quicksand(
+                      fontSize: 28
+                  )
+              ),
+              Column(
+                children: widget.settings.value.entries.map((setting) {
+                  return Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(setting.key, style: GoogleFonts.quicksand()),
+                        Switch(
+                          value: setting.value,
+                          onChanged: (value) => {
+                            Utilities.writeData(setting.key, value).then((value) => {
+                              setState(() {
+                                widget.settings.set(setting.key, value);
+                              }),
+                            })
+                          },
+                        ),
+                      ]
+                  );
+                }).toList(),
+              ),
+              const Divider(),
+              widget.seed != -1? TextButton(
+                onPressed: () async => await Clipboard.setData(ClipboardData(text: Utilities.seedToString(widget.seed))),
+                child: Text(
+                    "Seed: ${Utilities.seedToString(widget.seed)}",
+                    style: GoogleFonts.quicksand(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white54
+                    )
+                ),
+              ) : const SizedBox(),
+              FutureBuilder<PackageInfo>(
+                future: PackageInfo.fromPlatform(),
+                builder: (context, snapshot) {
+                  switch (snapshot.connectionState) {
+                    case ConnectionState.done:
+                      return Align(
+                        alignment: Alignment.bottomLeft,
+                        child: Text(
+                            'v${snapshot.data!.version} build ${snapshot.data!.buildNumber}',
+                            style: GoogleFonts.quicksand(
+                                color: Colors.grey,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600
+                            )
+                        ),
+                      );
+                    default:
+                      return const SizedBox();
+                  }
+                },
+              )
+            ]
+        )
     );
   }
 
@@ -296,11 +369,22 @@ abstract class GameScreenState<T extends GameScreen> extends State<T> {
     initializeGame(widget.seed);
   }
 
-  Map toJson();
+  void saveState() {
+    Map<String, dynamic> dataMap = toJson();
+    String dataString = jsonEncode(dataMap);
+    Utilities.writeData(widget.gameMode.toString(), dataString);
+  }
+
+  void loadState() {
+    String dataString = Utilities.readData(widget.gameMode.toString());
+    Map<String, dynamic> dataMap = jsonDecode(dataString);
+    fromJson(dataMap);
+  }
+
+  Map<String, dynamic> toJson();
   void fromJson(Map<String, dynamic> json);
   void initializeGame(int seed, {bool debug = false});
   Future<void> undoMove(Move move);
-  void saveState();
 }
 
 class GameStyle {

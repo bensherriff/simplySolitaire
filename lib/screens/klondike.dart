@@ -12,7 +12,7 @@ import 'package:solitaire/card_foundation.dart';
 import 'package:solitaire/move.dart';
 import 'package:solitaire/playing_card.dart';
 import 'package:solitaire/movable_card.dart';
-import 'package:solitaire/screens/settings.dart';
+import 'package:solitaire/settings.dart';
 import 'package:solitaire/utilities.dart';
 import 'package:solitaire/screens/klondike_custom.dart';
 
@@ -25,9 +25,7 @@ class KlondikeScreen extends GameScreen {
     style: GameStyle(
       backgroundColor: const Color(0xFF357960),
       barColor: const Color(0xFF15382b)),
-    settings: {
-      _drawThree: false
-    }
+    settings: Settings({_drawThree: false})
   );
 
   @override
@@ -866,12 +864,7 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
   }
 
   @override
-  void saveState() {
-
-  }
-
-  @override
-  Map toJson() => {
+  Map<String, dynamic> toJson() => {
     'columns': _columns,
     'waste': _wasteDeck,
     'stock': _stockDeck,

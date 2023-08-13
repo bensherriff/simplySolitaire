@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:solitaire/screens/grid_dashboard.dart';
-import 'package:solitaire/screens/settings.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
