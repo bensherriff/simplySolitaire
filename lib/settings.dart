@@ -26,6 +26,10 @@ class Settings {
     return _settings.value[key];
   }
 
+  bool has(String key) {
+    return _settings.value[key] != null;
+  }
+
   void set(String key, bool value) {
     _settings.value[key] = value;
   }

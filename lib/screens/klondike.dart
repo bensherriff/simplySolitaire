@@ -788,7 +788,7 @@ class KlondikeScreenState extends GameScreenState<KlondikeScreen> {
         widget.moves.push(move);
       } else if (stockDeck.isNotEmpty) {
         List<PlayingCard> cards = [];
-        if (Utilities.readData(KlondikeScreen._drawThree)) {
+        if (widget.settings.has(KlondikeScreen._drawThree) && widget.settings.get(KlondikeScreen._drawThree)!) {
           for (int i = 0; i < min(3, stockDeck.length); i++) {
             cards.add(stockDeck.removeAt(0)..revealed = true);
           }
